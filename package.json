@@ -1,0 +1,100 @@
+{
+  "name": "@agentrun/sdk",
+  "version": "0.0.1",
+  "description": "Alibaba Cloud AgentRun SDK for Node.js",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "build:types": "tsc -p tsconfig.types.json",
+    "codegen": "npx tsx scripts/codegen.ts",
+    "format": "prettier --check \"src/**/*.{js,ts,jsx,tsx}\" --write",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build",
+    "example:quick-start": "npx tsx examples/quick-start.ts",
+    "example:agent-runtime": "npx tsx examples/agent-runtime.ts",
+    "example:credential": "npx tsx examples/credential.ts",
+    "example:sandbox": "npx tsx examples/sandbox.ts"
+  },
+  "keywords": [
+    "alibaba",
+    "aliyun",
+    "agentrun",
+    "agent",
+    "ai",
+    "llm",
+    "runtime",
+    "sdk"
+  ],
+  "author": "Alibaba Cloud",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Serverless-Devs/agentrun-sdk-nodejs.git"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@ai-sdk/openai": "^3.0.0",
+    "@alicloud/agentrun20250910": "^4.0.3",
+    "@alicloud/devs20230714": "^2.4.1",
+    "@alicloud/openapi-client": "^0.4.12",
+    "@alicloud/tea-util": "^1.4.9",
+    "@modelcontextprotocol/sdk": "^1.25.1",
+    "@types/lodash": "^4.17.21",
+    "ai": "^6.0.0",
+    "archiver": "^7.0.1",
+    "crc64-ecma182.js": "^2.0.2",
+    "dotenv": "^16.4.5",
+    "js-yaml": "^4.1.1",
+    "lodash": "^4.17.21",
+    "openai": "^6.15.0",
+    "uuid": "^9.0.0",
+    "zod": "^4.2.1"
+  },
+  "devDependencies": {
+    "@happy-dom/global-registrator": "^15.0.0",
+    "@types/archiver": "^7.0.0",
+    "@types/jest": "^29.5.0",
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^20.17.0",
+    "@types/uuid": "^9.0.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "eslint": "^8.57.0",
+    "jest": "^29.7.0",
+    "jest-environment-node": "^29.7.0",
+    "ts-jest": "^29.2.0",
+    "tsup": "^8.3.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.4.0",
+    "yaml": "^2.7.0"
+  },
+  "peerDependencies": {
+    "@mastra/core": ">=0.5.0"
+  },
+  "peerDependenciesMeta": {
+    "@mastra/core": {
+      "optional": true
+    }
+  }
+}

@@ -1,0 +1,93 @@
+# Node.js SDK Code Generation Config
+outputPath: src/sandbox/api/control.ts
+className: SandboxControlAPI
+description: Sandbox Control API
+methods:
+  # template
+  - name: create_template
+    description: Create Sandbox Template
+    params:
+      - name: input
+        type: CreateTemplateInput
+        wrapperType: CreateTemplateRequest
+        description: Template configuration
+    returnType: Template
+    returnDescription: Created Template object
+
+  - name: delete_template
+    description: Delete Sandbox Template
+    params:
+      - name: template_name
+        type: str
+        description: Template name
+    returnType: Template
+    returnDescription: Deleted Template object
+
+  - name: update_template
+    description: Update Sandbox Template
+    params:
+      - name: template_name
+        type: str
+        description: Template name
+      - name: input
+        type: UpdateTemplateInput
+        wrapperType: UpdateTemplateRequest
+        description: Template configuration
+    returnType: Template
+    returnDescription: Updated Template object
+
+  - name: get_template
+    description: Get Sandbox Template
+    params:
+      - name: template_name
+        type: str
+        description: Template name
+    returnType: Template
+    returnDescription: Template object
+
+  - name: list_templates
+    description: List Sandbox Templates
+    params:
+      - name: input
+        type: ListTemplatesRequest
+        description: List options
+    returnType: ListTemplatesOutput
+    returnDescription: List of Template objects
+
+  # sandbox
+  - name: create_sandbox
+    description: Create Sandbox
+    params:
+      - name: input
+        type: CreateSandboxInput
+        wrapperType: CreateSandboxRequest
+        description: Sandbox configuration
+    returnType: Sandbox
+    returnDescription: Created Sandbox object
+
+  - name: stop_sandbox
+    description: Stop Sandbox
+    params:
+      - name: sandbox_id
+        type: str
+        description: Sandbox ID
+    returnType: Sandbox
+    returnDescription: Stopped Sandbox object
+
+  - name: get_sandbox
+    description: Get Sandbox
+    params:
+      - name: sandbox_id
+        type: str
+        description: Sandbox ID
+    returnType: Sandbox
+    returnDescription: Sandbox object
+
+  - name: list_sandboxes
+    description: List Sandboxes
+    params:
+      - name: input
+        type: ListSandboxesRequest
+        description: List options
+    returnType: ListSandboxesOutput
+    returnDescription: List of Sandbox objects

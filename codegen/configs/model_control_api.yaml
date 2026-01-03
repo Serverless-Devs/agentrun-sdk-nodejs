@@ -1,0 +1,106 @@
+# Node.js SDK Code Generation Config
+outputPath: src/model/api/control.ts
+className: ModelControlAPI
+description: Model Control API
+methods:
+  # model service
+  - name: create_model_service
+    description: Create model service
+    params:
+      - name: input
+        type: CreateModelServiceInput
+        wrapperType: CreateModelServiceRequest
+        description: Model service configuration
+    returnType: ModelService
+    returnDescription: Created model service object
+
+  - name: delete_model_service
+    description: Delete model service
+    params:
+      - name: model_service_name
+        type: str
+        description: Model service name
+    returnType: ModelService
+    returnDescription: Deleted model service object
+
+  - name: update_model_service
+    description: Update model service
+    params:
+      - name: model_service_name
+        type: str
+        description: Model service name
+      - name: input
+        type: UpdateModelServiceInput
+        wrapperType: UpdateModelServiceRequest
+        description: Model service configuration
+    returnType: ModelService
+    returnDescription: Updated model service object
+
+  - name: get_model_service
+    description: Get model service
+    params:
+      - name: model_service_name
+        type: str
+        description: Model service name
+    returnType: ModelService
+    returnDescription: Model service object
+
+  - name: list_model_services
+    description: List model services
+    params:
+      - name: input
+        type: ListModelServicesRequest
+        description: List options
+    returnType: ListModelServicesOutput
+    returnDescription: List of model service objects
+
+  # model proxy
+  - name: create_model_proxy
+    description: Create model proxy
+    params:
+      - name: input
+        type: CreateModelProxyInput
+        wrapperType: CreateModelProxyRequest
+        description: Model proxy configuration
+    returnType: ModelProxy
+    returnDescription: Created model proxy object
+
+  - name: delete_model_proxy
+    description: Delete model proxy
+    params:
+      - name: model_proxy_name
+        type: str
+        description: Model proxy name
+    returnType: ModelProxy
+    returnDescription: Deleted model proxy object
+
+  - name: update_model_proxy
+    description: Update model proxy
+    params:
+      - name: model_proxy_name
+        type: str
+        description: Model proxy name
+      - name: input
+        type: UpdateModelProxyInput
+        wrapperType: UpdateModelProxyRequest
+        description: Model proxy configuration
+    returnType: ModelProxy
+    returnDescription: Updated model proxy object
+
+  - name: get_model_proxy
+    description: Get model proxy
+    params:
+      - name: model_proxy_name
+        type: str
+        description: Model proxy name
+    returnType: ModelProxy
+    returnDescription: Model proxy object
+
+  - name: list_model_proxies
+    description: List model proxies
+    params:
+      - name: input
+        type: ListModelProxiesRequest
+        description: List options
+    returnType: ListModelProxiesOutput
+    returnDescription: List of model proxy objects

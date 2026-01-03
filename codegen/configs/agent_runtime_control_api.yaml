@@ -1,0 +1,139 @@
+# Node.js SDK Code Generation Config
+# Output path is relative to project root
+outputPath: src/agent-runtime/api/control.ts
+className: AgentRuntimeControlAPI
+description: Agent Runtime Control API
+methods:
+  # agent runtime
+  - name: create_agent_runtime
+    description: Create Agent Runtime
+    params:
+      - name: input
+        type: CreateAgentRuntimeInput
+        wrapperType: CreateAgentRuntimeRequest
+        description: Agent Runtime configuration
+    returnType: AgentRuntime
+    returnDescription: Created Runtime object
+
+  - name: delete_agent_runtime
+    description: Delete Agent Runtime
+    params:
+      - name: agent_id
+        type: str
+        description: Agent Runtime ID
+    returnType: AgentRuntime
+    returnDescription: Deleted Runtime object
+
+  - name: update_agent_runtime
+    description: Update Agent Runtime
+    params:
+      - name: agent_id
+        type: str
+        description: Agent Runtime ID
+      - name: input
+        type: UpdateAgentRuntimeInput
+        wrapperType: UpdateAgentRuntimeRequest
+        description: Agent Runtime configuration
+    returnType: AgentRuntime
+    returnDescription: Updated Runtime object
+
+  - name: get_agent_runtime
+    description: Get Agent Runtime
+    params:
+      - name: agent_id
+        type: str
+        description: Agent Runtime ID
+      - name: request
+        type: GetAgentRuntimeRequest
+        description: Get request options
+        optional: true
+    returnType: AgentRuntime
+    returnDescription: Runtime object
+
+  - name: list_agent_runtimes
+    description: List Agent Runtimes
+    params:
+      - name: input
+        type: ListAgentRuntimesRequest
+        description: List options
+    returnType: ListAgentRuntimesOutput
+    returnDescription: List of Runtime objects
+
+  # agent runtime endpoint
+  - name: create_agent_runtime_endpoint
+    description: Create Agent Runtime Endpoint
+    params:
+      - name: agent_id
+        type: str
+        description: Agent Runtime ID
+      - name: input
+        type: CreateAgentRuntimeEndpointInput
+        wrapperType: CreateAgentRuntimeEndpointRequest
+        description: Endpoint configuration
+    returnType: AgentRuntimeEndpoint
+    returnDescription: Created Endpoint object
+
+  - name: delete_agent_runtime_endpoint
+    description: Delete Agent Runtime Endpoint
+    params:
+      - name: agent_id
+        type: str
+        description: Agent Runtime ID
+      - name: endpoint_id
+        type: str
+        description: Endpoint ID
+    returnType: AgentRuntimeEndpoint
+    returnDescription: Deleted Endpoint object
+
+  - name: update_agent_runtime_endpoint
+    description: Update Agent Runtime Endpoint
+    params:
+      - name: agent_id
+        type: str
+        description: Agent Runtime ID
+      - name: endpoint_id
+        type: str
+        description: Endpoint ID
+      - name: input
+        type: UpdateAgentRuntimeEndpointInput
+        wrapperType: UpdateAgentRuntimeEndpointRequest
+        description: Endpoint configuration
+    returnType: AgentRuntimeEndpoint
+    returnDescription: Updated Endpoint object
+
+  - name: get_agent_runtime_endpoint
+    description: Get Agent Runtime Endpoint
+    params:
+      - name: agent_id
+        type: str
+        description: Agent Runtime ID
+      - name: endpoint_id
+        type: str
+        description: Endpoint ID
+    returnType: AgentRuntimeEndpoint
+    returnDescription: Endpoint object
+
+  - name: list_agent_runtime_endpoints
+    description: List Agent Runtime Endpoints
+    params:
+      - name: agent_id
+        type: str
+        description: Agent Runtime ID
+      - name: input
+        type: ListAgentRuntimeEndpointsRequest
+        description: List options
+    returnType: ListAgentRuntimeEndpointsOutput
+    returnDescription: List of Endpoint objects
+
+  # agent runtime version
+  - name: list_agent_runtime_versions
+    description: List Agent Runtime Versions
+    params:
+      - name: agent_id
+        type: str
+        description: Agent Runtime ID
+      - name: input
+        type: ListAgentRuntimeVersionsRequest
+        description: List options
+    returnType: ListAgentRuntimeVersionsOutput
+    returnDescription: List of Version objects
