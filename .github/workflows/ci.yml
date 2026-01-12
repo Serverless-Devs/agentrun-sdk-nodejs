@@ -1,9 +1,8 @@
 name: CI
 
 on:
+  # 仅在 push 时触发测试
   push:
-  pull_request:
-    branches: [main, master]
 
 jobs:
   build:
