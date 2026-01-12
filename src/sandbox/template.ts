@@ -26,25 +26,81 @@ import {
 
 /**
  * Template resource class
+ * 模板资源类 / Template Resource Class
  */
 export class Template implements TemplateData {
+  /**
+   * 模板 ARN / Template ARN
+   */
   templateArn?: string;
+  /**
+   * 模板 ID / Template ID
+   */
   templateId?: string;
+  /**
+   * 模板名称 / Template Name
+   */
   templateName?: string;
+  /**
+   * 模板类型 / Template Type
+   */
   templateType?: TemplateType;
+  /**
+   * CPU 核数 / CPU Cores
+   */
   cpu?: number;
+  /**
+   * 内存大小（MB） / Memory Size (MB)
+   */
   memory?: number;
+  /**
+   * 创建时间 / Creation Time
+   */
   createdAt?: string;
+  /**
+   * 描述 / Description
+   */
   description?: string;
+  /**
+   * 执行角色 ARN / Execution Role ARN
+   */
   executionRoleArn?: string;
+  /**
+   * 最后更新时间 / Last Updated Time
+   */
   lastUpdatedAt?: string;
+  /**
+   * 资源名称 / Resource Name
+   */
   resourceName?: string;
+  /**
+   * 沙箱空闲超时时间（秒） / Sandbox Idle Timeout (seconds)
+   */
   sandboxIdleTimeoutInSeconds?: number;
+  /**
+   * 沙箱存活时间（秒） / Sandbox TTL (seconds)
+   */
   sandboxTtlInSeconds?: number;
+  /**
+   * 每个沙箱的最大并发会话数 / Max Concurrency Limit Per Sandbox
+   */
   shareConcurrencyLimitPerSandbox?: number;
+  /**
+   * 状态 / Status
+   */
   status?: Status;
+  /**
+   * 状态原因 / Status Reason
+   */
   statusReason?: string;
+  /**
+   * 磁盘大小（GB） / Disk Size (GB)
+   */
   diskSize?: number;
+  /**
+   * 是否允许匿名管理 / Whether to allow anonymous management
+   */
+  allowAnonymousManage?: boolean;
 
   private _config?: Config;
 
@@ -57,6 +113,7 @@ export class Template implements TemplateData {
 
   /**
    * Create template from SDK response object
+   * 从 SDK 响应对象创建模板 / Create Template from SDK Response Object
    */
   static fromInnerObject(obj: $AgentRun.Template, config?: Config): Template {
     return new Template(
@@ -81,6 +138,8 @@ export class Template implements TemplateData {
         status: obj.status as Status,
         statusReason: obj.statusReason,
         diskSize: obj.diskSize,
+        // New field / 新增字段
+        allowAnonymousManage: obj.allowAnonymousManage,
       },
       config,
     );
@@ -133,6 +192,8 @@ export class Template implements TemplateData {
                 networkMode: finalInput.networkConfiguration.networkMode,
               })
             : undefined,
+          // New field / 新增字段
+          allowAnonymousManage: finalInput.allowAnonymousManage,
         }),
       });
 

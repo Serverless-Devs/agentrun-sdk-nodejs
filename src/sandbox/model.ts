@@ -52,6 +52,154 @@ export enum CodeLanguage {
   PYTHON = "python",
 }
 
+// ==================== NAS 配置相关 ====================
+
+/**
+ * NAS mount configuration
+ * NAS 挂载配置 / NAS Mount Configuration
+ *
+ * 定义 NAS 文件系统的挂载配置。
+ * Defines the mount configuration for NAS file system.
+ */
+export interface NASMountConfig {
+  /**
+   * 是否启用 TLS 加密 / Whether to enable TLS encryption
+   */
+  enableTLS?: boolean;
+  /**
+   * 挂载目录 / Mount Directory
+   * @example "/home/test"
+   */
+  mountDir?: string;
+  /**
+   * NAS 服务器地址 / NAS Server Address
+   * @example "***-uni85.cn-hangzhou.nas.com:/"
+   */
+  serverAddr?: string;
+}
+
+/**
+ * NAS configuration
+ * NAS 配置 / NAS Configuration
+ *
+ * 定义 NAS 文件系统的配置。
+ * Defines the configuration for NAS file system.
+ */
+export interface NASConfig {
+  /**
+   * 组 ID / Group ID
+   * @example 100
+   */
+  groupId?: number;
+  /**
+   * 挂载点列表 / Mount Points List
+   */
+  mountPoints?: NASMountConfig[];
+  /**
+   * 用户 ID / User ID
+   * @example 100
+   */
+  userId?: number;
+}
+
+// ==================== OSS 挂载配置相关 ====================
+
+/**
+ * OSS mount point
+ * OSS 挂载点 / OSS Mount Point
+ *
+ * 定义 OSS 存储的挂载点配置。
+ * Defines the mount point configuration for OSS storage.
+ */
+export interface OSSMountPoint {
+  /**
+   * OSS 存储桶名称 / OSS Bucket Name
+   * @example "my-bucket"
+   */
+  bucketName?: string;
+  /**
+   * OSS 存储桶路径 / OSS Bucket Path
+   * @example "/my-dir"
+   */
+  bucketPath?: string;
+  /**
+   * OSS 端点 / OSS Endpoint
+   * @example "http://oss-cn-shanghai.aliyuncs.com"
+   */
+  endpoint?: string;
+  /**
+   * 挂载目录 / Mount Directory
+   * @example "/mnt/dir"
+   */
+  mountDir?: string;
+  /**
+   * 是否只读 / Read Only
+   */
+  readOnly?: boolean;
+}
+
+/**
+ * OSS mount configuration
+ * OSS 挂载配置 / OSS Mount Configuration
+ *
+ * 定义 OSS 存储的挂载配置。
+ * Defines the mount configuration for OSS storage.
+ */
+export interface OSSMountConfig {
+  /**
+   * 挂载点列表 / Mount Points List
+   */
+  mountPoints?: OSSMountPoint[];
+}
+
+// ==================== PolarFS 配置相关 ====================
+
+/**
+ * PolarFS mount configuration
+ * PolarFS 挂载配置 / PolarFS Mount Configuration
+ *
+ * 定义 PolarFS 文件系统的挂载配置。
+ * Defines the mount configuration for PolarFS file system.
+ */
+export interface PolarFsMountConfig {
+  /**
+   * 实例 ID / Instance ID
+   */
+  instanceId?: string;
+  /**
+   * 挂载目录 / Mount Directory
+   */
+  mountDir?: string;
+  /**
+   * 远程目录 / Remote Directory
+   */
+  remoteDir?: string;
+}
+
+/**
+ * PolarFS configuration
+ * PolarFS 配置 / PolarFS Configuration
+ *
+ * 定义 PolarFS 文件系统的配置。
+ * Defines the configuration for PolarFS file system.
+ */
+export interface PolarFsConfig {
+  /**
+   * 组 ID / Group ID
+   */
+  groupId?: number;
+  /**
+   * 挂载点列表 / Mount Points List
+   */
+  mountPoints?: PolarFsMountConfig[];
+  /**
+   * 用户 ID / User ID
+   */
+  userId?: number;
+}
+
+// ==================== 模板配置相关 ====================
+
 /**
  * Template network configuration
  */
@@ -123,6 +271,7 @@ export interface TemplateMcpState {
 
 /**
  * Template create input
+ * 模板创建输入 / Template Create Input
  */
 export interface TemplateCreateInput {
   templateName?: string;
@@ -143,6 +292,10 @@ export interface TemplateCreateInput {
   armsConfiguration?: TemplateArmsConfiguration;
   containerConfiguration?: TemplateContainerConfiguration;
   diskSize?: number;
+  /**
+   * 是否允许匿名管理 / Whether to allow anonymous management
+   */
+  allowAnonymousManage?: boolean;
 }
 
 /**
@@ -175,10 +328,33 @@ export interface TemplateListInput extends PageableInput {
 
 /**
  * Sandbox create input
+ * 沙箱创建输入 / Sandbox Create Input
  */
 export interface SandboxCreateInput {
+  /**
+   * 模板名称 / Template Name
+   */
   templateName: string;
+  /**
+   * 沙箱空闲超时时间（秒） / Sandbox Idle Timeout (seconds)
+   */
   sandboxIdleTimeoutSeconds?: number;
+  /**
+   * 沙箱 ID（可选，用户可指定） / Sandbox ID (optional, user can specify)
+   */
+  sandboxId?: string;
+  /**
+   * NAS 配置 / NAS Configuration
+   */
+  nasConfig?: NASConfig;
+  /**
+   * OSS 挂载配置 / OSS Mount Configuration
+   */
+  ossMountConfig?: OSSMountConfig;
+  /**
+   * PolarFS 配置 / PolarFS Configuration
+   */
+  polarFsConfig?: PolarFsConfig;
 }
 
 /**
@@ -194,40 +370,140 @@ export interface SandboxListInput {
 
 /**
  * Template data
+ * 模板数据 / Template Data
  */
 export interface TemplateData {
+  /**
+   * 模板 ARN / Template ARN
+   */
   templateArn?: string;
+  /**
+   * 模板 ID / Template ID
+   */
   templateId?: string;
+  /**
+   * 模板名称 / Template Name
+   */
   templateName?: string;
+  /**
+   * 模板类型 / Template Type
+   */
   templateType?: TemplateType;
+  /**
+   * CPU 核数 / CPU Cores
+   */
   cpu?: number;
+  /**
+   * 内存大小（MB） / Memory Size (MB)
+   */
   memory?: number;
+  /**
+   * 创建时间 / Creation Time
+   */
   createdAt?: string;
+  /**
+   * 描述 / Description
+   */
   description?: string;
+  /**
+   * 执行角色 ARN / Execution Role ARN
+   */
   executionRoleArn?: string;
+  /**
+   * 最后更新时间 / Last Updated Time
+   */
   lastUpdatedAt?: string;
+  /**
+   * 资源名称 / Resource Name
+   */
   resourceName?: string;
+  /**
+   * 沙箱空闲超时时间（秒） / Sandbox Idle Timeout (seconds)
+   */
   sandboxIdleTimeoutInSeconds?: number;
+  /**
+   * 沙箱存活时间（秒） / Sandbox TTL (seconds)
+   */
   sandboxTtlInSeconds?: number;
+  /**
+   * 每个沙箱的最大并发会话数 / Max Concurrency Limit Per Sandbox
+   */
   shareConcurrencyLimitPerSandbox?: number;
+  /**
+   * 状态 / Status
+   */
   status?: Status;
+  /**
+   * 状态原因 / Status Reason
+   */
   statusReason?: string;
+  /**
+   * 磁盘大小（GB） / Disk Size (GB)
+   */
   diskSize?: number;
+  /**
+   * 是否允许匿名管理 / Whether to allow anonymous management
+   */
+  allowAnonymousManage?: boolean;
 }
 
 /**
  * Sandbox data
+ * 沙箱数据 / Sandbox Data
  */
 export interface SandboxData {
+  /**
+   * 沙箱 ID / Sandbox ID
+   */
   sandboxId?: string;
+  /**
+   * 沙箱名称 / Sandbox Name
+   */
   sandboxName?: string;
+  /**
+   * 模板 ID / Template ID
+   */
   templateId?: string;
+  /**
+   * 模板名称 / Template Name
+   */
   templateName?: string;
+  /**
+   * 沙箱状态 / Sandbox State
+   */
   state?: SandboxState;
+  /**
+   * 状态原因 / State Reason
+   */
   stateReason?: string;
+  /**
+   * 沙箱创建时间 / Sandbox Creation Time
+   */
   createdAt?: string;
+  /**
+   * 最后更新时间 / Last Updated Time
+   */
   lastUpdatedAt?: string;
+  /**
+   * 沙箱空闲超时时间（秒） / Sandbox Idle Timeout (seconds)
+   */
   sandboxIdleTimeoutSeconds?: number;
+  /**
+   * 沙箱结束时间 / Sandbox End Time
+   */
+  endedAt?: string;
+  /**
+   * 元数据 / Metadata
+   */
+  metadata?: Record<string, any>;
+  /**
+   * 沙箱全局唯一资源名称 / Sandbox ARN
+   */
+  sandboxArn?: string;
+  /**
+   * 沙箱空闲 TTL（秒） / Sandbox Idle TTL (seconds)
+   */
+  sandboxIdleTTLInSeconds?: number;
 }
 
 /**

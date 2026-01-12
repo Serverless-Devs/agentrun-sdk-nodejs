@@ -41,4 +41,11 @@ export type {
   SandboxData,
   ExecuteCodeResult,
   FileInfo,
+  // New types / 新增类型
+  NASConfig,
+  NASMountConfig,
+  OSSMountConfig,
+  OSSMountPoint,
+  PolarFsConfig,
+  PolarFsMountConfig,
 } from "./model";

@@ -10,7 +10,13 @@ import { logger } from "../utils/log";
 import { ServerError } from "../utils/exception";
 
 import { CodeInterpreterDataAPI } from "./api/code-interpreter-data";
-import { CodeLanguage, TemplateType } from "./model";
+import {
+  CodeLanguage,
+  NASConfig,
+  OSSMountConfig,
+  PolarFsConfig,
+  TemplateType,
+} from "./model";
 import { Sandbox } from "./sandbox";
 
 /**
@@ -288,11 +294,15 @@ export class CodeInterpreterSandbox extends Sandbox {
 
   /**
    * Create a Code Interpreter Sandbox from template
+   * 从模板创建代码解释器沙箱 / Create Code Interpreter Sandbox from Template
    */
   static async createFromTemplate(
     templateName: string,
     options?: {
       sandboxIdleTimeoutSeconds?: number;
+      nasConfig?: NASConfig;
+      ossMountConfig?: OSSMountConfig;
+      polarFsConfig?: PolarFsConfig;
     },
     config?: Config,
   ): Promise<CodeInterpreterSandbox> {
@@ -300,6 +310,9 @@ export class CodeInterpreterSandbox extends Sandbox {
       {
         templateName,
         sandboxIdleTimeoutSeconds: options?.sandboxIdleTimeoutSeconds,
+        nasConfig: options?.nasConfig,
+        ossMountConfig: options?.ossMountConfig,
+        polarFsConfig: options?.polarFsConfig,
       },
       config,
     );
