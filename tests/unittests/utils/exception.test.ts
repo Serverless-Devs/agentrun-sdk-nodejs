@@ -61,6 +61,26 @@ describe('Exceptions', () => {
 
       expect(result).toBe(error);
     });
+
+    it('should convert to ResourceAlreadyExistError for 400 with "already exists" message', () => {
+      const error = new HTTPError(400, 'Resource already exists');
+
+      const resourceError = error.toResourceError('Agent', 'agent-123');
+
+      expect(resourceError).toBeInstanceOf(ResourceAlreadyExistError);
+      expect(resourceError.message).toContain('Agent');
+      expect(resourceError.message).toContain('agent-123');
+    });
+
+    it('should convert to ResourceAlreadyExistError for 500 with "already exists" message', () => {
+      const error = new HTTPError(500, 'Resource already exists in the system');
+
+      const resourceError = error.toResourceError('Agent', 'agent-123');
+
+      expect(resourceError).toBeInstanceOf(ResourceAlreadyExistError);
+      expect(resourceError.message).toContain('Agent');
+      expect(resourceError.message).toContain('agent-123');
+    });
   });
 
   describe('ClientError', () => {
@@ -115,6 +135,16 @@ describe('Exceptions', () => {
       expect(error.message).toContain('Agent');
       expect(error.message).toContain('agent-123');
       expect(error.message).toContain('already exists');
+    });
+
+    it('should create error without resourceId', () => {
+      const error = new ResourceAlreadyExistError('Agent');
+
+      expect(error.resourceType).toBe('Agent');
+      expect(error.resourceId).toBeUndefined();
+      expect(error.statusCode).toBe(409);
+      expect(error.message).toBe('Agent already exists');
+      expect(error.name).toBe('ResourceAlreadyExistError');
     });
   });
 });
