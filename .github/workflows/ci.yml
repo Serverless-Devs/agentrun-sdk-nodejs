@@ -44,6 +44,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 获取完整历史用于增量覆盖率检查
 
       - name: Use Node.js 18.x
         uses: actions/setup-node@v4
@@ -55,8 +57,8 @@ jobs:
           rm -rf node_modules package-lock.json
           npm install
 
-      - name: Run tests with coverage (unit tests only)
-        run: npm run test:coverage -- --testPathPattern="unittests"
+      - name: Run tests with coverage and check threshold (unit tests only)
+        run: make coverage
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4

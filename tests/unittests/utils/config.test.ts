@@ -78,6 +78,11 @@ describe('Config', () => {
       const config = new Config();
       expect(config.timeout).toBe(600000);
     });
+
+    it('should use default read timeout (100000000 ms)', () => {
+      const config = new Config();
+      expect(config.readTimeout).toBe(100000000);
+    });
   });
 
   describe('init with parameters', () => {
@@ -263,6 +268,37 @@ describe('Config', () => {
       expect(config1.accessKeyId).toBe('key1');
       expect(config1.accessKeySecret).toBe('secret2');
       expect(config1.regionId).toBe('cn-shanghai');
+    });
+
+    it('should merge controlEndpoint and headers', () => {
+      const config1 = new Config({
+        accessKeyId: 'key1',
+        headers: { 'X-Custom-1': 'value1' },
+      });
+
+      const config2 = new Config({
+        controlEndpoint: 'https://custom.control.endpoint.com',
+        headers: { 'X-Custom-2': 'value2' },
+      });
+
+      config1.update(config2);
+
+      expect(config1.controlEndpoint).toBe('https://custom.control.endpoint.com');
+      expect(config1.headers).toEqual({ 'X-Custom-1': 'value1', 'X-Custom-2': 'value2' });
+    });
+
+    it('should update securityToken', () => {
+      const config1 = new Config({
+        accessKeyId: 'key1',
+      });
+
+      const config2 = new Config({
+        securityToken: 'updated-security-token',
+      });
+
+      config1.update(config2);
+
+      expect(config1.securityToken).toBe('updated-security-token');
     });
   });
 

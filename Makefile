@@ -90,12 +90,26 @@ test-watch: ## 以 watch 模式运行测试 / Run tests in watch mode
 	@npm run test:watch
 
 .PHONY: coverage
-coverage: ## 运行测试并显示覆盖率报告 / Run tests with coverage
-	@echo "📊 Running coverage tests..."
+coverage: ## 运行单元测试并显示覆盖率报告和阈值检查 / Run unit tests with coverage and threshold check
+	@echo "📊 Running coverage tests (unit tests only)..."
+	@npm run test:coverage -- --testPathPattern='tests/unittests'
+	@echo "📊 Checking coverage threshold..."
+	@npx tsx scripts/check-coverage.ts
+
+.PHONY: coverage-report
+coverage-report: ## 只显示覆盖率报告（不检查阈值）/ Show coverage report only (no threshold check)
+	@echo "📊 Generating coverage report..."
+	@npx tsx scripts/check-coverage.ts --no-check
+
+.PHONY: coverage-all
+coverage-all: ## 运行所有测试并显示覆盖率报告（含 E2E）/ Run all tests with coverage (including E2E)
+	@echo "📊 Running coverage tests (all tests)..."
 	@npm run test:coverage
+	@echo "📊 Checking coverage threshold..."
+	@npx tsx scripts/check-coverage.ts
 
 .PHONY: check-coverage
-check-coverage: ## 检查覆盖率阈值 / Check coverage threshold
+check-coverage: ## 检查覆盖率阈值（需先运行 coverage）/ Check coverage threshold (requires coverage to be run first)
 	@echo "📊 Checking coverage threshold..."
 	@npx tsx scripts/check-coverage.ts
 
