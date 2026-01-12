@@ -9,7 +9,12 @@ import { Config } from "../utils/config";
 import { logger } from "../utils/log";
 
 import { BrowserDataAPI } from "./api/browser-data";
-import { TemplateType } from "./model";
+import {
+  NASConfig,
+  OSSMountConfig,
+  PolarFsConfig,
+  TemplateType,
+} from "./model";
 import { Sandbox } from "./sandbox";
 
 /**
@@ -22,11 +27,15 @@ export class BrowserSandbox extends Sandbox {
 
   /**
    * Create a Browser Sandbox from template
+   * 从模板创建浏览器沙箱 / Create Browser Sandbox from Template
    */
   static async createFromTemplate(
     templateName: string,
     options?: {
       sandboxIdleTimeoutSeconds?: number;
+      nasConfig?: NASConfig;
+      ossMountConfig?: OSSMountConfig;
+      polarFsConfig?: PolarFsConfig;
     },
     config?: Config,
   ): Promise<BrowserSandbox> {
@@ -34,6 +43,9 @@ export class BrowserSandbox extends Sandbox {
       {
         templateName,
         sandboxIdleTimeoutSeconds: options?.sandboxIdleTimeoutSeconds,
+        nasConfig: options?.nasConfig,
+        ossMountConfig: options?.ossMountConfig,
+        polarFsConfig: options?.polarFsConfig,
       },
       config,
     );

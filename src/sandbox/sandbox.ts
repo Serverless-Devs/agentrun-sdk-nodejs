@@ -25,17 +25,61 @@ import {
 
 /**
  * Base Sandbox resource class
+ * 基础沙箱资源类 / Base Sandbox Resource Class
  */
 export class Sandbox implements SandboxData {
+  /**
+   * 沙箱 ID / Sandbox ID
+   */
   sandboxId?: string;
+  /**
+   * 沙箱名称 / Sandbox Name
+   */
   sandboxName?: string;
+  /**
+   * 模板 ID / Template ID
+   */
   templateId?: string;
+  /**
+   * 模板名称 / Template Name
+   */
   templateName?: string;
+  /**
+   * 沙箱状态 / Sandbox State
+   */
   state?: SandboxState;
+  /**
+   * 状态原因 / State Reason
+   */
   stateReason?: string;
+  /**
+   * 沙箱创建时间 / Sandbox Creation Time
+   */
   createdAt?: string;
+  /**
+   * 最后更新时间 / Last Updated Time
+   */
   lastUpdatedAt?: string;
+  /**
+   * 沙箱空闲超时时间（秒） / Sandbox Idle Timeout (seconds)
+   */
   sandboxIdleTimeoutSeconds?: number;
+  /**
+   * 沙箱结束时间 / Sandbox End Time
+   */
+  endedAt?: string;
+  /**
+   * 元数据 / Metadata
+   */
+  metadata?: Record<string, any>;
+  /**
+   * 沙箱全局唯一资源名称 / Sandbox ARN
+   */
+  sandboxArn?: string;
+  /**
+   * 沙箱空闲 TTL（秒） / Sandbox Idle TTL (seconds)
+   */
+  sandboxIdleTTLInSeconds?: number;
 
   protected _config?: Config;
 
@@ -48,6 +92,7 @@ export class Sandbox implements SandboxData {
 
   /**
    * Create sandbox from SDK response object
+   * 从 SDK 响应对象创建沙箱 / Create Sandbox from SDK Response Object
    */
   static fromInnerObject(obj: any, config?: Config): Sandbox {
     return new Sandbox(
@@ -62,6 +107,11 @@ export class Sandbox implements SandboxData {
         createdAt: obj.createdAt,
         lastUpdatedAt: obj.lastUpdatedAt,
         sandboxIdleTimeoutSeconds: obj.sandboxIdleTimeoutSeconds,
+        // New fields / 新增字段
+        endedAt: obj.endedAt,
+        metadata: obj.metadata,
+        sandboxArn: obj.sandboxArn,
+        sandboxIdleTTLInSeconds: obj.sandboxIdleTTLInSeconds,
       },
       config,
     );
@@ -74,6 +124,7 @@ export class Sandbox implements SandboxData {
 
   /**
    * Create a new Sandbox
+   * 创建新沙箱 / Create a New Sandbox
    */
   static async create(
     input: SandboxCreateInput,
@@ -91,6 +142,9 @@ export class Sandbox implements SandboxData {
       const result = await dataApi.createSandbox({
         templateName: input.templateName,
         sandboxIdleTimeoutSeconds: input.sandboxIdleTimeoutSeconds,
+        nasConfig: input.nasConfig,
+        ossMountConfig: input.ossMountConfig,
+        polarFsConfig: input.polarFsConfig,
         config: cfg,
       });
 

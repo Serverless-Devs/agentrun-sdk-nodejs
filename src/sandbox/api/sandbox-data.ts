@@ -401,10 +401,14 @@ export class SandboxDataAPI {
 
   /**
    * Create sandbox from template
+   * 从模板创建沙箱 / Create Sandbox from Template
    */
   createSandbox = async (params: {
     templateName: string;
     sandboxIdleTimeoutSeconds?: number;
+    nasConfig?: Record<string, any>;
+    ossMountConfig?: Record<string, any>;
+    polarFsConfig?: Record<string, any>;
     config?: Config;
   }): Promise<any> => {
     await this.refreshAccessToken({
@@ -412,12 +416,26 @@ export class SandboxDataAPI {
       config: params.config,
     });
 
+    // Build request data / 构建请求数据
+    const data: Record<string, any> = {
+      templateName: params.templateName,
+      sandboxIdleTimeoutSeconds: params.sandboxIdleTimeoutSeconds || 600,
+    };
+
+    // Add optional parameters / 添加可选参数
+    if (params.nasConfig !== undefined) {
+      data.nasConfig = params.nasConfig;
+    }
+    if (params.ossMountConfig !== undefined) {
+      data.ossMountConfig = params.ossMountConfig;
+    }
+    if (params.polarFsConfig !== undefined) {
+      data.polarFsConfig = params.polarFsConfig;
+    }
+
     return this.post({
       path: "/",
-      data: {
-        templateName: params.templateName,
-        sandboxIdleTimeoutSeconds: params.sandboxIdleTimeoutSeconds || 600,
-      },
+      data,
     });
   };
 

@@ -10,6 +10,9 @@ import { Config } from "../utils/config";
 import { BrowserSandbox } from "./browser-sandbox";
 import { CodeInterpreterSandbox } from "./code-interpreter-sandbox";
 import {
+  NASConfig,
+  OSSMountConfig,
+  PolarFsConfig,
   SandboxCreateInput,
   SandboxListInput,
   TemplateCreateInput,
@@ -116,10 +119,16 @@ export class SandboxClient {
 
   /**
    * Create a Code Interpreter Sandbox
+   * 创建代码解释器沙箱 / Create Code Interpreter Sandbox
    */
   createCodeInterpreterSandbox = async (params: {
     templateName: string;
-    options?: { sandboxIdleTimeoutSeconds?: number };
+    options?: {
+      sandboxIdleTimeoutSeconds?: number;
+      nasConfig?: NASConfig;
+      ossMountConfig?: OSSMountConfig;
+      polarFsConfig?: PolarFsConfig;
+    };
     config?: Config;
   }): Promise<CodeInterpreterSandbox> => {
     const { templateName, options, config } = params;
@@ -132,10 +141,16 @@ export class SandboxClient {
 
   /**
    * Create a Browser Sandbox
+   * 创建浏览器沙箱 / Create Browser Sandbox
    */
   createBrowserSandbox = async (params: {
     templateName: string;
-    options?: { sandboxIdleTimeoutSeconds?: number };
+    options?: {
+      sandboxIdleTimeoutSeconds?: number;
+      nasConfig?: NASConfig;
+      ossMountConfig?: OSSMountConfig;
+      polarFsConfig?: PolarFsConfig;
+    };
     config?: Config;
   }): Promise<BrowserSandbox> => {
     const { templateName, options, config } = params;
