@@ -24,3 +24,4 @@ export {
 } from "./model";
 export { logger, type LogLevel } from "./log";
 export { DataAPI, ResourceType } from "./data-api";
+export { mixin, type Constructor, type MixinTarget } from "./mixin";

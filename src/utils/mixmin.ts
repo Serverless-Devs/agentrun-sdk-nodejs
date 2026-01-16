@@ -1,0 +1,1 @@
+export { mixin, type Constructor, type MixinTarget } from "./mixin";

@@ -124,7 +124,7 @@ async function listModelServices(): Promise<void> {
 async function invokeModelService(ms: ModelService): Promise<void> {
   log('调用模型服务进行推理 / Invoking model service for inference');
 
-  const result = await ms.completions({
+  const result = await ms.completion({
     messages: [{ role: 'user', content: '你好,请介绍一下你自己' }],
     stream: true,
   });

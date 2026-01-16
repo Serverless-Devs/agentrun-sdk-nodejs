@@ -5,14 +5,16 @@
  * Client for managing ToolSet resources.
  */
 
-import { Config } from "../utils/config";
+import { ListToolsetsRequest } from '@alicloud/devs20230714';
+import { Config } from '../utils/config';
+import { ToolControlAPI } from './api';
 
 import {
   ToolSetCreateInput,
   ToolSetListInput,
   ToolSetUpdateInput,
-} from "./model";
-import { ToolSet } from "./toolset";
+} from './model';
+import { ToolSet } from './toolset';
 
 /**
  * ToolSet Client
@@ -20,76 +22,53 @@ import { ToolSet } from "./toolset";
  * 提供 ToolSet 的管理功能。
  */
 export class ToolSetClient {
-  private config?: Config;
-
+  protected config?: Config;
+  protected controlClient: ToolControlAPI;
   constructor(config?: Config) {
     this.config = config;
+    this.controlClient = new ToolControlAPI(config);
   }
 
-  /**
-   * Create a ToolSet
-   */
-  createToolSet = async (params: {
-    input: ToolSetCreateInput;
-    config?: Config;
-  }): Promise<ToolSet> => {
-    const { input, config } = params;
-    return ToolSet.create({ input, config: config ?? this.config });
-  };
-
-  /**
-   * Delete a ToolSet by name
-   */
-  deleteToolSet = async (params: {
-    name: string;
-    config?: Config;
-  }): Promise<ToolSet> => {
-    const { name, config } = params;
-    return ToolSet.delete({ name, config: config ?? this.config });
-  };
+  // /**
+  //  * Delete a ToolSet by name
+  //  */
+  // deleteToolSet = async (params: {
+  //   name: string;
+  //   config?: Config;
+  // }): Promise<ToolSet> => {
+  //   const { name, config } = params;
+  //   return ToolSet.delete({ name, config: config ?? this.config });
+  // };
 
   /**
    * Get a ToolSet by name
    */
-  getToolSet = async (params: {
-    name: string;
-    config?: Config;
-  }): Promise<ToolSet> => {
+  get = async (params: { name: string; config?: Config }): Promise<ToolSet> => {
     const { name, config } = params;
-    return ToolSet.get({ name, config: config ?? this.config });
-  };
+    const cfg = Config.withConfigs(this.config, config);
+    const result = await this.controlClient.getToolset({
+      name,
+      config: cfg,
+    });
 
-  /**
-   * Update a ToolSet by name
-   */
-  updateToolSet = async (params: {
-    name: string;
-    input: ToolSetUpdateInput;
-    config?: Config;
-  }): Promise<ToolSet> => {
-    const { name, input, config } = params;
-    return ToolSet.update({ name, input, config: config ?? this.config });
+    return new ToolSet(result);
   };
 
   /**
    * List ToolSets
    */
-  listToolSets = async (params?: {
+  list = async (params?: {
     input?: ToolSetListInput;
     config?: Config;
   }): Promise<ToolSet[]> => {
     const { input, config } = params ?? {};
-    return ToolSet.list(input, config ?? this.config);
-  };
 
-  /**
-   * List all ToolSets with pagination
-   */
-  listAllToolSets = async (params?: {
-    options?: { prefix?: string; labels?: Record<string, string> };
-    config?: Config;
-  }): Promise<ToolSet[]> => {
-    const { options, config } = params ?? {};
-    return ToolSet.listAll(options, config ?? this.config);
+    const cfg = Config.withConfigs(this.config, config);
+    const results = await this.controlClient.listToolsets({
+      input: new ListToolsetsRequest(input),
+      config: cfg,
+    });
+
+    return results.data?.map((result) => new ToolSet(result)) || [];
   };
 }

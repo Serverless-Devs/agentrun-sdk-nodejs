@@ -5,11 +5,11 @@
  * This module provides the client API for Agent Runtime.
  */
 
-import { Config } from "../utils/config";
+import { Config } from '../utils/config';
 
-import { AgentRuntimeControlAPI } from "./api/control";
-import { AgentRuntimeDataAPI, InvokeArgs } from "./api/data";
-import { AgentRuntimeEndpoint } from "./endpoint";
+import { AgentRuntimeControlAPI } from './api/control';
+import { AgentRuntimeDataAPI, InvokeArgs } from './api/data';
+import { AgentRuntimeEndpoint } from './endpoint';
 import {
   AgentRuntimeCreateInput,
   AgentRuntimeEndpointCreateInput,
@@ -19,8 +19,8 @@ import {
   AgentRuntimeUpdateInput,
   AgentRuntimeVersion,
   AgentRuntimeVersionListInput,
-} from "./model";
-import { AgentRuntime } from "./runtime";
+} from './model';
+import { AgentRuntime } from './runtime';
 
 /**
  * Agent Runtime Client
@@ -51,7 +51,10 @@ export class AgentRuntimeClient {
   /**
    * Delete an Agent Runtime
    */
-  delete = async (params: { id: string; config?: Config }): Promise<AgentRuntime> => {
+  delete = async (params: {
+    id: string;
+    config?: Config;
+  }): Promise<AgentRuntime> => {
     const { id, config } = params;
     return AgentRuntime.delete({ id, config: config ?? this.config });
   };
@@ -71,7 +74,10 @@ export class AgentRuntimeClient {
   /**
    * Get an Agent Runtime
    */
-  get = async (params: { id: string; config?: Config }): Promise<AgentRuntime> => {
+  get = async (params: {
+    id: string;
+    config?: Config;
+  }): Promise<AgentRuntime> => {
     const { id, config } = params;
     return AgentRuntime.get({ id, config: config ?? this.config });
   };
@@ -84,23 +90,23 @@ export class AgentRuntimeClient {
     config?: Config;
   }): Promise<AgentRuntime[]> => {
     const { input, config } = params ?? {};
-    return AgentRuntime.list(input, config ?? this.config);
+    return AgentRuntime.list({ input, config: config ?? this.config });
   };
 
-  /**
-   * List all Agent Runtimes (with pagination)
-   */
-  listAll = async (params?: {
-    options?: {
-      agentRuntimeName?: string;
-      tags?: string;
-      searchMode?: string;
-    };
-    config?: Config;
-  }): Promise<AgentRuntime[]> => {
-    const { options, config } = params ?? {};
-    return AgentRuntime.listAll(options, config ?? this.config);
-  };
+  // /**
+  //  * List all Agent Runtimes (with pagination)
+  //  */
+  // listAll = async (params?: {
+  //   options?: {
+  //     agentRuntimeName?: string;
+  //     tags?: string;
+  //     searchMode?: string;
+  //   };
+  //   config?: Config;
+  // }): Promise<AgentRuntime[]> => {
+  //   const { options, config } = params ?? {};
+  //   return AgentRuntime.listAll(options, config ?? this.config);
+  // };
 
   /**
    * Create an endpoint for an Agent Runtime
@@ -223,11 +229,11 @@ export class AgentRuntimeClient {
     params: {
       agentRuntimeName: string;
       agentRuntimeEndpointName?: string;
-    } & InvokeArgs,
+    } & InvokeArgs
   ) => {
     const {
       agentRuntimeName,
-      agentRuntimeEndpointName = "Default",
+      agentRuntimeEndpointName = 'Default',
       messages,
       stream,
       config,
@@ -240,7 +246,7 @@ export class AgentRuntimeClient {
     const dataApi = new AgentRuntimeDataAPI(
       agentRuntimeName,
       agentRuntimeEndpointName,
-      cfg,
+      cfg
     );
 
     return dataApi.invokeOpenai({

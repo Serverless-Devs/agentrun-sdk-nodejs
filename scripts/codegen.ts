@@ -13,6 +13,10 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as yaml from "yaml";
+import { fileURLToPath } from 'node:url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const projectRoot = path.resolve(__dirname, "..");
 const configsDir = path.join(projectRoot, "codegen", "configs");

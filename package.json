@@ -55,6 +55,7 @@
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.0",
+    "@ai-sdk/openai-compatible": "^2.0.13",
     "@alicloud/agentrun20250910": "^5.0.0",
     "@alicloud/devs20230714": "^2.4.1",
     "@alicloud/openapi-client": "^0.4.12",

@@ -46,7 +46,7 @@ export class ToolControlAPI {
    * Get DevS client
    * 获取 DevS 客户端
    */
-  private getDevsClient(config?: Config): InstanceType<typeof $DevsClient> {
+  protected getDevsClient(config?: Config): InstanceType<typeof $DevsClient> {
     const cfg = Config.withConfigs(this.config, config);
 
     // Use devs endpoint
@@ -102,11 +102,11 @@ export class ToolControlAPI {
         `API getToolset called, Request ID: ${response.body?.requestId}`
       );
 
-      if (!response.body?.data) {
+      if (!response.body) {
         throw new Error("Empty response body");
       }
 
-      return response.body.data;
+      return response.body;
     } catch (error) {
       if (error instanceof HTTPError) {
         throw error.toResourceError("ToolSet", name);

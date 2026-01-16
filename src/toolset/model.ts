@@ -5,14 +5,14 @@
  * Data models for ToolSet.
  */
 
-import { Status } from "../utils/model";
+import { Status } from '../utils/model';
 
 /**
  * ToolSet schema type
  */
 export enum ToolSetSchemaType {
-  OPENAPI = "OpenAPI",
-  MCP = "MCP",
+  OPENAPI = 'OpenAPI',
+  MCP = 'MCP',
 }
 
 /**
@@ -73,6 +73,7 @@ export interface MCPToolMeta {
    * Tool description
    */
   description?: string;
+  inputSchema?: Record<string, any>;
 }
 
 /**
@@ -197,10 +198,10 @@ export interface ToolSetListInput {
 
 /**
  * JSON Schema compatible tool parameter description
- * 
+ *
  * Supports complete JSON Schema fields for describing complex nested data structures.
  * JSON Schema 兼容的工具参数描述
- * 
+ *
  * 支持完整的 JSON Schema 字段，能够描述复杂的嵌套数据结构。
  */
 export class ToolSchema {
@@ -249,7 +250,7 @@ export class ToolSchema {
   /**
    * Create ToolSchema from any OpenAPI/JSON Schema
    * 从任意 OpenAPI/JSON Schema 创建 ToolSchema
-   * 
+   *
    * Recursively parses all nested structures, preserving complete schema information.
    * 递归解析所有嵌套结构，保留完整的 schema 信息。
    */
@@ -273,7 +274,9 @@ export class ToolSchema {
 
     // Parse items / 解析 items
     const itemsRaw = s.items;
-    const items = itemsRaw ? ToolSchema.fromAnyOpenAPISchema(itemsRaw) : undefined;
+    const items = itemsRaw
+      ? ToolSchema.fromAnyOpenAPISchema(itemsRaw)
+      : undefined;
 
     // Parse union types / 解析联合类型
     const anyOfRaw = s.anyOf as unknown[] | undefined;
@@ -414,7 +417,7 @@ export class ToolInfo {
     // Handle MCP Tool object / 处理 MCP Tool 对象
     if (typeof tool === 'object' && tool !== null) {
       const t = tool as Record<string, unknown>;
-      
+
       if ('name' in t) {
         toolName = t.name as string;
         toolDescription = t.description as string | undefined;
@@ -439,7 +442,8 @@ export class ToolInfo {
     return new ToolInfo({
       name: toolName,
       description: toolDescription,
-      parameters: parameters || new ToolSchema({ type: 'object', properties: {} }),
+      parameters:
+        parameters || new ToolSchema({ type: 'object', properties: {} }),
     });
   }
 }

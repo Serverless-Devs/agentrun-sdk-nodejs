@@ -43,7 +43,7 @@ describe('test toolset', () => {
     expect(toolset.isReady).toBe(true);
 
     // 获取 ToolSet
-    const toolset2 = await client.getToolSet({ name: toolsetName });
+    const toolset2 = await client.get({ name: toolsetName });
     expect(toolset2.name).toEqual(toolsetName);
     expect(toolset2.uid).toEqual(toolset.uid);
 
@@ -86,7 +86,7 @@ describe('test toolset', () => {
 
     // 验证删除
     expect(async () => {
-      await client.getToolSet({ name: toolsetName });
+      await client.get({ name: toolsetName });
     }).toThrow(ResourceNotExistError);
   }, 600000); // 10 minutes timeout
 });

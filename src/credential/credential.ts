@@ -7,7 +7,10 @@
 
 import { Config } from '../utils/config';
 import { HTTPError } from '../utils/exception';
-import { updateObjectProperties } from '../utils/resource';
+import {
+  listAllResourcesFunction,
+  updateObjectProperties,
+} from '../utils/resource';
 
 import { ResourceBase } from '../utils/resource';
 import { CredentialClient } from './client';
@@ -155,17 +158,7 @@ export class Credential extends ResourceBase implements CredentialInterface {
     }
   };
 
-  static listAll = async (params?: {
-    input?: CredentialListInput;
-    config?: Config;
-  }) => {
-    const result = await super.listAll({
-      uniqIdCallback: (item) => item.credentialName || '',
-      input: params?.input,
-      config: params?.config,
-    });
-    return result as CredentialListOutput[];
-  };
+  static listAll = listAllResourcesFunction(this.list);
 
   /**
    * Delete this credential
@@ -202,7 +195,7 @@ export class Credential extends ResourceBase implements CredentialInterface {
       input,
       config: config ?? this._config,
     });
-    
+
     updateObjectProperties(this, result);
     return this;
   };
