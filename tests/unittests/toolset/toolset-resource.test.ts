@@ -573,7 +573,7 @@ describe('ToolSet Module', () => {
 
         const result = (toolset as any)._getOpenAPIBaseUrl();
 
-        expect(result).toBe('https://internal.example.com');
+        expect(result).toBe('https://public.example.com');
       });
 
       it('should return internetUrl as fallback', () => {
@@ -582,7 +582,7 @@ describe('ToolSet Module', () => {
             status: Status.READY,
             outputs: {
               urls: {
-                internetUrl: 'https://public.example.com',
+                intranetUrl: 'https://internal.example.com',
               },
             } as any,
           },
@@ -590,7 +590,7 @@ describe('ToolSet Module', () => {
 
         const result = (toolset as any)._getOpenAPIBaseUrl();
 
-        expect(result).toBe('https://public.example.com');
+        expect(result).toBe('https://internal.example.com');
       });
     });
 
