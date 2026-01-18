@@ -159,6 +159,129 @@ export class ToolControlAPI {
   };
 
   /**
+   * Create toolset
+   * 创建工具集
+   *
+   * @param input - Toolset input / ToolSet 输入
+   * @param headers - Request headers / 请求头
+   * @param config - Configuration / 配置
+   * @returns Toolset object / ToolSet 对象
+   */
+  createToolset = async (params: {
+    input: $Devs.Toolset;
+    headers?: Record<string, string>;
+    config?: Config;
+  }): Promise<$Devs.Toolset> => {
+    const { input, headers, config } = params;
+
+    try {
+      const client = this.getDevsClient(config);
+      const runtime = new $Util.RuntimeOptions({});
+
+      const response = await client.createToolsetWithOptions(
+        new $Devs.CreateToolsetRequest({ body: input }),
+        headers || {},
+        runtime
+      );
+
+      logger.debug(
+        `API createToolset called, Request ID: ${response.body?.requestId}`
+      );
+
+      if (!response.body) {
+        throw new Error("Empty response body");
+      }
+
+      return response.body;
+    } catch (error) {
+      this.handleError(error, input?.name);
+    }
+  };
+
+  /**
+   * Update toolset
+   * 更新工具集
+   *
+   * @param name - Toolset name / ToolSet 名称
+   * @param input - Toolset input / ToolSet 输入
+   * @param headers - Request headers / 请求头
+   * @param config - Configuration / 配置
+   * @returns Toolset object / ToolSet 对象
+   */
+  updateToolset = async (params: {
+    name: string;
+    input: $Devs.Toolset;
+    headers?: Record<string, string>;
+    config?: Config;
+  }): Promise<$Devs.Toolset> => {
+    const { name, input, headers, config } = params;
+
+    try {
+      const client = this.getDevsClient(config);
+      const runtime = new $Util.RuntimeOptions({});
+
+      const response = await client.updateToolsetWithOptions(
+        name,
+        new $Devs.UpdateToolsetRequest({ body: input }),
+        headers || {},
+        runtime
+      );
+
+      logger.debug(
+        `API updateToolset called, Request ID: ${response.body?.requestId}`
+      );
+
+      if (!response.body) {
+        throw new Error("Empty response body");
+      }
+
+      return response.body;
+    } catch (error) {
+      this.handleError(error, name);
+    }
+  };
+
+  /**
+   * Delete toolset
+   * 删除工具集
+   *
+   * @param name - Toolset name / ToolSet 名称
+   * @param headers - Request headers / 请求头
+   * @param config - Configuration / 配置
+   * @returns Toolset object / ToolSet 对象
+   */
+  deleteToolset = async (params: {
+    name: string;
+    headers?: Record<string, string>;
+    config?: Config;
+  }): Promise<$Devs.Toolset> => {
+    const { name, headers, config } = params;
+
+    try {
+      const client = this.getDevsClient(config);
+      const runtime = new $Util.RuntimeOptions({});
+
+      const response = await client.deleteToolsetWithOptions(
+        name,
+        headers || {},
+        runtime
+      );
+
+      logger.debug(
+        `API deleteToolset called, Request ID: ${response.body?.requestId}`
+      );
+
+      if (!response.body) {
+        throw new Error("Empty response body");
+      }
+
+      return response.body;
+    } catch (error) {
+      this.handleError(error, name);
+    }
+  };
+
+  /**
    * Handle API errors
    * 处理 API 错误
    */

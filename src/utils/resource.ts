@@ -54,7 +54,9 @@ export abstract class ResourceBase {
   // }
 
   waitUntil = async (params: {
-    checkFinishedCallback: (resource: ResourceBase) => Promise<boolean>;
+    checkFinishedCallback: (
+      resource: ResourceBase
+    ) => boolean | Promise<boolean>;
     intervalSeconds?: number;
     timeoutSeconds?: number;
   }): Promise<ResourceBase> => {
@@ -79,7 +81,7 @@ export abstract class ResourceBase {
   };
 
   waitUntilReadyOrFailed = async (params?: {
-    callback?: (resource: ResourceBase) => Promise<void>;
+    callback?: (resource: ResourceBase) => void | Promise<void>;
     intervalSeconds?: number;
     timeoutSeconds?: number;
   }) => {
@@ -105,7 +107,7 @@ export abstract class ResourceBase {
   };
 
   deleteAndWaitUntilFinished = async (params?: {
-    callback: (resource: ResourceBase) => Promise<void>;
+    callback?: (resource: ResourceBase) => void | Promise<void>;
     intervalSeconds?: number;
     timeoutSeconds?: number;
   }) => {

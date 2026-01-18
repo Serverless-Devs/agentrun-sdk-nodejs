@@ -5,7 +5,6 @@
  * This module defines common data models.
  */
 
-import { logger } from './log';
 
 /**
  * Resource status enum
@@ -41,30 +40,6 @@ export function isFinalStatus(status?: Status) {
       'DELETE_FAILED',
     ] as Status[]),
   ].includes(status);
-}
-
-/**
- * 从 SDK 内部对象创建资源对象 / Create resource object from SDK inner object
- * 
- * 此函数记录对象转换过程，类似于 Python 版本的 from_inner_object
- * This function logs object conversion process, similar to Python's from_inner_object
- * 
- * @param obj - SDK 返回的对象 / Object returned from SDK
- * @param extra - 额外的属性 (可选) / Extra properties (optional)
- * @returns 转换后的对象 / Converted object
- */
-export function fromInnerObject<T>(obj: any, extra?: Record<string, any>): T {
-  logger.debug(
-    'before parse object obj=%s, extra=%s', 
-    JSON.stringify(obj), 
-    extra ? JSON.stringify(extra) : 'null'
-  );
-  
-  if (extra) {
-    return { ...obj, ...extra } as T;
-  }
-  
-  return obj as T;
 }
 
 /**

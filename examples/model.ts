@@ -67,8 +67,9 @@ async function createOrGetModelService(): Promise<ModelService> {
   }
 
   // 等待就绪 / Wait for ready
-  await ms.waitUntilReady({
-    beforeCheck: (service: ModelService) => log(`  当前状态 / Current status: ${service.status}`),
+  await ms.waitUntilReadyOrFailed({
+    beforeCheck: (service: ModelService) =>
+      log(`  当前状态 / Current status: ${service.status}`),
   });
 
   if (ms.status !== Status.READY) {
@@ -95,7 +96,7 @@ async function updateModelService(ms: ModelService): Promise<void> {
     },
   });
 
-  await ms.waitUntilReady();
+  await ms.waitUntilReadyOrFailed();
 
   if (ms.status !== Status.READY) {
     throw new Error(`状态异常 / Unexpected status: ${ms.status}`);
@@ -196,8 +197,9 @@ async function createOrGetModelProxy(): Promise<ModelProxy> {
   }
 
   // 等待就绪 / Wait for ready
-  await mp.waitUntilReady({
-    beforeCheck: (proxy: ModelProxy) => log(`  当前状态 / Current status: ${proxy.status}`),
+  await mp.waitUntilReadyOrFailed({
+    beforeCheck: (proxy: ModelProxy) =>
+      log(`  当前状态 / Current status: ${proxy.status}`),
   });
 
   if (mp.status !== Status.READY) {
@@ -226,7 +228,7 @@ async function updateModelProxy(mp: ModelProxy): Promise<void> {
     },
   });
 
-  await mp.waitUntilReady();
+  await mp.waitUntilReadyOrFailed();
 
   if (mp.status !== Status.READY) {
     throw new Error(`状态异常 / Unexpected status: ${mp.status}`);

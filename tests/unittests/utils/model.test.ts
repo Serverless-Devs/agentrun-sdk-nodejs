@@ -4,7 +4,7 @@
  * 测试 model.ts 的各种功能。
  */
 
-import { Status, isFinalStatus, fromInnerObject, NetworkMode, toSnakeCase, toCamelCase, toSnakeCaseKeys, toCamelCaseKeys, removeUndefined } from '../../../src/utils/model';
+import { isFinalStatus, NetworkMode, removeUndefined, Status, toCamelCase, toCamelCaseKeys, toSnakeCase, toSnakeCaseKeys } from '../../../src/utils/model';
 
 describe('Utils Model', () => {
   describe('Status enum', () => {
@@ -50,34 +50,6 @@ describe('Utils Model', () => {
 
     it('should return false for DELETING status', () => {
       expect(isFinalStatus(Status.DELETING)).toBe(false);
-    });
-  });
-
-  describe('fromInnerObject', () => {
-    it('should return object as-is when no extra properties', () => {
-      const obj = { id: '123', name: 'test' };
-      const result = fromInnerObject<typeof obj>(obj);
-      
-      expect(result).toEqual(obj);
-    });
-
-    it('should merge extra properties with object', () => {
-      const obj = { id: '123', name: 'test' };
-      const extra = { status: 'READY', createdAt: '2024-01-01' };
-      
-      const result = fromInnerObject<typeof obj & typeof extra>(obj, extra);
-      
-      expect(result.id).toBe('123');
-      expect(result.name).toBe('test');
-      expect(result.status).toBe('READY');
-      expect(result.createdAt).toBe('2024-01-01');
-    });
-
-    it('should handle null extra', () => {
-      const obj = { id: '123' };
-      const result = fromInnerObject<typeof obj>(obj, undefined);
-      
-      expect(result).toEqual(obj);
     });
   });
 

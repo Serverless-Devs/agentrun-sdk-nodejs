@@ -579,7 +579,7 @@ import {
 //   });
 // });
 
-describe('bind resource', () => {
+describe('BaseResource', () => {
   class NewClass extends ResourceBase {
     id: string;
     getCount: number = 0;
@@ -594,14 +594,14 @@ describe('bind resource', () => {
     async get() {
       this.getCount++;
 
-      if (this.deleteCount >= 57)
+      if (this.status === Status.DELETING && this.getCount >= 57)
         throw new ResourceNotExistError('BaseClass', this.id);
 
       return this;
     }
 
     async delete() {
-      this.deleteCount++;
+      this.status = Status.DELETING;
       return this;
     }
 
@@ -677,6 +677,8 @@ describe('bind resource', () => {
       intervalSeconds: 1,
       timeoutSeconds: 5,
     });
+
+    await newInstance.waitUntilReadyOrFailed();
   });
 
   test('waitUntilReadyOrFailed with only beforeCheck (no callback)', async () => {
@@ -728,16 +730,90 @@ describe('bind resource', () => {
     newInstance.status = Status.CREATING;
 
     await expect(
-      newInstance.waitUntilReadyOrFailed({
+      newInstance.deleteAndWaitUntilFinished({
+        intervalSeconds: 0.01,
+        timeoutSeconds: 0.5,
+      })
+    ).rejects.toThrow(/Timeout/);
+
+    const ins = await newInstance.deleteAndWaitUntilFinished({
+      intervalSeconds: 0.01,
+      timeoutSeconds: 1,
+    });
+
+    await expect(ins?.status).toBe(Status.DELETING);
+  });
+
+  test('deleteAndWaitUntilFinished', async () => {
+    const newInstance = new NewClass('mock-id');
+    newInstance.status = Status.READY;
+
+    let count = 0;
+    await expect(
+      newInstance.deleteAndWaitUntilFinished({
+        intervalSeconds: 1,
+        timeoutSeconds: 2,
+        callback: () => {
+          count++;
+        },
+      })
+    ).rejects.toThrow('Timeout waiting for resource to reach desired state');
+    
+    expect(count).toBeGreaterThanOrEqual(1)
+  });
+
+  test('deleteAndWaitUntilFinished exception', async () => {
+    const newInstance = new NewClass('mock-id');
+    newInstance.status = Status.READY;
+
+    let count = 0;
+    jest.spyOn(newInstance, 'get').mockImplementation(async () => {
+      count++;
+      throw new Error('mock-error');
+    });
+
+    await expect(
+      newInstance.deleteAndWaitUntilFinished({
         intervalSeconds: 1,
         timeoutSeconds: 2,
       })
-    ).rejects.toThrow('Timeout waiting for resource to reach desired state');
+    ).rejects.toThrow(/Timeout/);
+
+    expect(count).toBeGreaterThan(1);
+  });
+
+  test('deleteAndWaitUntilFinished exception and unexpected status', async () => {
+    const newInstance = new NewClass('mock-id');
+    newInstance.status = Status.READY;
+
+    let count = 0;
+    jest.spyOn(newInstance, 'get').mockImplementation(async () => {
+      count++;
+      newInstance.status = Status.READY;
+      throw new Error('mock-error');
+    });
+
+    await expect(
+      newInstance.deleteAndWaitUntilFinished({
+        intervalSeconds: 1,
+        timeoutSeconds: 2,
+      })
+    ).rejects.toThrow('Resource status is READY');
+
+    expect(count).toBeGreaterThanOrEqual(1);
   });
 
   test('customMethod', async () => {
     const newInstance = new NewClass('mock-id');
     expect(await newInstance.customMethod()).toBe('mock-custom-method');
+  });
+
+  test('setConfig', async () => {
+    const newInstance = new NewClass('mock-id');
+    newInstance.setConfig(new Config({ accessKeyId: 'mock-access-key-id' }));
+    expect((newInstance as any)._config?.accessKeyId).toBe(
+      'mock-access-key-id'
+    );
   });
 });
 
@@ -796,8 +872,6 @@ describe('custom list params', () => {
 
     static listAll = listAllResourcesFunction(this.list);
   }
-
-  
 
   // const NewClass = bindResourceBase(BaseClass);
 

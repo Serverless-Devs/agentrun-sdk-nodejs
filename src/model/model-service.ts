@@ -6,7 +6,6 @@
  */
 
 import { Config } from '../utils/config';
-import { Status, PageableInput } from '../utils/model';
 import { listAllResourcesFunction, ResourceBase } from '../utils/resource';
 import { ModelAPI } from './api/model-api';
 
@@ -17,8 +16,7 @@ import {
   ModelServiceListInput,
   ModelServiceMutableProps,
   ModelServiceSystemProps,
-  ModelServiceUpdateInput,
-  ModelType,
+  ModelServiceUpdateInput
 } from './model';
 
 /**
@@ -279,53 +277,5 @@ export class ModelService
       headers: cfg.headers,
       provider: this.provider,
     };
-  };
-
-  /**
-   * 等待模型服务就绪 / Wait until model service is ready
-   *
-   * @param options - 选项 / Options
-   * @param config - 配置 / Configuration
-   * @returns 模型服务对象 / Model service object
-   */
-  waitUntilReady = async (
-    options?: {
-      timeoutSeconds?: number;
-      intervalSeconds?: number;
-      beforeCheck?: (service: ModelService) => void;
-    },
-    config?: Config
-  ): Promise<ModelService> => {
-    const timeout = (options?.timeoutSeconds ?? 300) * 1000;
-    const interval = (options?.intervalSeconds ?? 5) * 1000;
-    const startTime = Date.now();
-
-    while (Date.now() - startTime < timeout) {
-      await this.refresh({ config });
-
-      if (options?.beforeCheck) {
-        options.beforeCheck(this);
-      }
-
-      if (this.status === Status.READY) {
-        return this;
-      }
-
-      if (
-        this.status === Status.CREATE_FAILED ||
-        this.status === Status.UPDATE_FAILED ||
-        this.status === Status.DELETE_FAILED
-      ) {
-        throw new Error(`Model service failed with status: ${this.status}`);
-      }
-
-      await new Promise((resolve) => setTimeout(resolve, interval));
-    }
-
-    throw new Error(
-      `Timeout waiting for model service to be ready after ${
-        options?.timeoutSeconds ?? 300
-      } seconds`
-    );
   };
 }

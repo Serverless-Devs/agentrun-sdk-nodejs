@@ -5,10 +5,13 @@
  * This module provides the client API for Sandbox.
  */
 
-import { Config } from "../utils/config";
+import * as $AgentRun from '@alicloud/agentrun20250910';
+import { Config } from '../utils/config';
+import { HTTPError } from '../utils/exception';
+import { SandboxControlAPI } from './api/control';
 
-import { BrowserSandbox } from "./browser-sandbox";
-import { CodeInterpreterSandbox } from "./code-interpreter-sandbox";
+import { BrowserSandbox } from './browser-sandbox';
+import { CodeInterpreterSandbox } from './code-interpreter-sandbox';
 import {
   NASConfig,
   OSSMountConfig,
@@ -17,11 +20,12 @@ import {
   SandboxListInput,
   TemplateCreateInput,
   TemplateListInput,
+  TemplateNetworkMode,
   TemplateType,
   TemplateUpdateInput,
-} from "./model";
-import { Sandbox } from "./sandbox";
-import { Template } from "./template";
+} from './model';
+import { Sandbox } from './sandbox';
+import { Template } from './template';
 
 /**
  * Sandbox Client
@@ -30,9 +34,11 @@ import { Template } from "./template";
  */
 export class SandboxClient {
   private config?: Config;
+  private controlApi: SandboxControlAPI;
 
   constructor(config?: Config) {
     this.config = config;
+    this.controlApi = new SandboxControlAPI(config);
   }
 
   // ============ Template Operations ============
@@ -45,7 +51,30 @@ export class SandboxClient {
     config?: Config;
   }): Promise<Template> => {
     const { input, config } = params;
-    return Template.create({ input, config: config ?? this.config });
+    const cfg = Config.withConfigs(this.config, config);
+
+    try {
+      const finalInput = this.prepareTemplateCreateInput(input);
+
+      const result = await this.controlApi.createTemplate({
+        input: new $AgentRun.CreateTemplateInput({
+          ...finalInput,
+          networkConfiguration: finalInput.networkConfiguration
+            ? new $AgentRun.NetworkConfiguration({
+                ...finalInput.networkConfiguration,
+              })
+            : undefined,
+        }),
+        config: cfg,
+      });
+
+      return new Template(result, cfg);
+    } catch (error) {
+      if (error instanceof HTTPError) {
+        throw error.toResourceError('Template', input.templateName);
+      }
+      throw error;
+    }
   };
 
   /**
@@ -56,7 +85,20 @@ export class SandboxClient {
     config?: Config;
   }): Promise<Template> => {
     const { name, config } = params;
-    return Template.delete({ name, config: config ?? this.config });
+    const cfg = Config.withConfigs(this.config, config);
+
+    try {
+      const result = await this.controlApi.deleteTemplate({
+        templateName: name,
+        config: cfg,
+      });
+      return new Template(result, cfg);
+    } catch (error) {
+      if (error instanceof HTTPError) {
+        throw error.toResourceError('Template', name);
+      }
+      throw error;
+    }
   };
 
   /**
@@ -68,7 +110,28 @@ export class SandboxClient {
     config?: Config;
   }): Promise<Template> => {
     const { name, input, config } = params;
-    return Template.update({ name, input, config: config ?? this.config });
+    const cfg = Config.withConfigs(this.config, config);
+
+    try {
+      const result = await this.controlApi.updateTemplate({
+        templateName: name,
+        input: new $AgentRun.UpdateTemplateInput({
+          ...input,
+          networkConfiguration: input.networkConfiguration
+            ? new $AgentRun.NetworkConfiguration({
+                ...input.networkConfiguration,
+              })
+            : undefined,
+        }),
+        config: cfg,
+      });
+      return new Template(result, cfg);
+    } catch (error) {
+      if (error instanceof HTTPError) {
+        throw error.toResourceError('Template', name);
+      }
+      throw error;
+    }
   };
 
   /**
@@ -79,7 +142,20 @@ export class SandboxClient {
     config?: Config;
   }): Promise<Template> => {
     const { name, config } = params;
-    return Template.get({ name, config: config ?? this.config });
+    const cfg = Config.withConfigs(this.config, config);
+
+    try {
+      const result = await this.controlApi.getTemplate({
+        templateName: name,
+        config: cfg,
+      });
+      return new Template(result, cfg);
+    } catch (error) {
+      if (error instanceof HTTPError) {
+        throw error.toResourceError('Template', name);
+      }
+      throw error;
+    }
   };
 
   /**
@@ -90,18 +166,15 @@ export class SandboxClient {
     config?: Config;
   }): Promise<Template[]> => {
     const { input, config } = params ?? {};
-    return Template.list(input, config ?? this.config);
-  };
-
-  /**
-   * List all Templates
-   */
-  listAllTemplates = async (params?: {
-    options?: { templateType?: TemplateType };
-    config?: Config;
-  }): Promise<Template[]> => {
-    const { options, config } = params ?? {};
-    return Template.listAll(options, config ?? this.config);
+    const cfg = Config.withConfigs(this.config, config);
+    const request = new $AgentRun.ListTemplatesRequest({
+      ...input,
+    });
+    const result = await this.controlApi.listTemplates({
+      input: request,
+      config: cfg,
+    });
+    return (result.items || []).map((item) => new Template(item, cfg));
   };
 
   // ============ Sandbox Operations ============
@@ -114,7 +187,22 @@ export class SandboxClient {
     config?: Config;
   }): Promise<Sandbox> => {
     const { input, config } = params;
-    return Sandbox.create(input, config ?? this.config);
+    const cfg = Config.withConfigs(this.config, config);
+
+    try {
+      const result = await this.controlApi.createSandbox({
+        input: new $AgentRun.CreateSandboxInput({
+          ...input,
+        }),
+        config: cfg,
+      });
+      return Sandbox.fromInnerObject(result, cfg);
+    } catch (error) {
+      if (error instanceof HTTPError) {
+        throw error.toResourceError('Sandbox', input.templateName);
+      }
+      throw error;
+    }
   };
 
   /**
@@ -135,7 +223,7 @@ export class SandboxClient {
     return CodeInterpreterSandbox.createFromTemplate(
       templateName,
       options,
-      config ?? this.config,
+      config ?? this.config
     );
   };
 
@@ -157,7 +245,7 @@ export class SandboxClient {
     return BrowserSandbox.createFromTemplate(
       templateName,
       options,
-      config ?? this.config,
+      config ?? this.config
     );
   };
 
@@ -169,7 +257,20 @@ export class SandboxClient {
     config?: Config;
   }): Promise<Sandbox> => {
     const { id, config } = params;
-    return Sandbox.delete({ id, config: config ?? this.config });
+    const cfg = Config.withConfigs(this.config, config);
+
+    try {
+      const result = await this.controlApi.deleteSandbox({
+        sandboxId: id,
+        config: cfg,
+      });
+      return Sandbox.fromInnerObject(result, cfg);
+    } catch (error) {
+      if (error instanceof HTTPError) {
+        throw error.toResourceError('Sandbox', id);
+      }
+      throw error;
+    }
   };
 
   /**
@@ -180,23 +281,66 @@ export class SandboxClient {
     config?: Config;
   }): Promise<Sandbox> => {
     const { id, config } = params;
-    return Sandbox.stop({ id, config: config ?? this.config });
+    const cfg = Config.withConfigs(this.config, config);
+
+    try {
+      const result = await this.controlApi.stopSandbox({
+        sandboxId: id,
+        config: cfg,
+      });
+      return Sandbox.fromInnerObject(result, cfg);
+    } catch (error) {
+      if (error instanceof HTTPError) {
+        throw error.toResourceError('Sandbox', id);
+      }
+      throw error;
+    }
   };
 
   /**
    * Get a Sandbox
-   * 
+   *
    * @param params.id - Sandbox ID
    * @param params.templateType - Template type to cast the result to the appropriate subclass
    * @param params.config - Configuration
    */
-  getSandbox = async (params: { 
-    id: string; 
+  getSandbox = async (params: {
+    id: string;
     templateType?: TemplateType;
     config?: Config;
   }): Promise<Sandbox> => {
     const { id, templateType, config } = params;
-    return Sandbox.get({ id, templateType, config: config ?? this.config });
+    const cfg = Config.withConfigs(this.config, config);
+
+    try {
+      const result = await this.controlApi.getSandbox({
+        sandboxId: id,
+        config: cfg,
+      });
+      const baseSandbox = Sandbox.fromInnerObject(result, cfg);
+
+      if (templateType) {
+        switch (templateType) {
+          case TemplateType.CODE_INTERPRETER: {
+            return new CodeInterpreterSandbox(baseSandbox, cfg);
+          }
+          case TemplateType.BROWSER: {
+            return new BrowserSandbox(baseSandbox, cfg);
+          }
+          case TemplateType.AIO: {
+            const { AioSandbox } = await import('./aio-sandbox');
+            return new AioSandbox(baseSandbox, cfg);
+          }
+        }
+      }
+
+      return baseSandbox;
+    } catch (error) {
+      if (error instanceof HTTPError) {
+        throw error.toResourceError('Sandbox', id);
+      }
+      throw error;
+    }
   };
 
   /**
@@ -207,6 +351,76 @@ export class SandboxClient {
     config?: Config;
   }): Promise<Sandbox[]> => {
     const { input, config } = params ?? {};
-    return Sandbox.list(input, config ?? this.config);
+    const cfg = Config.withConfigs(this.config, config);
+    const request = new $AgentRun.ListSandboxesRequest({
+      ...input,
+    });
+    const result = await this.controlApi.listSandboxes({
+      input: request,
+      config: cfg,
+    });
+    return (result.sandboxes || []).map((item: $AgentRun.Sandbox) =>
+      Sandbox.fromInnerObject(item, cfg)
+    );
   };
+
+  private prepareTemplateCreateInput(
+    input: TemplateCreateInput
+  ): TemplateCreateInput {
+    const defaults = this.getTemplateDefaults(input.templateType);
+    const finalInput = { ...defaults, ...input };
+
+    if (!finalInput.networkConfiguration) {
+      finalInput.networkConfiguration = {
+        networkMode: TemplateNetworkMode.PUBLIC,
+      };
+    }
+
+    this.validateTemplateCreateInput(finalInput);
+    return finalInput;
+  }
+
+  private getTemplateDefaults(
+    templateType: TemplateType
+  ): Partial<TemplateCreateInput> {
+    const base = {
+      cpu: 2,
+      memory: 4096,
+      sandboxIdleTimeoutInSeconds: 1800,
+      sandboxTtlInSeconds: 21600,
+      shareConcurrencyLimitPerSandbox: 200,
+    };
+
+    switch (templateType) {
+      case TemplateType.CODE_INTERPRETER:
+        return { ...base, diskSize: 512 };
+      case TemplateType.BROWSER:
+      case TemplateType.AIO:
+        return { ...base, cpu: 4, memory: 8192, diskSize: 10240 };
+      default:
+        return { ...base, diskSize: 512 };
+    }
+  }
+
+  private validateTemplateCreateInput(input: TemplateCreateInput): void {
+    if (
+      (input.templateType === TemplateType.BROWSER ||
+        input.templateType === TemplateType.AIO) &&
+      input.diskSize !== 10240
+    ) {
+      throw new Error(
+        `When templateType is BROWSER or AIO, diskSize must be 10240, got ${input.diskSize}`
+      );
+    }
+
+    if (
+      (input.templateType === TemplateType.CODE_INTERPRETER ||
+        input.templateType === TemplateType.AIO) &&
+      input.networkConfiguration?.networkMode === TemplateNetworkMode.PRIVATE
+    ) {
+      throw new Error(
+        `When templateType is CODE_INTERPRETER or AIO, networkMode cannot be PRIVATE`
+      );
+    }
+  }
 }

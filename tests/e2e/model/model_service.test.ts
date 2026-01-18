@@ -55,7 +55,7 @@ describe('test model service', () => {
         } as ProviderSettings,
       },
     });
-    await ms.waitUntilReady();
+    await ms.waitUntilReadyOrFailed();
 
     const time2 = new Date();
 
@@ -101,7 +101,7 @@ describe('test model service', () => {
         description: newDescription,
       },
     });
-    await ms.waitUntilReady();
+    await ms.waitUntilReadyOrFailed();
 
     // 检查返回的内容是否符合预期
     const assertModelService2 = (ms: ModelService) => {

@@ -7,9 +7,8 @@
 
 import { HTTPError } from '../utils';
 import { Config } from '../utils/config';
-import { fromInnerObject } from '../utils/model';
 
-import * as agentrun from '@alicloud/agentrun20250910';
+import * as $AgentRun from '@alicloud/agentrun20250910';
 import { CredentialControlAPI } from './api/control';
 import { Credential } from './credential';
 import {
@@ -43,16 +42,18 @@ export class CredentialClient {
   }): Promise<Credential> => {
     try {
       const { input, config } = params;
+      const cfg = Config.withConfigs(this.config, config);
 
       // Normalize credentialConfig to SDK expected field names.
-      const cfg = input.credentialConfig as any | undefined;
+      const credCfg = input.credentialConfig as any | undefined;
       const normalized = {
         ...input,
-        credentialAuthType: cfg?.credentialAuthType ?? cfg?.authType,
-        credentialSourceType: cfg?.credentialSourceType ?? cfg?.sourceType,
+        credentialAuthType: credCfg?.credentialAuthType ?? credCfg?.authType,
+        credentialSourceType:
+          credCfg?.credentialSourceType ?? credCfg?.sourceType,
         credentialPublicConfig:
-          cfg?.credentialPublicConfig ?? cfg?.publicConfig,
-        credentialSecret: cfg?.credentialSecret ?? cfg?.secret,
+          credCfg?.credentialPublicConfig ?? credCfg?.publicConfig,
+        credentialSecret: credCfg?.credentialSecret ?? credCfg?.secret,
       };
 
       // Ensure users field is always present in credentialPublicConfig
@@ -80,14 +81,12 @@ export class CredentialClient {
           normalized.credentialSecret = '';
         }
       }
-
       const result = await this.controlApi.createCredential({
-        input: new agentrun.CreateCredentialInput(normalized),
-        config: config ?? this.config,
+        input: new $AgentRun.CreateCredentialInput(normalized),
+        config: cfg,
       });
 
-      const credential = fromInnerObject<any>(result);
-      return new Credential(credential);
+      return new Credential(result);
     } catch (error) {
       if (error instanceof HTTPError) {
         throw error.toResourceError(
@@ -103,16 +102,19 @@ export class CredentialClient {
   /**
    * Delete a Credential
    */
-  delete = async (params: { name: string; config?: Config }): Promise<Credential> => {
+  delete = async (params: {
+    name: string;
+    config?: Config;
+  }): Promise<Credential> => {
     try {
       const { name, config } = params;
+      const cfg = Config.withConfigs(this.config, config);
       const result = await this.controlApi.deleteCredential({
         credentialName: name,
-        config: config ?? this.config,
+        config: cfg,
       });
 
-      const credential = fromInnerObject<any>(result);
-      return new Credential(credential);
+      return new Credential(result);
     } catch (error) {
       if (error instanceof HTTPError) {
         throw error.toResourceError('Credential', params?.name);
@@ -132,16 +134,18 @@ export class CredentialClient {
   }): Promise<Credential> => {
     try {
       const { name, input, config } = params;
-      const cfg = input.credentialConfig as any | undefined;
+      const cfg = Config.withConfigs(this.config, config);
+      const credCfg = input.credentialConfig as any | undefined;
       const normalized: any = { ...input };
-      if (cfg) {
+      if (credCfg) {
         normalized.credentialAuthType =
-          cfg?.credentialAuthType ?? cfg?.authType;
+          credCfg?.credentialAuthType ?? credCfg?.authType;
         normalized.credentialSourceType =
-          cfg?.credentialSourceType ?? cfg?.sourceType;
+          credCfg?.credentialSourceType ?? credCfg?.sourceType;
         normalized.credentialPublicConfig =
-          cfg?.credentialPublicConfig ?? cfg?.publicConfig;
-        normalized.credentialSecret = cfg?.credentialSecret ?? cfg?.secret;
+          credCfg?.credentialPublicConfig ?? credCfg?.publicConfig;
+        normalized.credentialSecret =
+          credCfg?.credentialSecret ?? credCfg?.secret;
 
         // Ensure users field is always present in credentialPublicConfig
         if (normalized.credentialPublicConfig) {
@@ -166,11 +170,10 @@ export class CredentialClient {
           }
         }
       }
-
       const result = await this.controlApi.updateCredential({
         credentialName: name,
-        input: new agentrun.UpdateCredentialInput(normalized),
-        config: config ?? this.config,
+        input: new $AgentRun.UpdateCredentialInput(normalized),
+        config: cfg,
       });
 
       return new Credential(result as any);
@@ -186,13 +189,17 @@ export class CredentialClient {
   /**
    * Get a Credential
    */
-  get = async (params: { name: string; config?: Config }): Promise<Credential> => {
+  get = async (params: {
+    name: string;
+    config?: Config;
+  }): Promise<Credential> => {
     try {
       const { name, config } = params;
+      const cfg = Config.withConfigs(this.config, config);
 
       const result = await this.controlApi.getCredential({
         credentialName: name,
-        config: config ?? this.config,
+        config: cfg,
       });
       return new Credential(result as any);
     } catch (error) {
@@ -207,18 +214,22 @@ export class CredentialClient {
   /**
    * List Credentials
    */
-  list = async (params: {
+  list = async (params?: {
     input?: CredentialListInput;
     config?: Config;
   }): Promise<CredentialListOutput[]> => {
     try {
-      const { input, config } = params;
+      const { input, config } = params ?? {};
+      const cfg = Config.withConfigs(this.config, config);
       const results = await this.controlApi.listCredentials({
-        input: new agentrun.ListCredentialsRequest(input),
-        config: config ?? this.config,
+        input: new $AgentRun.ListCredentialsRequest({ ...input }),
+        config: cfg,
       });
 
-      return results.items?.map((item) => new CredentialListOutput(item as any)) ?? [];
+      return (
+        results.items?.map((item) => new CredentialListOutput(item as any)) ??
+        []
+      );
     } catch (error) {
       if (error instanceof HTTPError) {
         throw error.toResourceError('Credential');

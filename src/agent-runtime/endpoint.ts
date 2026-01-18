@@ -5,27 +5,31 @@
  * This module defines the Agent Runtime Endpoint resource class.
  */
 
-import * as $AgentRun from "@alicloud/agentrun20250910";
+import { Config } from '../utils/config';
+import {
+  listAllResourcesFunction,
+  ResourceBase,
+  updateObjectProperties,
+} from '../utils/resource';
+import { PageableInput, Status } from '../utils/model';
 
-import { Config } from "../utils/config";
-import { HTTPError } from "../utils/exception";
-import { updateObjectProperties } from "../utils/resource";
-import { Status } from "../utils/model";
-
-import { AgentRuntimeControlAPI } from "./api/control";
-import { AgentRuntimeDataAPI, InvokeArgs } from "./api/data";
+import { AgentRuntimeDataAPI, InvokeArgs } from './api/data';
 import {
   AgentRuntimeEndpointCreateInput,
   AgentRuntimeEndpointUpdateInput,
   AgentRuntimeEndpointListInput,
   AgentRuntimeEndpointData,
   AgentRuntimeEndpointRoutingConfig,
-} from "./model";
+} from './model';
+import { KeyOf } from 'zod/v4/core/util.cjs';
 
 /**
  * Agent Runtime Endpoint resource class
  */
-export class AgentRuntimeEndpoint implements AgentRuntimeEndpointData {
+export class AgentRuntimeEndpoint
+  extends ResourceBase
+  implements AgentRuntimeEndpointData
+{
   // System properties
   agentRuntimeEndpointArn?: string;
   agentRuntimeEndpointId?: string;
@@ -35,49 +39,29 @@ export class AgentRuntimeEndpoint implements AgentRuntimeEndpointData {
   endpointPublicUrl?: string;
   resourceName?: string;
   routingConfiguration?: AgentRuntimeEndpointRoutingConfig;
-  status?: Status;
+  declare status?: Status;
   statusReason?: string;
   tags?: string[];
   targetVersion?: string;
 
-  private _config?: Config;
+  protected _config?: Config;
   private _dataApi?: AgentRuntimeDataAPI;
   private _agentRuntimeName?: string;
 
-  constructor(data?: Partial<AgentRuntimeEndpointData>, config?: Config) {
+  constructor(data?: any, config?: Config) {
+    super();
     if (data) {
       updateObjectProperties(this, data);
     }
     this._config = config;
   }
 
-  /**
-   * Create endpoint from SDK response object
-   */
-  static fromInnerObject(
-    obj: $AgentRun.AgentRuntimeEndpoint,
-    config?: Config,
-  ): AgentRuntimeEndpoint {
-    return new AgentRuntimeEndpoint(
-      {
-        agentRuntimeEndpointArn: obj.agentRuntimeEndpointArn,
-        agentRuntimeEndpointId: obj.agentRuntimeEndpointId,
-        agentRuntimeEndpointName: obj.agentRuntimeEndpointName,
-        agentRuntimeId: obj.agentRuntimeId,
-        description: obj.description,
-        endpointPublicUrl: obj.endpointPublicUrl,
-        resourceName: obj.resourceName,
-        status: obj.status as Status,
-        statusReason: obj.statusReason,
-        tags: obj.tags,
-        targetVersion: obj.targetVersion,
-      },
-      config,
-    );
-  }
+  uniqIdCallback = () => this.agentRuntimeEndpointId;
 
-  private static getClient(): AgentRuntimeControlAPI {
-    return new AgentRuntimeControlAPI();
+  private static getClient() {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { AgentRuntimeClient } = require('./client');
+    return new AgentRuntimeClient();
   }
 
   /**
@@ -89,31 +73,11 @@ export class AgentRuntimeEndpoint implements AgentRuntimeEndpointData {
     config?: Config;
   }): Promise<AgentRuntimeEndpoint> {
     const { agentRuntimeId, input, config } = params;
-    const client = AgentRuntimeEndpoint.getClient();
-    try {
-      // Set default targetVersion to "LATEST" if not provided (same as Python SDK)
-      const targetVersion = input.targetVersion || 'LATEST';
-      
-      const result = await client.createAgentRuntimeEndpoint({
-        agentId: agentRuntimeId,
-        input: new $AgentRun.CreateAgentRuntimeEndpointInput({
-          agentRuntimeEndpointName: input.agentRuntimeEndpointName,
-          description: input.description,
-          tags: input.tags,
-          targetVersion: targetVersion,
-        }),
-        config,
-      });
-      return AgentRuntimeEndpoint.fromInnerObject(result, config);
-    } catch (error) {
-      if (error instanceof HTTPError) {
-        throw error.toResourceError(
-          "AgentRuntimeEndpoint",
-          `${agentRuntimeId}/${input.agentRuntimeEndpointName}`,
-        );
-      }
-      throw error;
-    }
+    return await AgentRuntimeEndpoint.getClient().createEndpoint({
+      agentRuntimeId,
+      input,
+      config,
+    });
   }
 
   /**
@@ -125,23 +89,11 @@ export class AgentRuntimeEndpoint implements AgentRuntimeEndpointData {
     config?: Config;
   }): Promise<AgentRuntimeEndpoint> {
     const { agentRuntimeId, endpointId, config } = params;
-    const client = AgentRuntimeEndpoint.getClient();
-    try {
-      const result = await client.deleteAgentRuntimeEndpoint({
-        agentId: agentRuntimeId,
-        endpointId,
-        config,
-      });
-      return AgentRuntimeEndpoint.fromInnerObject(result, config);
-    } catch (error) {
-      if (error instanceof HTTPError) {
-        throw error.toResourceError(
-          "AgentRuntimeEndpoint",
-          `${agentRuntimeId}/${endpointId}`,
-        );
-      }
-      throw error;
-    }
+    return await AgentRuntimeEndpoint.getClient().deleteEndpoint({
+      agentRuntimeId,
+      endpointId,
+      config,
+    });
   }
 
   /**
@@ -154,29 +106,12 @@ export class AgentRuntimeEndpoint implements AgentRuntimeEndpointData {
     config?: Config;
   }): Promise<AgentRuntimeEndpoint> {
     const { agentRuntimeId, endpointId, input, config } = params;
-    const client = AgentRuntimeEndpoint.getClient();
-    try {
-      const result = await client.updateAgentRuntimeEndpoint({
-        agentId: agentRuntimeId,
-        endpointId,
-        input: new $AgentRun.UpdateAgentRuntimeEndpointInput({
-          agentRuntimeEndpointName: input.agentRuntimeEndpointName,
-          description: input.description,
-          tags: input.tags,
-          targetVersion: input.targetVersion,
-        }),
-        config,
-      });
-      return AgentRuntimeEndpoint.fromInnerObject(result, config);
-    } catch (error) {
-      if (error instanceof HTTPError) {
-        throw error.toResourceError(
-          "AgentRuntimeEndpoint",
-          `${agentRuntimeId}/${endpointId}`,
-        );
-      }
-      throw error;
-    }
+    return await AgentRuntimeEndpoint.getClient().updateEndpoint({
+      agentRuntimeId,
+      endpointId,
+      input,
+      config,
+    });
   }
 
   /**
@@ -188,64 +123,61 @@ export class AgentRuntimeEndpoint implements AgentRuntimeEndpointData {
     config?: Config;
   }): Promise<AgentRuntimeEndpoint> {
     const { agentRuntimeId, endpointId, config } = params;
-    const client = AgentRuntimeEndpoint.getClient();
-    try {
-      const result = await client.getAgentRuntimeEndpoint({
-        agentId: agentRuntimeId,
-        endpointId,
-        config,
-      });
-      return AgentRuntimeEndpoint.fromInnerObject(result, config);
-    } catch (error) {
-      if (error instanceof HTTPError) {
-        throw error.toResourceError(
-          "AgentRuntimeEndpoint",
-          `${agentRuntimeId}/${endpointId}`,
-        );
-      }
-      throw error;
-    }
+    return await AgentRuntimeEndpoint.getClient().getEndpoint({
+      agentRuntimeId,
+      endpointId,
+      config,
+    });
   }
 
   /**
    * List endpoints by Agent Runtime ID
    */
-  static async listById(params: {
+  static async list(params: {
     agentRuntimeId: string;
     input?: AgentRuntimeEndpointListInput;
     config?: Config;
   }): Promise<AgentRuntimeEndpoint[]> {
     const { agentRuntimeId, input, config } = params;
-    const client = AgentRuntimeEndpoint.getClient();
-    try {
-      const request = new $AgentRun.ListAgentRuntimeEndpointsRequest({
-        pageNumber: input?.pageNumber,
-        pageSize: input?.pageSize,
-      });
-      const result = await client.listAgentRuntimeEndpoints({
-        agentId: agentRuntimeId,
-        input: request,
-        config,
-      });
-      return (result.items || []).map((item) =>
-        AgentRuntimeEndpoint.fromInnerObject(item, config),
-      );
-    } catch (error) {
-      if (error instanceof HTTPError) {
-        throw error.toResourceError("AgentRuntime", agentRuntimeId);
-      }
-      throw error;
-    }
+    return await AgentRuntimeEndpoint.getClient().listEndpoints({
+      agentRuntimeId,
+      input,
+      config,
+    });
   }
+
+  static listAll = async (
+    params: {
+      agentRuntimeId: string;
+      config?: Config;
+    } & Omit<AgentRuntimeEndpointListInput, KeyOf<PageableInput>>
+  ) => {
+    const { agentRuntimeId, ...restParams } = params;
+
+    return await listAllResourcesFunction(
+      (params?: { input?: AgentRuntimeEndpointListInput; config?: Config }) =>
+        this.list({ ...params, agentRuntimeId })
+    )(restParams);
+  };
+
+  get = async (params?: { config?: Config }) => {
+    return await AgentRuntimeEndpoint.get({
+      agentRuntimeId: this.agentRuntimeId!,
+      endpointId: this.agentRuntimeEndpointId!,
+      config: params?.config,
+    });
+  };
 
   /**
    * Delete this endpoint
    */
-  delete = async (params?: { config?: Config }): Promise<AgentRuntimeEndpoint> => {
+  delete = async (params?: {
+    config?: Config;
+  }): Promise<AgentRuntimeEndpoint> => {
     const config = params?.config;
     if (!this.agentRuntimeId || !this.agentRuntimeEndpointId) {
       throw new Error(
-        "agentRuntimeId and agentRuntimeEndpointId are required to delete an endpoint",
+        'agentRuntimeId and agentRuntimeEndpointId are required to delete an endpoint'
       );
     }
 
@@ -269,7 +201,7 @@ export class AgentRuntimeEndpoint implements AgentRuntimeEndpointData {
     const { input, config } = params;
     if (!this.agentRuntimeId || !this.agentRuntimeEndpointId) {
       throw new Error(
-        "agentRuntimeId and agentRuntimeEndpointId are required to update an endpoint",
+        'agentRuntimeId and agentRuntimeEndpointId are required to update an endpoint'
       );
     }
 
@@ -287,11 +219,13 @@ export class AgentRuntimeEndpoint implements AgentRuntimeEndpointData {
   /**
    * Refresh this endpoint's data
    */
-  refresh = async (params?: { config?: Config }): Promise<AgentRuntimeEndpoint> => {
+  refresh = async (params?: {
+    config?: Config;
+  }): Promise<AgentRuntimeEndpoint> => {
     const config = params?.config;
     if (!this.agentRuntimeId || !this.agentRuntimeEndpointId) {
       throw new Error(
-        "agentRuntimeId and agentRuntimeEndpointId are required to refresh an endpoint",
+        'agentRuntimeId and agentRuntimeEndpointId are required to refresh an endpoint'
       );
     }
 
@@ -303,48 +237,6 @@ export class AgentRuntimeEndpoint implements AgentRuntimeEndpointData {
 
     updateObjectProperties(this, result);
     return this;
-  };
-
-  /**
-   * Wait until the endpoint is ready
-   */
-  waitUntilReady = async (
-    options?: {
-      timeoutSeconds?: number;
-      intervalSeconds?: number;
-      beforeCheck?: (endpoint: AgentRuntimeEndpoint) => void;
-    },
-    config?: Config,
-  ): Promise<AgentRuntimeEndpoint> => {
-    const timeout = (options?.timeoutSeconds ?? 300) * 1000;
-    const interval = (options?.intervalSeconds ?? 5) * 1000;
-    const startTime = Date.now();
-
-    while (Date.now() - startTime < timeout) {
-      await this.refresh({ config });
-
-      if (options?.beforeCheck) {
-        options.beforeCheck(this);
-      }
-
-      if (this.status === Status.READY) {
-        return this;
-      }
-
-      if (
-        this.status === Status.CREATE_FAILED ||
-        this.status === Status.UPDATE_FAILED ||
-        this.status === Status.DELETE_FAILED
-      ) {
-        throw new Error(`Endpoint failed: ${this.statusReason}`);
-      }
-
-      await new Promise((resolve) => setTimeout(resolve, interval));
-    }
-
-    throw new Error(
-      `Timeout waiting for endpoint to be ready after ${options?.timeoutSeconds ?? 300} seconds`,
-    );
   };
 
   /**
@@ -379,8 +271,8 @@ export class AgentRuntimeEndpoint implements AgentRuntimeEndpointData {
       // Get agent runtime name if not available
       if (!this._agentRuntimeName && this.agentRuntimeId) {
         const client = AgentRuntimeEndpoint.getClient();
-        const runtime = await client.getAgentRuntime({
-          agentId: this.agentRuntimeId,
+        const runtime = await client.get({
+          id: this.agentRuntimeId,
           config: cfg,
         });
         this._agentRuntimeName = runtime.agentRuntimeName;
@@ -388,14 +280,14 @@ export class AgentRuntimeEndpoint implements AgentRuntimeEndpointData {
 
       if (!this._agentRuntimeName) {
         throw new Error(
-          "Unable to determine agent runtime name for this endpoint",
+          'Unable to determine agent runtime name for this endpoint'
         );
       }
 
       this._dataApi = new AgentRuntimeDataAPI(
         this._agentRuntimeName,
-        this.agentRuntimeEndpointName || "",
-        cfg,
+        this.agentRuntimeEndpointName || '',
+        cfg
       );
     }
 

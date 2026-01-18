@@ -8,10 +8,9 @@
 import * as _ from 'lodash';
 
 import { Config } from '../utils/config';
-import { Status } from '../utils/model';
-import { PageableInput } from '../utils/model';
 import { listAllResourcesFunction, ResourceBase } from '../utils/resource';
 
+import { ModelAPI, ModelInfo } from './api/model-api';
 import {
   BackendType,
   ModelProxyCreateInput,
@@ -22,7 +21,6 @@ import {
   ModelProxyUpdateInput,
   ProxyMode,
 } from './model';
-import { ModelAPI, ModelInfo } from './api/model-api';
 
 /**
  * 模型代理 / Model Proxy

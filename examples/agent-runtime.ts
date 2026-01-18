@@ -168,7 +168,7 @@ async function createOrGetAgentRuntime(): Promise<AgentRuntime> {
   // Wait for ready or failed
   log('等待就绪 / Waiting for ready...');
   await ar.waitUntilReadyOrFailed({
-    beforeCheck: (runtime) =>
+    callback: (runtime) =>
       log(`  当前状态 / Current status: ${runtime.status}`),
   });
 
@@ -197,7 +197,7 @@ async function updateAgentRuntime(ar: AgentRuntime): Promise<void> {
   });
 
   await ar.waitUntilReadyOrFailed({
-    beforeCheck: (runtime) =>
+    callback: (runtime) =>
       log(`  当前状态 / Current status: ${runtime.status}`),
   });
 
@@ -234,8 +234,8 @@ async function deleteAgentRuntime(ar: AgentRuntime): Promise<void> {
   // Wait for deletion
   log('等待删除完成 / Waiting for deletion...');
   try {
-    await ar.waitUntilReady({
-      beforeCheck: (runtime) =>
+    await ar.waitUntilReadyOrFailed({
+      callback: (runtime) =>
         log(`  当前状态 / Current status: ${runtime.status}`),
     });
   } catch (error) {

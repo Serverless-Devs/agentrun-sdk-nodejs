@@ -5,17 +5,16 @@
  * and recording management.
  */
 
-import { Config } from "../utils/config";
-import { logger } from "../utils/log";
+import { Config } from '../utils/config';
 
-import { BrowserDataAPI } from "./api/browser-data";
+import { BrowserDataAPI } from './api/browser-data';
 import {
   NASConfig,
   OSSMountConfig,
   PolarFsConfig,
   TemplateType,
-} from "./model";
-import { Sandbox } from "./sandbox";
+} from './model';
+import { Sandbox } from './sandbox';
 
 /**
  * Browser Sandbox
@@ -37,7 +36,7 @@ export class BrowserSandbox extends Sandbox {
       ossMountConfig?: OSSMountConfig;
       polarFsConfig?: PolarFsConfig;
     },
-    config?: Config,
+    config?: Config
   ): Promise<BrowserSandbox> {
     const sandbox = await Sandbox.create(
       {
@@ -47,7 +46,7 @@ export class BrowserSandbox extends Sandbox {
         ossMountConfig: options?.ossMountConfig,
         polarFsConfig: options?.polarFsConfig,
       },
-      config,
+      config
     );
 
     const browserSandbox = new BrowserSandbox(sandbox, config);
@@ -66,7 +65,7 @@ export class BrowserSandbox extends Sandbox {
   get dataApi(): BrowserDataAPI {
     if (!this._dataApi) {
       if (!this.sandboxId) {
-        throw new Error("Sandbox ID is not set");
+        throw new Error('Sandbox ID is not set');
       }
 
       this._dataApi = new BrowserDataAPI({
@@ -80,50 +79,13 @@ export class BrowserSandbox extends Sandbox {
   /**
    * Check sandbox health
    */
-  checkHealth = async (params?: { config?: Config }): Promise<{ status: string; [key: string]: any }> => {
-    return this.dataApi.checkHealth({ sandboxId: this.sandboxId!, config: params?.config });
-  };
-
-  /**
-   * Wait for browser sandbox to be ready (polls health check)
-   */
-  waitUntilReady = async (params?: {
-    maxRetries?: number;
-    retryIntervalMs?: number;
-  }): Promise<void> => {
-    const maxRetries = params?.maxRetries || 60;
-    const retryIntervalMs = params?.retryIntervalMs || 1000;
-    let retryCount = 0;
-
-    logger.debug("Waiting for browser to be ready...");
-
-    while (retryCount < maxRetries) {
-      retryCount += 1;
-
-      try {
-        const health = await this.checkHealth();
-
-        if (health.status === "ok") {
-          logger.debug(`✓ Browser is ready! (took ${retryCount} seconds)`);
-          return;
-        }
-
-        logger.debug(
-          `[${retryCount}/${maxRetries}] Health status: ${health.code} ${health.message}`,
-        );
-      } catch (error) {
-        logger.error(`[${retryCount}/${maxRetries}] Health check failed: ${error}`);
-      }
-
-      if (retryCount < maxRetries) {
-        await new Promise((resolve) => setTimeout(resolve, retryIntervalMs));
-      }
-    }
-
-    throw new Error(
-      `Health check timeout after ${maxRetries} seconds. ` +
-        "Browser did not become ready in time.",
-    );
+  checkHealth = async (params?: {
+    config?: Config;
+  }): Promise<{ status: string; [key: string]: any }> => {
+    return this.dataApi.checkHealth({
+      sandboxId: this.sandboxId!,
+      config: params?.config,
+    });
   };
 
   /**
@@ -139,7 +101,6 @@ export class BrowserSandbox extends Sandbox {
   getVncUrl(record?: boolean): string {
     return this.dataApi.getVncUrl(record);
   }
-
 
   /**
    * List all recordings
@@ -161,7 +122,10 @@ export class BrowserSandbox extends Sandbox {
   /**
    * Delete a recording
    */
-  deleteRecording = async (params: { filename: string; config?: Config }): Promise<any> => {
+  deleteRecording = async (params: {
+    filename: string;
+    config?: Config;
+  }): Promise<any> => {
     return this.dataApi.deleteRecording(params);
   };
 }

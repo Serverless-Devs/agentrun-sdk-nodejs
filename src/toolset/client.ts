@@ -5,8 +5,17 @@
  * Client for managing ToolSet resources.
  */
 
-import { ListToolsetsRequest } from '@alicloud/devs20230714';
+import {
+  APIKeyAuthParameter,
+  Authorization,
+  AuthorizationParameters,
+  ListToolsetsRequest,
+  Toolset,
+  ToolsetSchema,
+  ToolsetSpec,
+} from '@alicloud/devs20230714';
 import { Config } from '../utils/config';
+import { HTTPError } from '../utils/exception';
 import { ToolControlAPI } from './api';
 
 import {
@@ -22,23 +31,145 @@ import { ToolSet } from './toolset';
  * 提供 ToolSet 的管理功能。
  */
 export class ToolSetClient {
-  protected config?: Config;
-  protected controlClient: ToolControlAPI;
+  private config?: Config;
+  private controlApi: ToolControlAPI;
   constructor(config?: Config) {
     this.config = config;
-    this.controlClient = new ToolControlAPI(config);
+    this.controlApi = new ToolControlAPI(config);
   }
 
-  // /**
-  //  * Delete a ToolSet by name
-  //  */
-  // deleteToolSet = async (params: {
-  //   name: string;
-  //   config?: Config;
-  // }): Promise<ToolSet> => {
-  //   const { name, config } = params;
-  //   return ToolSet.delete({ name, config: config ?? this.config });
-  // };
+  /**
+   * Create a ToolSet
+   */
+  create = async (params: {
+    input: ToolSetCreateInput;
+    config?: Config;
+  }): Promise<ToolSet> => {
+    const { input, config } = params;
+    const cfg = Config.withConfigs(this.config, config);
+
+    try {
+      const authConfig = input.spec?.authConfig
+        ? new Authorization({
+            type: input.spec.authConfig.type,
+            parameters: new AuthorizationParameters({
+              apiKeyParameter: new APIKeyAuthParameter({
+                key: input.spec.authConfig.apiKeyHeaderName,
+                value: input.spec.authConfig.apiKeyValue,
+                in: 'header',
+              }),
+            }),
+          })
+        : undefined;
+
+      const request = new Toolset({
+        ...input,
+        spec: input.spec
+          ? new ToolsetSpec({
+              ...input.spec,
+              schema: input.spec.schema
+                ? new ToolsetSchema({
+                    ...input.spec.schema,
+                  })
+                : undefined,
+              authConfig,
+            })
+          : undefined,
+      });
+      const result = await this.controlApi.createToolset({
+        input: request,
+        config: cfg,
+      });
+
+      return new ToolSet(result, cfg);
+    } catch (error) {
+      if (error instanceof HTTPError) {
+        throw error.toResourceError('ToolSet', input.name);
+      }
+      throw error;
+    }
+  };
+
+  /**
+   * Delete a ToolSet by name
+   */
+  delete = async (params: {
+    name: string;
+    config?: Config;
+  }): Promise<ToolSet> => {
+    const { name, config } = params;
+    const cfg = Config.withConfigs(this.config, config);
+
+    try {
+      const result = await this.controlApi.deleteToolset({
+        name,
+        config: cfg,
+      });
+
+      return new ToolSet(result, cfg);
+    } catch (error) {
+      if (error instanceof HTTPError) {
+        throw error.toResourceError('ToolSet', name);
+      }
+      throw error;
+    }
+  };
+
+  /**
+   * Update a ToolSet by name
+   */
+  update = async (params: {
+    name: string;
+    input: ToolSetUpdateInput;
+    config?: Config;
+  }): Promise<ToolSet> => {
+    const { name, input, config } = params;
+    const cfg = Config.withConfigs(this.config, config);
+
+    try {
+      const authConfig = input.spec?.authConfig
+        ? new Authorization({
+            type: input.spec.authConfig.type,
+            parameters: new AuthorizationParameters({
+              apiKeyParameter: new APIKeyAuthParameter({
+                key: input.spec.authConfig.apiKeyHeaderName,
+                value: input.spec.authConfig.apiKeyValue,
+                in: 'header',
+              }),
+            }),
+          })
+        : undefined;
+
+      const request = new Toolset({
+        name,
+        ...input,
+        spec: input.spec
+          ? new ToolsetSpec({
+              ...input.spec,
+              schema: input.spec.schema
+                ? new ToolsetSchema({
+                    ...input.spec.schema,
+                  })
+                : undefined,
+              authConfig,
+            })
+          : undefined,
+      });
+
+      const result = await this.controlApi.updateToolset({
+        name,
+        input: request,
+        config: cfg,
+      });
+
+      return new ToolSet(result, cfg);
+    } catch (error) {
+      if (error instanceof HTTPError) {
+        throw error.toResourceError('ToolSet', name);
+      }
+      throw error;
+    }
+  };
 
   /**
    * Get a ToolSet by name
@@ -46,12 +177,20 @@ export class ToolSetClient {
   get = async (params: { name: string; config?: Config }): Promise<ToolSet> => {
     const { name, config } = params;
     const cfg = Config.withConfigs(this.config, config);
-    const result = await this.controlClient.getToolset({
-      name,
-      config: cfg,
-    });
 
-    return new ToolSet(result);
+    try {
+      const result = await this.controlApi.getToolset({
+        name,
+        config: cfg,
+      });
+
+      return new ToolSet(result, cfg);
+    } catch (error) {
+      if (error instanceof HTTPError) {
+        throw error.toResourceError('ToolSet', name);
+      }
+      throw error;
+    }
   };
 
   /**
@@ -62,13 +201,13 @@ export class ToolSetClient {
     config?: Config;
   }): Promise<ToolSet[]> => {
     const { input, config } = params ?? {};
-
     const cfg = Config.withConfigs(this.config, config);
-    const results = await this.controlClient.listToolsets({
-      input: new ListToolsetsRequest(input),
+
+    const results = await this.controlApi.listToolsets({
+      input: new ListToolsetsRequest({ ...input }),
       config: cfg,
     });
 
-    return results.data?.map((result) => new ToolSet(result)) || [];
+    return results.data?.map((result) => new ToolSet(result, cfg)) || [];
   };
 }

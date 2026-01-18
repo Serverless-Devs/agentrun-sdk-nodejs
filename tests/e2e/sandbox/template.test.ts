@@ -9,16 +9,20 @@
  * - 删除 Template
  */
 
-
-
 import {
   Template,
   TemplateType,
   TemplateNetworkMode,
 } from '../../../src/sandbox';
-import { ResourceNotExistError, ResourceAlreadyExistError } from '../../../src/utils/exception';
+import {
+  ResourceNotExistError,
+  ResourceAlreadyExistError,
+} from '../../../src/utils/exception';
 import { logger } from '../../../src/utils/log';
-import type { TemplateCreateInput, TemplateUpdateInput } from '../../../src/sandbox';
+import type {
+  TemplateCreateInput,
+  TemplateUpdateInput,
+} from '../../../src/sandbox';
 
 /**
  * 生成唯一名称
@@ -128,7 +132,7 @@ describe('Template E2E Tests', () => {
 
       it('should list templates with filter', async () => {
         const templates = await Template.list({
-          templateType: TemplateType.CODE_INTERPRETER,
+          input: { templateType: TemplateType.CODE_INTERPRETER },
         });
 
         expect(templates).toBeDefined();
@@ -197,7 +201,7 @@ describe('Template E2E Tests', () => {
 
     it('should list Browser templates', async () => {
       const templates = await Template.list({
-        templateType: TemplateType.BROWSER,
+        input: { templateType: TemplateType.BROWSER },
       });
 
       expect(templates).toBeDefined();
@@ -329,9 +333,11 @@ describe('Template E2E Tests', () => {
         await template.delete();
       } catch (error) {
         // PRIVATE 模式可能需要额外配置，如果失败则跳过
-        logger.warn('PRIVATE template creation failed, possibly due to missing VPC config:', error);
+        logger.warn(
+          'PRIVATE template creation failed, possibly due to missing VPC config:',
+          error
+        );
       }
     });
   });
 });
-

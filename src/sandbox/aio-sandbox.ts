@@ -5,19 +5,19 @@
  * into a single unified interface.
  */
 
-import { Config } from "../utils/config";
-import { logger } from "../utils/log";
-import { ServerError } from "../utils/exception";
+import { Config } from '../utils/config';
+import { logger } from '../utils/log';
+import { ServerError } from '../utils/exception';
 
-import { AioDataAPI } from "./api/aio-data";
+import { AioDataAPI } from './api/aio-data';
 import {
   CodeLanguage,
   NASConfig,
   OSSMountConfig,
   PolarFsConfig,
   TemplateType,
-} from "./model";
-import { Sandbox } from "./sandbox";
+} from './model';
+import { Sandbox } from './sandbox';
 
 /**
  * File upload/download operations
@@ -70,7 +70,10 @@ export class AioFileSystemOperations {
   /**
    * Move a file or directory
    */
-  move = async (params: { source: string; destination: string }): Promise<any> => {
+  move = async (params: {
+    source: string;
+    destination: string;
+  }): Promise<any> => {
     return this.sandbox.dataApi.moveFile(params);
   };
 
@@ -198,7 +201,7 @@ export class AioContextOperations {
     cwd?: string;
   }): Promise<AioContextOperations> => {
     const language = params?.language || CodeLanguage.PYTHON;
-    const cwd = params?.cwd || "/home/user";
+    const cwd = params?.cwd || '/home/user';
 
     const result = await this.sandbox.dataApi.createContext({
       language,
@@ -212,17 +215,19 @@ export class AioContextOperations {
       return this;
     }
 
-    throw new ServerError(500, "Failed to create context");
+    throw new ServerError(500, 'Failed to create context');
   };
 
   /**
    * Get a specific context by ID
    */
-  get = async (params?: { contextId?: string }): Promise<AioContextOperations> => {
+  get = async (params?: {
+    contextId?: string;
+  }): Promise<AioContextOperations> => {
     const id = params?.contextId || this._contextId;
     if (!id) {
-      logger.error("context id is not set");
-      throw new Error("context id is not set");
+      logger.error('context id is not set');
+      throw new Error('context id is not set');
     }
 
     const result = await this.sandbox.dataApi.getContext({ contextId: id });
@@ -234,7 +239,7 @@ export class AioContextOperations {
       return this;
     }
 
-    throw new ServerError(500, "Failed to get context");
+    throw new ServerError(500, 'Failed to get context');
   };
 
   /**
@@ -254,7 +259,7 @@ export class AioContextOperations {
     }
 
     if (!contextId && !language) {
-      logger.debug("context id is not set, use default language: python");
+      logger.debug('context id is not set, use default language: python');
       language = CodeLanguage.PYTHON;
     }
 
@@ -273,7 +278,7 @@ export class AioContextOperations {
     const id = params?.contextId || this._contextId;
     if (!id) {
       throw new Error(
-        "context_id is required. Either pass it as parameter or create a context first.",
+        'context_id is required. Either pass it as parameter or create a context first.'
       );
     }
 
@@ -304,7 +309,7 @@ export class AioSandbox extends Sandbox {
       ossMountConfig?: OSSMountConfig;
       polarFsConfig?: PolarFsConfig;
     },
-    config?: Config,
+    config?: Config
   ): Promise<AioSandbox> {
     const sandbox = await Sandbox.create(
       {
@@ -314,7 +319,7 @@ export class AioSandbox extends Sandbox {
         ossMountConfig: options?.ossMountConfig,
         polarFsConfig: options?.polarFsConfig,
       },
-      config,
+      config
     );
 
     const aioSandbox = new AioSandbox(sandbox, config);
@@ -337,7 +342,7 @@ export class AioSandbox extends Sandbox {
   get dataApi(): AioDataAPI {
     if (!this._dataApi) {
       this._dataApi = new AioDataAPI({
-        sandboxId: this.sandboxId || "",
+        sandboxId: this.sandboxId || '',
         config: this._config,
       });
     }
@@ -387,54 +392,13 @@ export class AioSandbox extends Sandbox {
   /**
    * Check sandbox health
    */
-  checkHealth = async (params?: { config?: Config }): Promise<{ status: string; [key: string]: any }> => {
-    return this.dataApi.checkHealth({ 
-      sandboxId: this.sandboxId!, 
-      config: params?.config 
+  checkHealth = async (params?: {
+    config?: Config;
+  }): Promise<{ status: string; [key: string]: any }> => {
+    return this.dataApi.checkHealth({
+      sandboxId: this.sandboxId!,
+      config: params?.config,
     });
-  };
-
-  /**
-   * Wait for sandbox to be ready (polls health check)
-   */
-  waitUntilReady = async (params?: {
-    maxRetries?: number;
-    retryIntervalMs?: number;
-  }): Promise<void> => {
-    const maxRetries = params?.maxRetries || 60;
-    const retryIntervalMs = params?.retryIntervalMs || 1000;
-    let retryCount = 0;
-
-    logger.debug("Waiting for AIO sandbox to be ready...");
-
-    while (retryCount < maxRetries) {
-      retryCount += 1;
-
-      try {
-        const health = await this.checkHealth();
-
-        if (health.status === "ok") {
-          logger.debug(`✓ AIO Sandbox is ready! (took ${retryCount} seconds)`);
-          return;
-        }
-
-        logger.debug(`[${retryCount}/${maxRetries}] Health status: not ready`);
-        logger.debug(
-          `[${retryCount}/${maxRetries}] Health status: ${health.code} ${health.message}`,
-        );
-      } catch (error) {
-        logger.error(`[${retryCount}/${maxRetries}] Health check failed: ${error}`);
-      }
-
-      if (retryCount < maxRetries) {
-        await new Promise((resolve) => setTimeout(resolve, retryIntervalMs));
-      }
-    }
-
-    throw new Error(
-      `Health check timeout after ${maxRetries} seconds. ` +
-        "AIO sandbox did not become ready in time.",
-    );
   };
 
   // ========================================
@@ -475,7 +439,10 @@ export class AioSandbox extends Sandbox {
   /**
    * Delete a recording
    */
-  deleteRecording = async (params: { filename: string; config?: Config }): Promise<any> => {
+  deleteRecording = async (params: {
+    filename: string;
+    config?: Config;
+  }): Promise<any> => {
     return this.dataApi.deleteRecording(params);
   };
 

@@ -5,20 +5,9 @@
  * Resource class for managing ToolSet resources.
  */
 
-import * as $Devs from '@alicloud/devs20230714';
-import * as $OpenApi from '@alicloud/openapi-client';
-import * as $Util from '@alicloud/tea-util';
-
 import { Config } from '../utils/config';
-import { ClientError, HTTPError, ServerError } from '../utils/exception';
 import { logger } from '../utils/log';
-import { Status } from '../utils/model';
-import { ResourceBase, updateObjectProperties } from '../utils/resource';
-
-// Handle ESM/CJS interop for Client class
-const $DevsClient =
-  // @ts-expect-error - ESM interop: default.default exists when imported as ESM namespace
-  $Devs.default?.default ?? $Devs.default ?? $Devs;
+import { updateObjectProperties } from '../utils/resource';
 
 import {
   ToolSetCreateInput,
@@ -55,27 +44,10 @@ export class ToolSet implements ToolSetData {
   /**
    * Get DevS client
    */
-  private static getClient(config?: Config): InstanceType<typeof $DevsClient> {
-    const cfg = Config.withConfigs(config);
-
-    // Use devs endpoint
-    let endpoint = cfg.devsEndpoint;
-
-    // Remove protocol prefix for SDK
-    if (endpoint.startsWith('http://') || endpoint.startsWith('https://')) {
-      endpoint = endpoint.split('://')[1];
-    }
-
-    const openApiConfig = new $OpenApi.Config({
-      accessKeyId: cfg.accessKeyId,
-      accessKeySecret: cfg.accessKeySecret,
-      securityToken: cfg.securityToken || undefined,
-      regionId: cfg.regionId,
-      endpoint: endpoint,
-      connectTimeout: cfg.timeout,
-    });
-
-    return new $DevsClient(openApiConfig);
+  private static getClient() {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { ToolSetClient } = require('./client');
+    return new ToolSetClient();
   }
 
   /**
@@ -86,61 +58,7 @@ export class ToolSet implements ToolSetData {
     config?: Config;
   }): Promise<ToolSet> {
     const { input, config } = params;
-    try {
-      const client = ToolSet.getClient(config);
-      const runtime = new $Util.RuntimeOptions({});
-
-      // Build authorization parameters if provided
-      let authConfig: $Devs.Authorization | undefined;
-      if (input.spec?.authConfig) {
-        authConfig = new $Devs.Authorization({
-          type: input.spec.authConfig.type,
-          parameters: new $Devs.AuthorizationParameters({
-            apiKeyParameter: new $Devs.APIKeyAuthParameter({
-              key: input.spec.authConfig.apiKeyHeaderName,
-              value: input.spec.authConfig.apiKeyValue,
-              in: 'header',
-            }),
-          }),
-        });
-      }
-
-      const request = new $Devs.CreateToolsetRequest({
-        body: new $Devs.Toolset({
-          name: input.name,
-          description: input.description,
-          labels: input.labels,
-          spec: input.spec
-            ? new $Devs.ToolsetSpec({
-                schema: input.spec.schema
-                  ? new $Devs.ToolsetSchema({
-                      type: input.spec.schema.type,
-                      detail: input.spec.schema.detail,
-                    })
-                  : undefined,
-                authConfig: authConfig,
-              })
-            : undefined,
-        }),
-      });
-
-      const response = await client.createToolsetWithOptions(
-        request,
-        {},
-        runtime
-      );
-
-      logger.debug(
-        `API createToolset called, Request ID: ${response.body?.requestId}`
-      );
-
-      return new ToolSet(response.body as $Devs.Toolset, config);
-    } catch (error) {
-      if (error instanceof HTTPError) {
-        throw error.toResourceError('ToolSet', input.name);
-      }
-      ToolSet.handleError(error);
-    }
+    return await ToolSet.getClient().create({ input, config });
   }
 
   /**
@@ -151,23 +69,7 @@ export class ToolSet implements ToolSetData {
     config?: Config;
   }): Promise<ToolSet> {
     const { name, config } = params;
-    try {
-      const client = ToolSet.getClient(config);
-      const runtime = new $Util.RuntimeOptions({});
-
-      const response = await client.deleteToolsetWithOptions(name, {}, runtime);
-
-      logger.debug(
-        `API deleteToolset called, Request ID: ${response.body?.requestId}`
-      );
-
-      return new ToolSet(response.body as $Devs.Toolset, config);
-    } catch (error) {
-      if (error instanceof HTTPError) {
-        throw error.toResourceError('ToolSet', name);
-      }
-      ToolSet.handleError(error);
-    }
+    return await ToolSet.getClient().delete({ name, config });
   }
 
   /**
@@ -178,32 +80,7 @@ export class ToolSet implements ToolSetData {
     config?: Config;
   }): Promise<ToolSet> {
     const { name, config } = params;
-    try {
-      const client = ToolSet.getClient(config);
-      const runtime = new $Util.RuntimeOptions({});
-
-      logger.debug(`Calling getToolset API for: ${name}`);
-
-      const response = await client.getToolsetWithOptions(name, {}, runtime);
-
-      logger.debug(
-        `API getToolset response, Request ID: ${response.body?.requestId}`
-      );
-
-      if (!response.body) {
-        throw new Error(
-          `API returned empty response body for toolset: ${name}`
-        );
-      }
-
-      // The SDK returns the toolset data directly in body, not in body.data
-      return new ToolSet(response.body as $Devs.Toolset, config);
-    } catch (error) {
-      if (error instanceof HTTPError) {
-        throw error.toResourceError('ToolSet', name);
-      }
-      ToolSet.handleError(error);
-    }
+    return await ToolSet.getClient().get({ name, config });
   }
 
   /**
@@ -213,42 +90,7 @@ export class ToolSet implements ToolSetData {
     input?: ToolSetListInput,
     config?: Config
   ): Promise<ToolSet[]> {
-    try {
-      const client = ToolSet.getClient(config);
-      const runtime = new $Util.RuntimeOptions({});
-
-      // Convert labels to labelSelector format if needed
-      let labelSelector: string[] | undefined;
-      if (input?.labels) {
-        labelSelector = Object.entries(input.labels).map(
-          ([k, v]) => `${k}=${v}`
-        );
-      }
-
-      const request = new $Devs.ListToolsetsRequest({
-        keyword: input?.prefix,
-        pageNumber: input?.pageSize ? 1 : undefined,
-        pageSize: input?.pageSize,
-        labelSelector: labelSelector,
-      });
-
-      const response = await client.listToolsetsWithOptions(
-        request,
-        {},
-        runtime
-      );
-
-      logger.debug(
-        `API listToolsets called, Request ID: ${response.body?.requestId}`
-      );
-
-      // Response body has data as Toolset[]
-      // SDK returns array of toolsets directly in items field
-      const items = (response.body as any)?.items || [];
-      return items.map((item: $Devs.Toolset) => new ToolSet(item, config));
-    } catch (error) {
-      ToolSet.handleError(error);
-    }
+    return await ToolSet.getClient().list({ input, config });
   }
 
   /**
@@ -299,84 +141,7 @@ export class ToolSet implements ToolSetData {
     config?: Config;
   }): Promise<ToolSet> {
     const { name, input, config } = params;
-    try {
-      const client = ToolSet.getClient(config);
-      const runtime = new $Util.RuntimeOptions({});
-
-      // Build authorization parameters if provided
-      let authConfig: $Devs.Authorization | undefined;
-      if (input.spec?.authConfig) {
-        authConfig = new $Devs.Authorization({
-          type: input.spec.authConfig.type,
-          parameters: new $Devs.AuthorizationParameters({
-            apiKeyParameter: new $Devs.APIKeyAuthParameter({
-              key: input.spec.authConfig.apiKeyHeaderName,
-              value: input.spec.authConfig.apiKeyValue,
-              in: 'header',
-            }),
-          }),
-        });
-      }
-
-      const request = new $Devs.UpdateToolsetRequest({
-        body: new $Devs.Toolset({
-          description: input.description,
-          labels: input.labels,
-          spec: input.spec
-            ? new $Devs.ToolsetSpec({
-                schema: input.spec.schema
-                  ? new $Devs.ToolsetSchema({
-                      type: input.spec.schema.type,
-                      detail: input.spec.schema.detail,
-                    })
-                  : undefined,
-                authConfig: authConfig,
-              })
-            : undefined,
-        }),
-      });
-
-      const response = await client.updateToolsetWithOptions(
-        name,
-        request,
-        {},
-        runtime
-      );
-
-      logger.debug(
-        `API updateToolset called, Request ID: ${response.body?.requestId}`
-      );
-
-      return new ToolSet(response.body as $Devs.Toolset, config);
-    } catch (error) {
-      if (error instanceof HTTPError) {
-        throw error.toResourceError('ToolSet', name);
-      }
-      ToolSet.handleError(error);
-    }
-  }
-
-  /**
-   * Handle API errors
-   */
-  private static handleError(error: unknown): never {
-    if (error && typeof error === 'object' && 'statusCode' in error) {
-      const e = error as {
-        statusCode: number;
-        message: string;
-        data?: { requestId?: string };
-      };
-      const statusCode = e.statusCode;
-      const message = e.message || 'Unknown error';
-      const requestId = e.data?.requestId;
-
-      if (statusCode >= 400 && statusCode < 500) {
-        throw new ClientError(statusCode, message, { requestId });
-      } else if (statusCode >= 500) {
-        throw new ServerError(statusCode, message, { requestId });
-      }
-    }
-    throw error;
+    return await ToolSet.getClient().update({ name, input, config });
   }
 
   /**
@@ -432,47 +197,6 @@ export class ToolSet implements ToolSetData {
     });
     updateObjectProperties(this, result);
     return this;
-  };
-
-  /**
-   * Wait until the toolset is ready
-   */
-  waitUntilReady = async (
-    options?: {
-      timeoutSeconds?: number;
-      intervalSeconds?: number;
-      beforeCheck?: (toolset: ToolSet) => void;
-    },
-    config?: Config
-  ): Promise<ToolSet> => {
-    const timeout = (options?.timeoutSeconds ?? 300) * 1000;
-    const interval = (options?.intervalSeconds ?? 5) * 1000;
-    const startTime = Date.now();
-
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-      await this.refresh({ config });
-
-      if (options?.beforeCheck) {
-        options.beforeCheck(this);
-      }
-
-      if (this.status?.status === Status.READY) {
-        return this;
-      }
-
-      if (this.status?.status === Status.CREATE_FAILED) {
-        throw new Error(`ToolSet failed: ${this.status?.statusReason}`);
-      }
-
-      if (Date.now() - startTime > timeout) {
-        throw new Error(
-          `Timeout waiting for ToolSet to be ready after ${timeout / 1000}s`
-        );
-      }
-
-      await new Promise((resolve) => setTimeout(resolve, interval));
-    }
   };
 
   /**
@@ -675,6 +399,6 @@ export class ToolSet implements ToolSetData {
    */
   private _getOpenAPIBaseUrl(): string | undefined {
     const outputs = this.status?.outputs as any;
-    return outputs?.urls?.intranetUrl || outputs?.urls?.internetUrl;
+    return outputs?.urls?.internetUrl || outputs?.urls?.intranetUrl;
   }
 }

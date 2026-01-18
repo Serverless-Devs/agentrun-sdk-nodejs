@@ -1009,7 +1009,7 @@ describe('Agent Runtime Module', () => {
             status: Status.CREATING,
           });
 
-          const result = await runtime.waitUntilReady({
+          const result = await runtime.waitUntilReadyOrFailed({
             intervalSeconds: 0.1,
             timeoutSeconds: 5,
           });
@@ -1017,7 +1017,7 @@ describe('Agent Runtime Module', () => {
           expect(result.status).toBe(Status.READY);
         });
 
-        it('should call beforeCheck callback', async () => {
+        it('should call callback callback', async () => {
           mockControlApi.getAgentRuntime.mockResolvedValue({
             agentRuntimeId: 'runtime-123',
             agentRuntimeName: 'test-runtime',
@@ -1029,15 +1029,15 @@ describe('Agent Runtime Module', () => {
             agentRuntimeName: 'test-runtime',
           });
 
-          const beforeCheck = jest.fn();
+          const callback = jest.fn();
 
-          await runtime.waitUntilReady({
+          await runtime.waitUntilReadyOrFailed({
             intervalSeconds: 0.1,
             timeoutSeconds: 5,
-            beforeCheck,
+            callback,
           });
 
-          expect(beforeCheck).toHaveBeenCalled();
+          expect(callback).toHaveBeenCalled();
         });
 
         it('should throw error if status becomes FAILED', async () => {
@@ -1052,12 +1052,12 @@ describe('Agent Runtime Module', () => {
             agentRuntimeName: 'test-runtime',
           });
 
-          await expect(
-            runtime.waitUntilReady({
-              intervalSeconds: 0.1,
-              timeoutSeconds: 5,
-            })
-          ).rejects.toThrow();
+          const r = await runtime.waitUntilReadyOrFailed({
+            intervalSeconds: 0.1,
+            timeoutSeconds: 5,
+          });
+
+          await expect(r.status).toBe(Status.CREATE_FAILED);
         });
 
         it('should throw timeout error', async () => {
@@ -1074,11 +1074,11 @@ describe('Agent Runtime Module', () => {
           });
 
           await expect(
-            runtime.waitUntilReady({
+            runtime.waitUntilReadyOrFailed({
               intervalSeconds: 0.05,
               timeoutSeconds: 0.1, // Very short timeout
             })
-          ).rejects.toThrow('Timeout waiting for Agent Runtime');
+          ).rejects.toThrow(/Timeout waiting/);
         });
 
         it('should use default timeout and interval when not provided', async () => {
@@ -1094,7 +1094,7 @@ describe('Agent Runtime Module', () => {
           });
 
           // Call without options to test default values
-          const result = await runtime.waitUntilReady();
+          const result = await runtime.waitUntilReadyOrFailed();
 
           expect(result.status).toBe(Status.READY);
         });
@@ -1126,7 +1126,7 @@ describe('Agent Runtime Module', () => {
           expect(result.status).toBe(Status.READY);
         });
 
-        it('should call beforeCheck callback', async () => {
+        it('should call callback callback', async () => {
           mockControlApi.getAgentRuntime.mockResolvedValue({
             agentRuntimeId: 'runtime-123',
             agentRuntimeName: 'test-runtime',
@@ -1167,9 +1167,7 @@ describe('Agent Runtime Module', () => {
               intervalSeconds: 0.05,
               timeoutSeconds: 0.1, // Very short timeout
             })
-          ).rejects.toThrow(
-            /Timeout waiting/
-          );
+          ).rejects.toThrow(/Timeout waiting/);
         });
 
         it('should use default timeout and interval when not provided', async () => {
@@ -1487,7 +1485,7 @@ describe('Agent Runtime Module', () => {
             ],
           });
 
-          const result = await AgentRuntimeEndpoint.listById({
+          const result = await AgentRuntimeEndpoint.list({
             agentRuntimeId: 'runtime-123',
           });
 
@@ -1500,7 +1498,7 @@ describe('Agent Runtime Module', () => {
             // items is undefined
           });
 
-          const result = await AgentRuntimeEndpoint.listById({
+          const result = await AgentRuntimeEndpoint.list({
             agentRuntimeId: 'runtime-123',
           });
 
@@ -1512,7 +1510,7 @@ describe('Agent Runtime Module', () => {
           mockControlApi.listAgentRuntimeEndpoints.mockRejectedValue(httpError);
 
           await expect(
-            AgentRuntimeEndpoint.listById({ agentRuntimeId: 'runtime-123' })
+            AgentRuntimeEndpoint.list({ agentRuntimeId: 'runtime-123' })
           ).rejects.toThrow();
         });
 
@@ -1523,7 +1521,7 @@ describe('Agent Runtime Module', () => {
           );
 
           await expect(
-            AgentRuntimeEndpoint.listById({ agentRuntimeId: 'runtime-123' })
+            AgentRuntimeEndpoint.list({ agentRuntimeId: 'runtime-123' })
           ).rejects.toThrow('List failed');
         });
       });
@@ -1640,7 +1638,7 @@ describe('Agent Runtime Module', () => {
             status: Status.CREATING,
           });
 
-          const result = await endpoint.waitUntilReady({
+          const result = await endpoint.waitUntilReadyOrFailed({
             intervalSeconds: 0.1,
             timeoutSeconds: 5,
           });
@@ -1648,7 +1646,7 @@ describe('Agent Runtime Module', () => {
           expect(result.status).toBe(Status.READY);
         });
 
-        it('should call beforeCheck callback', async () => {
+        it('should call callback callback', async () => {
           mockControlApi.getAgentRuntimeEndpoint.mockResolvedValue({
             agentRuntimeId: 'runtime-123',
             agentRuntimeEndpointId: 'endpoint-123',
@@ -1660,15 +1658,15 @@ describe('Agent Runtime Module', () => {
             agentRuntimeEndpointId: 'endpoint-123',
           });
 
-          const beforeCheck = jest.fn();
+          const callback = jest.fn();
 
-          await endpoint.waitUntilReady({
+          await endpoint.waitUntilReadyOrFailed({
             intervalSeconds: 0.1,
             timeoutSeconds: 5,
-            beforeCheck,
+            callback,
           });
 
-          expect(beforeCheck).toHaveBeenCalled();
+          expect(callback).toHaveBeenCalled();
         });
 
         it('should throw error if status becomes CREATE_FAILED', async () => {
@@ -1684,12 +1682,12 @@ describe('Agent Runtime Module', () => {
             agentRuntimeEndpointId: 'endpoint-123',
           });
 
-          await expect(
-            endpoint.waitUntilReady({
-              intervalSeconds: 0.1,
-              timeoutSeconds: 5,
-            })
-          ).rejects.toThrow('Endpoint failed');
+          const e = await endpoint.waitUntilReadyOrFailed({
+            intervalSeconds: 0.1,
+            timeoutSeconds: 5,
+          });
+
+          await expect((await e).status).toBe(Status.CREATE_FAILED);
         });
 
         it('should throw error if status becomes UPDATE_FAILED', async () => {
@@ -1706,12 +1704,11 @@ describe('Agent Runtime Module', () => {
             agentRuntimeEndpointId: 'endpoint-123',
           });
 
-          await expect(
-            endpoint.waitUntilReady({
-              intervalSeconds: 0.1,
-              timeoutSeconds: 5,
-            })
-          ).rejects.toThrow('Endpoint failed');
+          const e = await endpoint.waitUntilReadyOrFailed({
+            intervalSeconds: 0.1,
+            timeoutSeconds: 5,
+          });
+          await expect(e.status).toBe(Status.UPDATE_FAILED);
         });
 
         it('should throw error if status becomes DELETE_FAILED', async () => {
@@ -1728,12 +1725,12 @@ describe('Agent Runtime Module', () => {
             agentRuntimeEndpointId: 'endpoint-123',
           });
 
-          await expect(
-            endpoint.waitUntilReady({
-              intervalSeconds: 0.1,
-              timeoutSeconds: 5,
-            })
-          ).rejects.toThrow('Endpoint failed');
+          const e = await endpoint.waitUntilReadyOrFailed({
+            intervalSeconds: 0.1,
+            timeoutSeconds: 5,
+          });
+
+          await expect(e.status).toBe(Status.DELETE_FAILED);
         });
 
         it('should throw timeout error', async () => {
@@ -1750,11 +1747,11 @@ describe('Agent Runtime Module', () => {
           });
 
           await expect(
-            endpoint.waitUntilReady({
+            endpoint.waitUntilReadyOrFailed({
               intervalSeconds: 0.1,
               timeoutSeconds: 0.2,
             })
-          ).rejects.toThrow('Timeout waiting for endpoint');
+          ).rejects.toThrow(/Timeout/);
         });
 
         it('should use default timeout and interval when not provided', async () => {
@@ -1770,7 +1767,7 @@ describe('Agent Runtime Module', () => {
           });
 
           // Call without options to test default values
-          const result = await endpoint.waitUntilReady();
+          const result = await endpoint.waitUntilReadyOrFailed();
 
           expect(result.status).toBe(Status.READY);
         });
