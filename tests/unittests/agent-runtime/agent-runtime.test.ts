@@ -4,8 +4,16 @@
  * 测试 AgentRuntime、AgentRuntimeEndpoint 和 AgentRuntimeClient 类。
  */
 
-import { AgentRuntime, AgentRuntimeEndpoint, AgentRuntimeClient } from '../../../src/agent-runtime';
-import { AgentRuntimeLanguage, AgentRuntimeArtifact, AgentRuntimeProtocolType } from '../../../src/agent-runtime/model';
+import {
+  AgentRuntime,
+  AgentRuntimeEndpoint,
+  AgentRuntimeClient,
+} from '../../../src/agent-runtime';
+import {
+  AgentRuntimeLanguage,
+  AgentRuntimeArtifact,
+  AgentRuntimeProtocolType,
+} from '../../../src/agent-runtime/model';
 import { Config } from '../../../src/utils/config';
 import { HTTPError, ResourceNotExistError } from '../../../src/utils/exception';
 import { Status, NetworkMode } from '../../../src/utils/model';
@@ -30,7 +38,9 @@ jest.mock('../../../src/agent-runtime/api/control', () => {
 });
 
 // Mock the AgentRuntimeDataAPI
-const mockInvokeOpenai = jest.fn().mockResolvedValue({ response: 'mock response' });
+const mockInvokeOpenai = jest
+  .fn()
+  .mockResolvedValue({ response: 'mock response' });
 jest.mock('../../../src/agent-runtime/api/data', () => {
   return {
     AgentRuntimeDataAPI: jest.fn().mockImplementation(() => ({
@@ -41,7 +51,9 @@ jest.mock('../../../src/agent-runtime/api/data', () => {
 
 import { AgentRuntimeControlAPI } from '../../../src/agent-runtime/api/control';
 
-const MockAgentRuntimeControlAPI = AgentRuntimeControlAPI as jest.MockedClass<typeof AgentRuntimeControlAPI>;
+const MockAgentRuntimeControlAPI = AgentRuntimeControlAPI as jest.MockedClass<
+  typeof AgentRuntimeControlAPI
+>;
 
 describe('Agent Runtime Module', () => {
   let mockControlApi: any;
@@ -242,7 +254,9 @@ describe('Agent Runtime Module', () => {
                 memory: 4096,
               },
             })
-          ).rejects.toThrow('Either codeConfiguration or containerConfiguration must be provided');
+          ).rejects.toThrow(
+            'Either codeConfiguration or containerConfiguration must be provided'
+          );
         });
 
         it('should re-throw non-HTTP errors', async () => {
@@ -268,7 +282,9 @@ describe('Agent Runtime Module', () => {
 
       describe('delete', () => {
         it('should delete AgentRuntime by id', async () => {
-          mockControlApi.listAgentRuntimeEndpoints.mockResolvedValue({ items: [] });
+          mockControlApi.listAgentRuntimeEndpoints.mockResolvedValue({
+            items: [],
+          });
           mockControlApi.deleteAgentRuntime.mockResolvedValue({
             agentRuntimeId: 'runtime-123',
             agentRuntimeName: 'test-runtime',
@@ -288,16 +304,24 @@ describe('Agent Runtime Module', () => {
           mockControlApi.listAgentRuntimeEndpoints
             .mockResolvedValueOnce({
               items: [
-                { agentRuntimeId: 'runtime-123', agentRuntimeEndpointId: 'ep-1', agentRuntimeEndpointName: 'endpoint-1' },
-                { agentRuntimeId: 'runtime-123', agentRuntimeEndpointId: 'ep-2', agentRuntimeEndpointName: 'endpoint-2' },
+                {
+                  agentRuntimeId: 'runtime-123',
+                  agentRuntimeEndpointId: 'ep-1',
+                  agentRuntimeEndpointName: 'endpoint-1',
+                },
+                {
+                  agentRuntimeId: 'runtime-123',
+                  agentRuntimeEndpointId: 'ep-2',
+                  agentRuntimeEndpointName: 'endpoint-2',
+                },
               ],
             })
             .mockResolvedValue({ items: [] });
-          
+
           mockControlApi.deleteAgentRuntimeEndpoint.mockResolvedValue({
             agentRuntimeEndpointId: 'ep-1',
           });
-          
+
           mockControlApi.deleteAgentRuntime.mockResolvedValue({
             agentRuntimeId: 'runtime-123',
             agentRuntimeName: 'test-runtime',
@@ -305,23 +329,41 @@ describe('Agent Runtime Module', () => {
 
           await AgentRuntime.delete({ id: 'runtime-123' });
 
-          expect(mockControlApi.deleteAgentRuntimeEndpoint).toHaveBeenCalledTimes(2);
+          expect(
+            mockControlApi.deleteAgentRuntimeEndpoint
+          ).toHaveBeenCalledTimes(2);
           expect(mockControlApi.deleteAgentRuntime).toHaveBeenCalled();
         });
 
         it('should wait for endpoints to be deleted', async () => {
           let listCallCount = 0;
-          mockControlApi.listAgentRuntimeEndpoints.mockImplementation(async () => {
-            listCallCount++;
-            // First call returns 1 endpoint, second call (after delete) returns 1, third returns 0
-            if (listCallCount === 1) {
-              return { items: [{ agentRuntimeId: 'runtime-123', agentRuntimeEndpointId: 'ep-1' }] };
-            } else if (listCallCount === 2) {
-              return { items: [{ agentRuntimeId: 'runtime-123', agentRuntimeEndpointId: 'ep-1' }] };
+          mockControlApi.listAgentRuntimeEndpoints.mockImplementation(
+            async () => {
+              listCallCount++;
+              // First call returns 1 endpoint, second call (after delete) returns 1, third returns 0
+              if (listCallCount === 1) {
+                return {
+                  items: [
+                    {
+                      agentRuntimeId: 'runtime-123',
+                      agentRuntimeEndpointId: 'ep-1',
+                    },
+                  ],
+                };
+              } else if (listCallCount === 2) {
+                return {
+                  items: [
+                    {
+                      agentRuntimeId: 'runtime-123',
+                      agentRuntimeEndpointId: 'ep-1',
+                    },
+                  ],
+                };
+              }
+              return { items: [] };
             }
-            return { items: [] };
-          });
-          
+          );
+
           mockControlApi.deleteAgentRuntimeEndpoint.mockResolvedValue({});
           mockControlApi.deleteAgentRuntime.mockResolvedValue({
             agentRuntimeId: 'runtime-123',
@@ -333,19 +375,27 @@ describe('Agent Runtime Module', () => {
         });
 
         it('should handle HTTP error', async () => {
-          mockControlApi.listAgentRuntimeEndpoints.mockResolvedValue({ items: [] });
+          mockControlApi.listAgentRuntimeEndpoints.mockResolvedValue({
+            items: [],
+          });
           const httpError = new HTTPError(404, 'Not found');
           mockControlApi.deleteAgentRuntime.mockRejectedValue(httpError);
 
-          await expect(AgentRuntime.delete({ id: 'runtime-123' })).rejects.toThrow();
+          await expect(
+            AgentRuntime.delete({ id: 'runtime-123' })
+          ).rejects.toThrow();
         });
 
         it('should re-throw non-HTTP errors', async () => {
-          mockControlApi.listAgentRuntimeEndpoints.mockResolvedValue({ items: [] });
+          mockControlApi.listAgentRuntimeEndpoints.mockResolvedValue({
+            items: [],
+          });
           const genericError = new Error('Delete failed');
           mockControlApi.deleteAgentRuntime.mockRejectedValue(genericError);
 
-          await expect(AgentRuntime.delete({ id: 'runtime-123' })).rejects.toThrow('Delete failed');
+          await expect(
+            AgentRuntime.delete({ id: 'runtime-123' })
+          ).rejects.toThrow('Delete failed');
         });
       });
 
@@ -423,7 +473,10 @@ describe('Agent Runtime Module', () => {
           mockControlApi.updateAgentRuntime.mockRejectedValue(httpError);
 
           await expect(
-            AgentRuntime.update({ id: 'runtime-123', input: { description: 'test' } })
+            AgentRuntime.update({
+              id: 'runtime-123',
+              input: { description: 'test' },
+            })
           ).rejects.toThrow();
         });
 
@@ -432,7 +485,10 @@ describe('Agent Runtime Module', () => {
           mockControlApi.updateAgentRuntime.mockRejectedValue(genericError);
 
           await expect(
-            AgentRuntime.update({ id: 'runtime-123', input: { description: 'test' } })
+            AgentRuntime.update({
+              id: 'runtime-123',
+              input: { description: 'test' },
+            })
           ).rejects.toThrow('Update failed');
         });
       });
@@ -456,14 +512,18 @@ describe('Agent Runtime Module', () => {
           const httpError = new HTTPError(404, 'Not found');
           mockControlApi.getAgentRuntime.mockRejectedValue(httpError);
 
-          await expect(AgentRuntime.get({ id: 'runtime-123' })).rejects.toThrow();
+          await expect(
+            AgentRuntime.get({ id: 'runtime-123' })
+          ).rejects.toThrow();
         });
 
         it('should re-throw non-HTTP errors', async () => {
           const genericError = new Error('Get failed');
           mockControlApi.getAgentRuntime.mockRejectedValue(genericError);
 
-          await expect(AgentRuntime.get({ id: 'runtime-123' })).rejects.toThrow('Get failed');
+          await expect(AgentRuntime.get({ id: 'runtime-123' })).rejects.toThrow(
+            'Get failed'
+          );
         });
       });
 
@@ -484,12 +544,10 @@ describe('Agent Runtime Module', () => {
 
         it('should list AgentRuntimes with filter', async () => {
           mockControlApi.listAgentRuntimes.mockResolvedValue({
-            items: [
-              { agentRuntimeId: '1', agentRuntimeName: 'test-runtime' },
-            ],
+            items: [{ agentRuntimeId: '1', agentRuntimeName: 'test-runtime' }],
           });
 
-          await AgentRuntime.list({ agentRuntimeName: 'test' });
+          await AgentRuntime.list({ input: { agentRuntimeName: 'test' } });
 
           expect(mockControlApi.listAgentRuntimes).toHaveBeenCalledWith(
             expect.objectContaining({
@@ -549,7 +607,7 @@ describe('Agent Runtime Module', () => {
           mockControlApi.listAgentRuntimes.mockResolvedValue({
             items: [
               { agentRuntimeId: '1', agentRuntimeName: 'runtime-1' },
-              { agentRuntimeId: '1', agentRuntimeName: 'runtime-1-dup' },  // Duplicate
+              { agentRuntimeId: '1', agentRuntimeName: 'runtime-1-dup' }, // Duplicate
               { agentRuntimeId: '2', agentRuntimeName: 'runtime-2' },
             ],
           });
@@ -564,7 +622,7 @@ describe('Agent Runtime Module', () => {
           mockControlApi.listAgentRuntimes.mockResolvedValue({
             items: [
               { agentRuntimeId: '1', agentRuntimeName: 'runtime-1' },
-              { agentRuntimeName: 'runtime-no-id' },  // No ID
+              { agentRuntimeName: 'runtime-no-id' }, // No ID
               { agentRuntimeId: '2', agentRuntimeName: 'runtime-2' },
             ],
           });
@@ -615,14 +673,16 @@ describe('Agent Runtime Module', () => {
           });
 
           expect(result).toHaveLength(51);
-          expect(mockControlApi.listAgentRuntimeVersions).toHaveBeenCalledTimes(2);
+          expect(mockControlApi.listAgentRuntimeVersions).toHaveBeenCalledTimes(
+            2
+          );
         });
 
         it('should deduplicate versions by agentRuntimeVersion', async () => {
           mockControlApi.listAgentRuntimeVersions.mockResolvedValue({
             items: [
               { agentRuntimeVersion: 'v1' },
-              { agentRuntimeVersion: 'v1' },  // Duplicate
+              { agentRuntimeVersion: 'v1' }, // Duplicate
               { agentRuntimeVersion: 'v2' },
             ],
           });
@@ -638,7 +698,7 @@ describe('Agent Runtime Module', () => {
           mockControlApi.listAgentRuntimeVersions.mockResolvedValue({
             items: [
               { agentRuntimeVersion: 'v1' },
-              { description: 'no-version' },  // No version
+              { description: 'no-version' }, // No version
             ],
           });
 
@@ -654,7 +714,9 @@ describe('Agent Runtime Module', () => {
     describe('instance methods', () => {
       describe('delete', () => {
         it('should delete this AgentRuntime', async () => {
-          mockControlApi.listAgentRuntimeEndpoints.mockResolvedValue({ items: [] });
+          mockControlApi.listAgentRuntimeEndpoints.mockResolvedValue({
+            items: [],
+          });
           mockControlApi.deleteAgentRuntime.mockResolvedValue({
             agentRuntimeId: 'runtime-123',
             agentRuntimeName: 'test-runtime',
@@ -707,7 +769,9 @@ describe('Agent Runtime Module', () => {
 
           await expect(
             runtime.update({ input: { description: 'Updated' } })
-          ).rejects.toThrow('agentRuntimeId is required to update an Agent Runtime');
+          ).rejects.toThrow(
+            'agentRuntimeId is required to update an Agent Runtime'
+          );
         });
       });
 
@@ -764,7 +828,9 @@ describe('Agent Runtime Module', () => {
           const runtime = new AgentRuntime();
 
           await expect(
-            runtime.createEndpoint({ input: { agentRuntimeEndpointName: 'test' } })
+            runtime.createEndpoint({
+              input: { agentRuntimeEndpointName: 'test' },
+            })
           ).rejects.toThrow('agentRuntimeId is required to create an endpoint');
         });
       });
@@ -792,7 +858,10 @@ describe('Agent Runtime Module', () => {
           const runtime = new AgentRuntime();
 
           await expect(
-            runtime.updateEndpoint({ endpointId: 'ep-1', input: { description: 'test' } })
+            runtime.updateEndpoint({
+              endpointId: 'ep-1',
+              input: { description: 'test' },
+            })
           ).rejects.toThrow('agentRuntimeId is required to update an endpoint');
         });
       });
@@ -808,7 +877,9 @@ describe('Agent Runtime Module', () => {
             agentRuntimeId: 'runtime-123',
           });
 
-          const result = await runtime.getEndpoint({ endpointId: 'endpoint-123' });
+          const result = await runtime.getEndpoint({
+            endpointId: 'endpoint-123',
+          });
 
           expect(mockControlApi.getAgentRuntimeEndpoint).toHaveBeenCalled();
           expect(result.agentRuntimeEndpointName).toBe('my-endpoint');
@@ -855,8 +926,14 @@ describe('Agent Runtime Module', () => {
         it('should list endpoints for this AgentRuntime', async () => {
           mockControlApi.listAgentRuntimeEndpoints.mockResolvedValue({
             items: [
-              { agentRuntimeEndpointId: '1', agentRuntimeEndpointName: 'endpoint-1' },
-              { agentRuntimeEndpointId: '2', agentRuntimeEndpointName: 'endpoint-2' },
+              {
+                agentRuntimeEndpointId: '1',
+                agentRuntimeEndpointName: 'endpoint-1',
+              },
+              {
+                agentRuntimeEndpointId: '2',
+                agentRuntimeEndpointName: 'endpoint-2',
+              },
             ],
           });
 
@@ -932,7 +1009,7 @@ describe('Agent Runtime Module', () => {
             status: Status.CREATING,
           });
 
-          const result = await runtime.waitUntilReady({
+          const result = await runtime.waitUntilReadyOrFailed({
             intervalSeconds: 0.1,
             timeoutSeconds: 5,
           });
@@ -940,7 +1017,7 @@ describe('Agent Runtime Module', () => {
           expect(result.status).toBe(Status.READY);
         });
 
-        it('should call beforeCheck callback', async () => {
+        it('should call callback callback', async () => {
           mockControlApi.getAgentRuntime.mockResolvedValue({
             agentRuntimeId: 'runtime-123',
             agentRuntimeName: 'test-runtime',
@@ -952,15 +1029,15 @@ describe('Agent Runtime Module', () => {
             agentRuntimeName: 'test-runtime',
           });
 
-          const beforeCheck = jest.fn();
+          const callback = jest.fn();
 
-          await runtime.waitUntilReady({
+          await runtime.waitUntilReadyOrFailed({
             intervalSeconds: 0.1,
             timeoutSeconds: 5,
-            beforeCheck,
+            callback,
           });
 
-          expect(beforeCheck).toHaveBeenCalled();
+          expect(callback).toHaveBeenCalled();
         });
 
         it('should throw error if status becomes FAILED', async () => {
@@ -975,12 +1052,12 @@ describe('Agent Runtime Module', () => {
             agentRuntimeName: 'test-runtime',
           });
 
-          await expect(
-            runtime.waitUntilReady({
-              intervalSeconds: 0.1,
-              timeoutSeconds: 5,
-            })
-          ).rejects.toThrow();
+          const r = await runtime.waitUntilReadyOrFailed({
+            intervalSeconds: 0.1,
+            timeoutSeconds: 5,
+          });
+
+          await expect(r.status).toBe(Status.CREATE_FAILED);
         });
 
         it('should throw timeout error', async () => {
@@ -997,11 +1074,11 @@ describe('Agent Runtime Module', () => {
           });
 
           await expect(
-            runtime.waitUntilReady({
+            runtime.waitUntilReadyOrFailed({
               intervalSeconds: 0.05,
               timeoutSeconds: 0.1, // Very short timeout
             })
-          ).rejects.toThrow('Timeout waiting for Agent Runtime');
+          ).rejects.toThrow(/Timeout waiting/);
         });
 
         it('should use default timeout and interval when not provided', async () => {
@@ -1017,7 +1094,7 @@ describe('Agent Runtime Module', () => {
           });
 
           // Call without options to test default values
-          const result = await runtime.waitUntilReady();
+          const result = await runtime.waitUntilReadyOrFailed();
 
           expect(result.status).toBe(Status.READY);
         });
@@ -1049,7 +1126,7 @@ describe('Agent Runtime Module', () => {
           expect(result.status).toBe(Status.READY);
         });
 
-        it('should call beforeCheck callback', async () => {
+        it('should call callback callback', async () => {
           mockControlApi.getAgentRuntime.mockResolvedValue({
             agentRuntimeId: 'runtime-123',
             agentRuntimeName: 'test-runtime',
@@ -1061,15 +1138,15 @@ describe('Agent Runtime Module', () => {
             agentRuntimeName: 'test-runtime',
           });
 
-          const beforeCheck = jest.fn();
+          const callback = jest.fn();
 
           await runtime.waitUntilReadyOrFailed({
             intervalSeconds: 0.1,
             timeoutSeconds: 5,
-            beforeCheck,
+            callback,
           });
 
-          expect(beforeCheck).toHaveBeenCalled();
+          expect(callback).toHaveBeenCalled();
         });
 
         it('should throw timeout error', async () => {
@@ -1090,7 +1167,7 @@ describe('Agent Runtime Module', () => {
               intervalSeconds: 0.05,
               timeoutSeconds: 0.1, // Very short timeout
             })
-          ).rejects.toThrow('Timeout waiting for Agent Runtime to reach final state');
+          ).rejects.toThrow(/Timeout waiting/);
         });
 
         it('should use default timeout and interval when not provided', async () => {
@@ -1154,11 +1231,13 @@ describe('Agent Runtime Module', () => {
         });
 
         it('should reuse data API cache', async () => {
-          const { AgentRuntimeDataAPI } = require('../../../src/agent-runtime/api/data');
-          
+          const {
+            AgentRuntimeDataAPI,
+          } = require('../../../src/agent-runtime/api/data');
+
           // Clear previous calls
           jest.clearAllMocks();
-          
+
           const runtime = new AgentRuntime({
             agentRuntimeId: 'runtime-123',
             agentRuntimeName: 'my-runtime',
@@ -1216,7 +1295,9 @@ describe('Agent Runtime Module', () => {
             input: { agentRuntimeEndpointName: 'test-endpoint' },
           });
 
-          expect(mockControlApi.createAgentRuntimeEndpoint).toHaveBeenCalledWith(
+          expect(
+            mockControlApi.createAgentRuntimeEndpoint
+          ).toHaveBeenCalledWith(
             expect.objectContaining({
               input: expect.objectContaining({
                 targetVersion: 'LATEST',
@@ -1227,7 +1308,9 @@ describe('Agent Runtime Module', () => {
 
         it('should handle HTTP error', async () => {
           const httpError = new HTTPError(409, 'Already exists');
-          mockControlApi.createAgentRuntimeEndpoint.mockRejectedValue(httpError);
+          mockControlApi.createAgentRuntimeEndpoint.mockRejectedValue(
+            httpError
+          );
 
           await expect(
             AgentRuntimeEndpoint.create({
@@ -1239,7 +1322,9 @@ describe('Agent Runtime Module', () => {
 
         it('should re-throw non-HTTP errors', async () => {
           const genericError = new Error('Network failure');
-          mockControlApi.createAgentRuntimeEndpoint.mockRejectedValue(genericError);
+          mockControlApi.createAgentRuntimeEndpoint.mockRejectedValue(
+            genericError
+          );
 
           await expect(
             AgentRuntimeEndpoint.create({
@@ -1267,7 +1352,9 @@ describe('Agent Runtime Module', () => {
 
         it('should handle HTTP error', async () => {
           const httpError = new HTTPError(404, 'Not found');
-          mockControlApi.deleteAgentRuntimeEndpoint.mockRejectedValue(httpError);
+          mockControlApi.deleteAgentRuntimeEndpoint.mockRejectedValue(
+            httpError
+          );
 
           await expect(
             AgentRuntimeEndpoint.delete({
@@ -1279,7 +1366,9 @@ describe('Agent Runtime Module', () => {
 
         it('should re-throw non-HTTP errors', async () => {
           const genericError = new Error('Network error');
-          mockControlApi.deleteAgentRuntimeEndpoint.mockRejectedValue(genericError);
+          mockControlApi.deleteAgentRuntimeEndpoint.mockRejectedValue(
+            genericError
+          );
 
           await expect(
             AgentRuntimeEndpoint.delete({
@@ -1309,7 +1398,9 @@ describe('Agent Runtime Module', () => {
 
         it('should handle HTTP error', async () => {
           const httpError = new HTTPError(400, 'Bad request');
-          mockControlApi.updateAgentRuntimeEndpoint.mockRejectedValue(httpError);
+          mockControlApi.updateAgentRuntimeEndpoint.mockRejectedValue(
+            httpError
+          );
 
           await expect(
             AgentRuntimeEndpoint.update({
@@ -1322,7 +1413,9 @@ describe('Agent Runtime Module', () => {
 
         it('should re-throw non-HTTP errors', async () => {
           const genericError = new Error('Update failed');
-          mockControlApi.updateAgentRuntimeEndpoint.mockRejectedValue(genericError);
+          mockControlApi.updateAgentRuntimeEndpoint.mockRejectedValue(
+            genericError
+          );
 
           await expect(
             AgentRuntimeEndpoint.update({
@@ -1364,7 +1457,9 @@ describe('Agent Runtime Module', () => {
 
         it('should re-throw non-HTTP errors', async () => {
           const genericError = new Error('Fetch failed');
-          mockControlApi.getAgentRuntimeEndpoint.mockRejectedValue(genericError);
+          mockControlApi.getAgentRuntimeEndpoint.mockRejectedValue(
+            genericError
+          );
 
           await expect(
             AgentRuntimeEndpoint.get({
@@ -1379,12 +1474,18 @@ describe('Agent Runtime Module', () => {
         it('should list endpoints by agent runtime id', async () => {
           mockControlApi.listAgentRuntimeEndpoints.mockResolvedValue({
             items: [
-              { agentRuntimeEndpointId: '1', agentRuntimeEndpointName: 'endpoint-1' },
-              { agentRuntimeEndpointId: '2', agentRuntimeEndpointName: 'endpoint-2' },
+              {
+                agentRuntimeEndpointId: '1',
+                agentRuntimeEndpointName: 'endpoint-1',
+              },
+              {
+                agentRuntimeEndpointId: '2',
+                agentRuntimeEndpointName: 'endpoint-2',
+              },
             ],
           });
 
-          const result = await AgentRuntimeEndpoint.listById({
+          const result = await AgentRuntimeEndpoint.list({
             agentRuntimeId: 'runtime-123',
           });
 
@@ -1397,7 +1498,7 @@ describe('Agent Runtime Module', () => {
             // items is undefined
           });
 
-          const result = await AgentRuntimeEndpoint.listById({
+          const result = await AgentRuntimeEndpoint.list({
             agentRuntimeId: 'runtime-123',
           });
 
@@ -1409,16 +1510,18 @@ describe('Agent Runtime Module', () => {
           mockControlApi.listAgentRuntimeEndpoints.mockRejectedValue(httpError);
 
           await expect(
-            AgentRuntimeEndpoint.listById({ agentRuntimeId: 'runtime-123' })
+            AgentRuntimeEndpoint.list({ agentRuntimeId: 'runtime-123' })
           ).rejects.toThrow();
         });
 
         it('should re-throw non-HTTP errors', async () => {
           const genericError = new Error('List failed');
-          mockControlApi.listAgentRuntimeEndpoints.mockRejectedValue(genericError);
+          mockControlApi.listAgentRuntimeEndpoints.mockRejectedValue(
+            genericError
+          );
 
           await expect(
-            AgentRuntimeEndpoint.listById({ agentRuntimeId: 'runtime-123' })
+            AgentRuntimeEndpoint.list({ agentRuntimeId: 'runtime-123' })
           ).rejects.toThrow('List failed');
         });
       });
@@ -1480,7 +1583,9 @@ describe('Agent Runtime Module', () => {
 
           await expect(
             endpoint.update({ input: { description: 'test' } })
-          ).rejects.toThrow('agentRuntimeId and agentRuntimeEndpointId are required');
+          ).rejects.toThrow(
+            'agentRuntimeId and agentRuntimeEndpointId are required'
+          );
         });
       });
 
@@ -1515,15 +1620,17 @@ describe('Agent Runtime Module', () => {
       describe('waitUntilReady', () => {
         it('should wait until status is READY', async () => {
           let callCount = 0;
-          mockControlApi.getAgentRuntimeEndpoint.mockImplementation(async () => {
-            callCount++;
-            return {
-              agentRuntimeId: 'runtime-123',
-              agentRuntimeEndpointId: 'endpoint-123',
-              agentRuntimeEndpointName: 'test-endpoint',
-              status: callCount >= 2 ? Status.READY : Status.CREATING,
-            };
-          });
+          mockControlApi.getAgentRuntimeEndpoint.mockImplementation(
+            async () => {
+              callCount++;
+              return {
+                agentRuntimeId: 'runtime-123',
+                agentRuntimeEndpointId: 'endpoint-123',
+                agentRuntimeEndpointName: 'test-endpoint',
+                status: callCount >= 2 ? Status.READY : Status.CREATING,
+              };
+            }
+          );
 
           const endpoint = new AgentRuntimeEndpoint({
             agentRuntimeId: 'runtime-123',
@@ -1531,7 +1638,7 @@ describe('Agent Runtime Module', () => {
             status: Status.CREATING,
           });
 
-          const result = await endpoint.waitUntilReady({
+          const result = await endpoint.waitUntilReadyOrFailed({
             intervalSeconds: 0.1,
             timeoutSeconds: 5,
           });
@@ -1539,7 +1646,7 @@ describe('Agent Runtime Module', () => {
           expect(result.status).toBe(Status.READY);
         });
 
-        it('should call beforeCheck callback', async () => {
+        it('should call callback callback', async () => {
           mockControlApi.getAgentRuntimeEndpoint.mockResolvedValue({
             agentRuntimeId: 'runtime-123',
             agentRuntimeEndpointId: 'endpoint-123',
@@ -1551,15 +1658,15 @@ describe('Agent Runtime Module', () => {
             agentRuntimeEndpointId: 'endpoint-123',
           });
 
-          const beforeCheck = jest.fn();
+          const callback = jest.fn();
 
-          await endpoint.waitUntilReady({
+          await endpoint.waitUntilReadyOrFailed({
             intervalSeconds: 0.1,
             timeoutSeconds: 5,
-            beforeCheck,
+            callback,
           });
 
-          expect(beforeCheck).toHaveBeenCalled();
+          expect(callback).toHaveBeenCalled();
         });
 
         it('should throw error if status becomes CREATE_FAILED', async () => {
@@ -1575,12 +1682,12 @@ describe('Agent Runtime Module', () => {
             agentRuntimeEndpointId: 'endpoint-123',
           });
 
-          await expect(
-            endpoint.waitUntilReady({
-              intervalSeconds: 0.1,
-              timeoutSeconds: 5,
-            })
-          ).rejects.toThrow('Endpoint failed');
+          const e = await endpoint.waitUntilReadyOrFailed({
+            intervalSeconds: 0.1,
+            timeoutSeconds: 5,
+          });
+
+          await expect((await e).status).toBe(Status.CREATE_FAILED);
         });
 
         it('should throw error if status becomes UPDATE_FAILED', async () => {
@@ -1597,12 +1704,11 @@ describe('Agent Runtime Module', () => {
             agentRuntimeEndpointId: 'endpoint-123',
           });
 
-          await expect(
-            endpoint.waitUntilReady({
-              intervalSeconds: 0.1,
-              timeoutSeconds: 5,
-            })
-          ).rejects.toThrow('Endpoint failed');
+          const e = await endpoint.waitUntilReadyOrFailed({
+            intervalSeconds: 0.1,
+            timeoutSeconds: 5,
+          });
+          await expect(e.status).toBe(Status.UPDATE_FAILED);
         });
 
         it('should throw error if status becomes DELETE_FAILED', async () => {
@@ -1619,12 +1725,12 @@ describe('Agent Runtime Module', () => {
             agentRuntimeEndpointId: 'endpoint-123',
           });
 
-          await expect(
-            endpoint.waitUntilReady({
-              intervalSeconds: 0.1,
-              timeoutSeconds: 5,
-            })
-          ).rejects.toThrow('Endpoint failed');
+          const e = await endpoint.waitUntilReadyOrFailed({
+            intervalSeconds: 0.1,
+            timeoutSeconds: 5,
+          });
+
+          await expect(e.status).toBe(Status.DELETE_FAILED);
         });
 
         it('should throw timeout error', async () => {
@@ -1641,11 +1747,11 @@ describe('Agent Runtime Module', () => {
           });
 
           await expect(
-            endpoint.waitUntilReady({
+            endpoint.waitUntilReadyOrFailed({
               intervalSeconds: 0.1,
               timeoutSeconds: 0.2,
             })
-          ).rejects.toThrow('Timeout waiting for endpoint');
+          ).rejects.toThrow(/Timeout/);
         });
 
         it('should use default timeout and interval when not provided', async () => {
@@ -1661,7 +1767,7 @@ describe('Agent Runtime Module', () => {
           });
 
           // Call without options to test default values
-          const result = await endpoint.waitUntilReady();
+          const result = await endpoint.waitUntilReadyOrFailed();
 
           expect(result.status).toBe(Status.READY);
         });
@@ -1744,7 +1850,9 @@ describe('Agent Runtime Module', () => {
 
     describe('delete', () => {
       it('should delete AgentRuntime via client', async () => {
-        mockControlApi.listAgentRuntimeEndpoints.mockResolvedValue({ items: [] });
+        mockControlApi.listAgentRuntimeEndpoints.mockResolvedValue({
+          items: [],
+        });
         mockControlApi.deleteAgentRuntime.mockResolvedValue({
           agentRuntimeId: 'runtime-123',
           agentRuntimeName: 'test-runtime',
@@ -1798,35 +1906,6 @@ describe('Agent Runtime Module', () => {
         const result = await client.list();
 
         expect(result).toHaveLength(2);
-      });
-    });
-
-    describe('listAll', () => {
-      it('should list all AgentRuntimes via client', async () => {
-        mockControlApi.listAgentRuntimes.mockResolvedValue({
-          items: [
-            { agentRuntimeId: '1', agentRuntimeName: 'runtime-1' },
-          ],
-          nextToken: undefined,
-        });
-
-        const result = await client.listAll();
-
-        expect(result).toHaveLength(1);
-      });
-
-      it('should list all with options', async () => {
-        mockControlApi.listAgentRuntimes.mockResolvedValue({
-          items: [
-            { agentRuntimeId: '1', agentRuntimeName: 'filtered-runtime' },
-          ],
-        });
-
-        const result = await client.listAll({
-          options: { agentRuntimeName: 'filtered-runtime' },
-        });
-
-        expect(result).toHaveLength(1);
       });
     });
 
@@ -1919,10 +1998,7 @@ describe('Agent Runtime Module', () => {
     describe('listVersions', () => {
       it('should list versions via client', async () => {
         mockControlApi.listAgentRuntimeVersions.mockResolvedValue({
-          items: [
-            { agentRuntimeVersion: '1' },
-            { agentRuntimeVersion: '2' },
-          ],
+          items: [{ agentRuntimeVersion: '1' }, { agentRuntimeVersion: '2' }],
         });
 
         const result = await client.listVersions({

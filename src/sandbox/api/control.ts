@@ -292,6 +292,50 @@ export class SandboxControlAPI extends ControlAPI {
   };
 
   /**
+   * Delete Sandbox
+   *
+   * @param params - Method parameters
+   * @param params.sandboxId - Sandbox ID
+   * @param params.headers - Custom request headers
+   * @param params.config - Optional config override
+   * @returns Deleted Sandbox object
+   */
+  deleteSandbox = async (params: { sandboxId: string; headers?: Record<string, string>; config?: Config }): Promise<$AgentRun.Sandbox> => {
+    const { sandboxId, headers, config } = params;
+
+    try {
+      const client = this.getClient(config);
+      const runtime = new $Util.RuntimeOptions({});
+
+      const response = await client.deleteSandboxWithOptions(
+        sandboxId,
+        headers ?? {},
+        runtime
+      );
+
+      logger.debug(
+        `request api deleteSandbox, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([sandboxId])}\n  response: ${JSON.stringify(response.body?.data)}`,
+      );
+
+      return response.body?.data as $AgentRun.Sandbox;
+    } catch (error: unknown) {
+      if (error && typeof error === "object" && "statusCode" in error) {
+        const e = error as { statusCode: number; message: string; data?: { requestId?: string } };
+        const statusCode = e.statusCode;
+        const message = e.message || "Unknown error";
+        const requestId = e.data?.requestId;
+
+        if (statusCode >= 400 && statusCode < 500) {
+          throw new ClientError(statusCode, message, { requestId });
+        } else if (statusCode >= 500) {
+          throw new ServerError(statusCode, message, { requestId });
+        }
+      }
+      throw error;
+    }
+  };
+
+  /**
    * Stop Sandbox
    *
    * @param params - Method parameters

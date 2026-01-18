@@ -565,8 +565,8 @@ describe('Credential Module', () => {
         // listAll stops when returned items < pageSize (50)
         // So a single call with less than 50 items will stop pagination
         mockClientInstance.list.mockResolvedValueOnce([
-          new CredentialListOutput({ credentialName: 'cred1' }),
-          new CredentialListOutput({ credentialName: 'cred2' }),
+          new CredentialListOutput({ credentialId: 'cred1' }),
+          new CredentialListOutput({ credentialId: 'cred2' }),
         ]);
 
         const result = await Credential.listAll();
@@ -575,18 +575,18 @@ describe('Credential Module', () => {
         expect(result).toHaveLength(2);
       });
 
-      it('should deduplicate results by credentialName', async () => {
+      it('should deduplicate results by credentialId', async () => {
         // Single page with duplicate names
         mockClientInstance.list.mockResolvedValueOnce([
-          new CredentialListOutput({ credentialName: 'cred1' }),
-          new CredentialListOutput({ credentialName: 'cred1' }), // Duplicate
-          new CredentialListOutput({ credentialName: 'cred2' }),
+          new CredentialListOutput({ credentialId: 'cred1' }),
+          new CredentialListOutput({ credentialId: 'cred1' }), // Duplicate
+          new CredentialListOutput({ credentialId: 'cred2' }),
         ]);
 
         const result = await Credential.listAll();
 
         expect(result).toHaveLength(2);
-        expect(result.map((c) => c.credentialName)).toEqual(['cred1', 'cred2']);
+        expect(result.map((c) => c.credentialId)).toEqual(['cred1', 'cred2']);
       });
 
       it('should support input and config options', async () => {
@@ -600,18 +600,18 @@ describe('Credential Module', () => {
         expect(mockClientInstance.list).toHaveBeenCalled();
       });
 
-      it('should handle undefined credentialName in deduplication', async () => {
-        // Items with undefined credentialName
+      it('should handle undefined credentialId in deduplication', async () => {
+        // Items with undefined credentialId
         mockClientInstance.list.mockResolvedValueOnce([
-          new CredentialListOutput({ credentialName: undefined as any }),
-          new CredentialListOutput({ credentialName: '' }),
-          new CredentialListOutput({ credentialName: 'cred1' }),
+          new CredentialListOutput({ credentialId: undefined as any }),
+          new CredentialListOutput({ credentialId: '' }),
+          new CredentialListOutput({ credentialId: 'cred1' }),
         ]);
 
         const result = await Credential.listAll();
 
         // undefined and '' both map to '' for deduplication, so they should be deduplicated
-        expect(result).toHaveLength(2); // '' (from undefined) deduplicated with '', plus 'cred1'
+        expect(result).toHaveLength(1); // '' (from undefined) deduplicated with '', plus 'cred1'
       });
     });
 

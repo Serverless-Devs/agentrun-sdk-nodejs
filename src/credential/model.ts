@@ -18,7 +18,10 @@ export type CredentialAuthType =
   | 'custom_header';
 
 /** 凭证来源类型 / Credential Source Types */
-export type CredentialSourceType = 'external_llm' | 'external_tool' | 'internal';
+export type CredentialSourceType =
+  | 'external_llm'
+  | 'external_tool'
+  | 'internal';
 
 /**
  * Credential basic authentication configuration
@@ -139,7 +142,9 @@ export class CredentialConfig implements CredentialConfigInterface {
   }
 
   /** 配置访问第三方工具的自定义凭证 */
-  static outboundToolAKSKCustom(params: { authConfig: Record<string, string> }) {
+  static outboundToolAKSKCustom(params: {
+    authConfig: Record<string, string>;
+  }) {
     const { authConfig } = params;
     return new CredentialConfig({
       credentialSourceType: 'external_tool',
@@ -216,6 +221,8 @@ export class CredentialListOutput {
   constructor(data?: any) {
     if (data) updateObjectProperties(this, data);
   }
+
+  uniqIdCallback = () => this.credentialId;
 
   toCredential = async (params?: { config?: Config }) => {
     const { CredentialClient } = await import('./client');

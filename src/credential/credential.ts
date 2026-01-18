@@ -6,8 +6,10 @@
  */
 
 import { Config } from '../utils/config';
-import { HTTPError } from '../utils/exception';
-import { updateObjectProperties } from '../utils/resource';
+import {
+  listAllResourcesFunction,
+  updateObjectProperties,
+} from '../utils/resource';
 
 import { ResourceBase } from '../utils/resource';
 import { CredentialClient } from './client';
@@ -15,11 +17,9 @@ import {
   CredentialAuthType,
   CredentialCreateInput,
   CredentialInterface,
-  CredentialListInput,
-  CredentialListOutput,
   CredentialSourceType,
   CredentialUpdateInput,
-  RelatedResource,
+  RelatedResource
 } from './model';
 
 export class Credential extends ResourceBase implements CredentialInterface {
@@ -43,7 +43,7 @@ export class Credential extends ResourceBase implements CredentialInterface {
 
   protected _config?: Config;
 
-  constructor(data?: CredentialInterface, config?: Config) {
+  constructor(data?: any, config?: Config) {
     super();
 
     if (data) updateObjectProperties(this, data);
@@ -66,15 +66,7 @@ export class Credential extends ResourceBase implements CredentialInterface {
     const config: Config | undefined = hasInputProp
       ? paramsOrInput.config
       : undefined;
-    const client = Credential.getClient();
-    try {
-      return await client.create({ input, config });
-    } catch (error) {
-      if (error instanceof HTTPError) {
-        throw error.toResourceError('Credential', input.credentialName || '');
-      }
-      throw error;
-    }
+    return await Credential.getClient().create({ input, config });
   };
 
   /**
@@ -87,15 +79,7 @@ export class Credential extends ResourceBase implements CredentialInterface {
     const config: Config | undefined = isString
       ? undefined
       : paramsOrName.config;
-    const client = Credential.getClient();
-    try {
-      return await client.delete({ name, config });
-    } catch (error) {
-      if (error instanceof HTTPError) {
-        throw error.toResourceError('Credential', name);
-      }
-      throw error;
-    }
+    return await Credential.getClient().delete({ name, config });
   };
 
   /**
@@ -106,15 +90,7 @@ export class Credential extends ResourceBase implements CredentialInterface {
     const name: string = paramsOrName.name;
     const input: CredentialUpdateInput = paramsOrName.input;
     const config: Config | undefined = paramsOrName.config;
-    const client = Credential.getClient();
-    try {
-      return await client.update({ name, input, config });
-    } catch (error) {
-      if (error instanceof HTTPError) {
-        throw error.toResourceError('Credential', name);
-      }
-      throw error;
-    }
+    return await Credential.getClient().update({ name, input, config });
   };
 
   /**
@@ -127,15 +103,7 @@ export class Credential extends ResourceBase implements CredentialInterface {
     const config: Config | undefined = isString
       ? undefined
       : paramsOrName.config;
-    const client = Credential.getClient();
-    try {
-      return await client.get({ name, config });
-    } catch (error) {
-      if (error instanceof HTTPError) {
-        throw error.toResourceError('Credential', name);
-      }
-      throw error;
-    }
+    return await Credential.getClient().get({ name, config });
   };
 
   /**
@@ -144,28 +112,10 @@ export class Credential extends ResourceBase implements CredentialInterface {
   static list = async (paramsOrUndefined?: any) => {
     const input = paramsOrUndefined?.input ?? paramsOrUndefined;
     const config: Config | undefined = paramsOrUndefined?.config;
-    const client = Credential.getClient();
-    try {
-      return await client.list({ input, config });
-    } catch (error) {
-      if (error instanceof HTTPError) {
-        throw error.toResourceError('Credential', 'list');
-      }
-      throw error;
-    }
+    return await Credential.getClient().list({ input, config });
   };
 
-  static listAll = async (params?: {
-    input?: CredentialListInput;
-    config?: Config;
-  }) => {
-    const result = await super.listAll({
-      uniqIdCallback: (item) => item.credentialName || '',
-      input: params?.input,
-      config: params?.config,
-    });
-    return result as CredentialListOutput[];
-  };
+  static listAll = listAllResourcesFunction(this.list);
 
   /**
    * Delete this credential
@@ -202,7 +152,7 @@ export class Credential extends ResourceBase implements CredentialInterface {
       input,
       config: config ?? this._config,
     });
-    
+
     updateObjectProperties(this, result);
     return this;
   };

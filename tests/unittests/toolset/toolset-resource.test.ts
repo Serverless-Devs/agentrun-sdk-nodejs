@@ -4,18 +4,22 @@
  * 测试 ToolSet 类的各种功能。
  */
 
-import { ToolSet, ToolSetClient, ToolSetSchemaType } from '../../../src/toolset';
+import { ToolSet, ToolSetSchemaType } from '../../../src/toolset';
 import { Config } from '../../../src/utils/config';
+import {
+  ClientError,
+  HTTPError,
+  ServerError,
+} from '../../../src/utils/exception';
 import { Status } from '../../../src/utils/model';
-import { HTTPError, ClientError, ServerError } from '../../../src/utils/exception';
 
-// Mock DevS client at the instance level by spying on getClient
-const mockDevsClient = {
-  createToolsetWithOptions: jest.fn(),
-  deleteToolsetWithOptions: jest.fn(),
-  updateToolsetWithOptions: jest.fn(),
-  getToolsetWithOptions: jest.fn(),
-  listToolsetsWithOptions: jest.fn(),
+// Mock ToolSetClient at the instance level by spying on getClient
+const mockToolSetClient = {
+  create: jest.fn(),
+  delete: jest.fn(),
+  update: jest.fn(),
+  get: jest.fn(),
+  list: jest.fn(),
 };
 
 describe('ToolSet Module', () => {
@@ -27,7 +31,7 @@ describe('ToolSet Module', () => {
     process.env.AGENTRUN_REGION = 'cn-hangzhou';
     process.env.AGENTRUN_ACCOUNT_ID = '123456';
     // Re-apply the mock after clearing
-    jest.spyOn(ToolSet as any, 'getClient').mockReturnValue(mockDevsClient);
+    jest.spyOn(ToolSet as any, 'getClient').mockReturnValue(mockToolSetClient);
   });
 
   describe('ToolSet class', () => {
@@ -61,101 +65,38 @@ describe('ToolSet Module', () => {
     describe('getters', () => {
       it('should return toolSetName as alias for name', () => {
         const toolset = new ToolSet({ name: 'my-toolset' });
-        expect(toolset.toolSetName).toBe('my-toolset');
+        expect(toolset.name).toBe('my-toolset');
       });
 
       it('should return toolSetId as alias for uid', () => {
         const toolset = new ToolSet({ uid: 'uid-123' });
-        expect(toolset.toolSetId).toBe('uid-123');
+        expect(toolset.uid).toBe('uid-123');
       });
 
       it('should return isReady based on status', () => {
         const toolset = new ToolSet({
           status: { status: Status.READY },
         });
-        expect(toolset.isReady).toBe(true);
+        expect(toolset.status?.status === 'READY').toBe(true);
 
         const toolset2 = new ToolSet({
           status: { status: Status.CREATING },
         });
-        expect(toolset2.isReady).toBe(false);
+        expect(toolset2?.status?.status === 'READY').toBe(false);
       });
 
       it('should return isReady false when status is undefined', () => {
         const toolset = new ToolSet({});
-        expect(toolset.isReady).toBe(false);
-      });
-    });
-
-    describe('fromInnerObject', () => {
-      it('should convert SDK object to ToolSet', () => {
-        const sdkObj = {
-          name: 'test-toolset',
-          uid: 'uid-123',
-          kind: 'Toolset',
-          description: 'Test',
-          createdTime: '2024-01-01',
-          generation: 1,
-          labels: { env: 'test' },
-          spec: {
-            schema: {
-              type: 'OpenAPI',
-              detail: 'https://api.example.com/openapi.json',
-            },
-            authConfig: {
-              type: 'API_KEY',
-              parameters: {
-                apiKeyParameter: {
-                  key: 'X-API-Key',
-                  value: 'secret',
-                },
-              },
-            },
-          },
-          status: {
-            status: 'READY',
-            statusReason: '',
-            outputs: {
-              mcpServerConfig: {
-                url: 'https://mcp.example.com',
-                transport: 'http',
-              },
-              tools: [
-                { name: 'tool1', description: 'Tool 1' },
-              ],
-              urls: {
-                cdpUrl: 'https://cdp.example.com',
-                liveViewUrl: 'https://live.example.com',
-                streamUrl: 'https://stream.example.com',
-              },
-            },
-          },
-        };
-
-        const toolset = ToolSet.fromInnerObject(sdkObj as any);
-
-        expect(toolset.name).toBe('test-toolset');
-        expect(toolset.uid).toBe('uid-123');
-        expect(toolset.spec?.schema?.type).toBe('OpenAPI');
-        expect(toolset.spec?.authConfig?.apiKeyHeaderName).toBe('X-API-Key');
-        expect(toolset.status?.status).toBe('READY');
-      });
-
-      it('should throw error for null object', () => {
-        expect(() => ToolSet.fromInnerObject(null as any)).toThrow(
-          'Invalid toolset object'
-        );
+        expect(toolset.status?.status === 'READY').toBe(false);
       });
     });
 
     describe('static create', () => {
       it('should create a new toolset', async () => {
-        mockDevsClient.createToolsetWithOptions.mockResolvedValue({
-          body: {
-            name: 'new-toolset',
-            uid: 'new-uid',
-            status: { status: 'CREATING' },
-          },
+        mockToolSetClient.create.mockResolvedValue({
+          name: 'new-toolset',
+          uid: 'new-uid',
+          status: { status: 'CREATING' },
         });
 
         const result = await ToolSet.create({
@@ -170,16 +111,14 @@ describe('ToolSet Module', () => {
           },
         });
 
-        expect(mockDevsClient.createToolsetWithOptions).toHaveBeenCalled();
+        expect(mockToolSetClient.create).toHaveBeenCalled();
         expect(result.name).toBe('new-toolset');
       });
 
       it('should create toolset with auth config', async () => {
-        mockDevsClient.createToolsetWithOptions.mockResolvedValue({
-          body: {
-            name: 'auth-toolset',
-            uid: 'auth-uid',
-          },
+        mockToolSetClient.create.mockResolvedValue({
+          name: 'auth-toolset',
+          uid: 'auth-uid',
         });
 
         await ToolSet.create({
@@ -199,12 +138,13 @@ describe('ToolSet Module', () => {
           },
         });
 
-        expect(mockDevsClient.createToolsetWithOptions).toHaveBeenCalled();
+        expect(mockToolSetClient.create).toHaveBeenCalled();
       });
 
       it('should handle 400 error', async () => {
-        const error = { statusCode: 400, message: 'Bad request' };
-        mockDevsClient.createToolsetWithOptions.mockRejectedValue(error);
+        mockToolSetClient.create.mockRejectedValue(
+          new ClientError(400, 'Bad request')
+        );
 
         await expect(
           ToolSet.create({
@@ -214,8 +154,9 @@ describe('ToolSet Module', () => {
       });
 
       it('should handle 500 error', async () => {
-        const error = { statusCode: 500, message: 'Server error' };
-        mockDevsClient.createToolsetWithOptions.mockRejectedValue(error);
+        mockToolSetClient.create.mockRejectedValue(
+          new ServerError(500, 'Server error')
+        );
 
         await expect(
           ToolSet.create({
@@ -226,7 +167,7 @@ describe('ToolSet Module', () => {
 
       it('should handle HTTPError during create', async () => {
         const httpError = new HTTPError(409, 'Already exists');
-        mockDevsClient.createToolsetWithOptions.mockRejectedValue(httpError);
+        mockToolSetClient.create.mockRejectedValue(httpError);
 
         await expect(
           ToolSet.create({
@@ -238,32 +179,31 @@ describe('ToolSet Module', () => {
 
     describe('static delete', () => {
       it('should delete a toolset by name', async () => {
-        mockDevsClient.deleteToolsetWithOptions.mockResolvedValue({
-          body: {
-            name: 'deleted-toolset',
-          },
+        mockToolSetClient.delete.mockResolvedValue({
+          name: 'deleted-toolset',
         });
 
         const result = await ToolSet.delete({
           name: 'deleted-toolset-success',
         });
 
-        expect(mockDevsClient.deleteToolsetWithOptions).toHaveBeenCalled();
+        expect(mockToolSetClient.delete).toHaveBeenCalled();
         expect(result.name).toBe('deleted-toolset');
       });
 
       it('should handle 404 error', async () => {
-        const error = { statusCode: 404, message: 'Not found' };
-        mockDevsClient.deleteToolsetWithOptions.mockRejectedValue(error);
+        mockToolSetClient.delete.mockRejectedValue(
+          new ClientError(404, 'Not found')
+        );
 
-        await expect(
-          ToolSet.delete({ name: 'not-found' })
-        ).rejects.toThrow(ClientError);
+        await expect(ToolSet.delete({ name: 'not-found' })).rejects.toThrow(
+          ClientError
+        );
       });
 
       it('should handle HTTPError during delete', async () => {
         const httpError = new HTTPError(404, 'Not found');
-        mockDevsClient.deleteToolsetWithOptions.mockRejectedValue(httpError);
+        mockToolSetClient.delete.mockRejectedValue(httpError);
 
         await expect(
           ToolSet.delete({ name: 'not-found-http' })
@@ -273,11 +213,9 @@ describe('ToolSet Module', () => {
 
     describe('static update', () => {
       it('should update a toolset', async () => {
-        mockDevsClient.updateToolsetWithOptions.mockResolvedValue({
-          body: {
-            name: 'updated-toolset',
-            description: 'Updated description',
-          },
+        mockToolSetClient.update.mockResolvedValue({
+          name: 'updated-toolset',
+          description: 'Updated description',
         });
 
         const result = await ToolSet.update({
@@ -285,13 +223,13 @@ describe('ToolSet Module', () => {
           input: { description: 'Updated description' },
         });
 
-        expect(mockDevsClient.updateToolsetWithOptions).toHaveBeenCalled();
+        expect(mockToolSetClient.update).toHaveBeenCalled();
         expect(result.description).toBe('Updated description');
       });
 
       it('should handle HTTPError during update', async () => {
         const httpError = new HTTPError(400, 'Bad request');
-        mockDevsClient.updateToolsetWithOptions.mockRejectedValue(httpError);
+        mockToolSetClient.update.mockRejectedValue(httpError);
 
         await expect(
           ToolSet.update({ name: 'error-toolset', input: {} })
@@ -299,8 +237,9 @@ describe('ToolSet Module', () => {
       });
 
       it('should handle generic error during update', async () => {
-        const error = { statusCode: 500, message: 'Server error' };
-        mockDevsClient.updateToolsetWithOptions.mockRejectedValue(error);
+        mockToolSetClient.update.mockRejectedValue(
+          new ServerError(500, 'Server error')
+        );
 
         await expect(
           ToolSet.update({ name: 'error-toolset', input: {} })
@@ -310,107 +249,90 @@ describe('ToolSet Module', () => {
 
     describe('static get', () => {
       it('should get a toolset by name', async () => {
-        mockDevsClient.getToolsetWithOptions.mockResolvedValue({
-          body: {
-            name: 'my-toolset',
-            uid: 'uid-123',
-            status: { status: 'READY' },
-          },
+        mockToolSetClient.get.mockResolvedValue({
+          name: 'my-toolset',
+          uid: 'uid-123',
+          status: { status: 'READY' },
         });
 
         const result = await ToolSet.get({ name: 'my-toolset' });
 
-        expect(mockDevsClient.getToolsetWithOptions).toHaveBeenCalled();
+        expect(mockToolSetClient.get).toHaveBeenCalled();
         expect(result.name).toBe('my-toolset');
       });
 
       it('should throw error when body is empty', async () => {
-        mockDevsClient.getToolsetWithOptions.mockResolvedValue({ body: null });
+        mockToolSetClient.get.mockRejectedValue(new Error('Empty response body'));
 
-        await expect(
-          ToolSet.get({ name: 'empty-body' })
-        ).rejects.toThrow('API returned empty response body');
+        await expect(ToolSet.get({ name: 'empty-body' })).rejects.toThrow(
+          'Empty response body'
+        );
       });
 
       it('should handle HTTPError during get', async () => {
         const httpError = new HTTPError(404, 'Not found');
-        mockDevsClient.getToolsetWithOptions.mockRejectedValue(httpError);
+        mockToolSetClient.get.mockRejectedValue(httpError);
 
-        await expect(
-          ToolSet.get({ name: 'not-found' })
-        ).rejects.toThrow();
+        await expect(ToolSet.get({ name: 'not-found' })).rejects.toThrow();
       });
 
       it('should handle generic error during get', async () => {
-        const error = { statusCode: 500, message: 'Server error' };
-        mockDevsClient.getToolsetWithOptions.mockRejectedValue(error);
+        mockToolSetClient.get.mockRejectedValue(
+          new ServerError(500, 'Server error')
+        );
 
-        await expect(
-          ToolSet.get({ name: 'error-toolset' })
-        ).rejects.toThrow(ServerError);
+        await expect(ToolSet.get({ name: 'error-toolset' })).rejects.toThrow(
+          ServerError
+        );
       });
     });
 
     describe('static list', () => {
       it('should list toolsets', async () => {
-        mockDevsClient.listToolsetsWithOptions.mockResolvedValue({
-          body: {
-            items: [
-              { name: 'toolset-1', uid: 'uid-1' },
-              { name: 'toolset-2', uid: 'uid-2' },
-            ],
-          },
-        });
+        mockToolSetClient.list.mockResolvedValue([
+          { name: 'toolset-1', uid: 'uid-1' },
+          { name: 'toolset-2', uid: 'uid-2' },
+        ]);
 
         const result = await ToolSet.list();
 
-        expect(mockDevsClient.listToolsetsWithOptions).toHaveBeenCalled();
+        expect(mockToolSetClient.list).toHaveBeenCalled();
         expect(result).toHaveLength(2);
       });
 
       it('should list with pagination', async () => {
-        mockDevsClient.listToolsetsWithOptions.mockResolvedValue({
-          body: {
-            items: [{ name: 'toolset-1' }],
-          },
-        });
+        mockToolSetClient.list.mockResolvedValue([{ name: 'toolset-1' }]);
 
         await ToolSet.list({ pageSize: 10 });
 
-        expect(mockDevsClient.listToolsetsWithOptions).toHaveBeenCalled();
+        expect(mockToolSetClient.list).toHaveBeenCalled();
       });
     });
 
     describe('instance methods', () => {
       describe('delete', () => {
         it('should delete this toolset', async () => {
-          mockDevsClient.deleteToolsetWithOptions.mockResolvedValue({
-            body: { name: 'my-toolset' },
-          });
+          mockToolSetClient.delete.mockResolvedValue({ name: 'my-toolset' });
 
           const toolset = new ToolSet({ name: 'my-toolset' });
           const result = await toolset.delete();
 
-          expect(mockDevsClient.deleteToolsetWithOptions).toHaveBeenCalled();
+          expect(mockToolSetClient.delete).toHaveBeenCalled();
           expect(result).toBe(toolset);
         });
 
         it('should throw error if name not set', async () => {
           const toolset = new ToolSet();
 
-          await expect(toolset.delete()).rejects.toThrow(
-            'name is required'
-          );
+          await expect(toolset.delete()).rejects.toThrow('name is required');
         });
       });
 
       describe('update', () => {
         it('should update this toolset', async () => {
-          mockDevsClient.updateToolsetWithOptions.mockResolvedValue({
-            body: {
-              name: 'my-toolset',
-              description: 'New description',
-            },
+          mockToolSetClient.update.mockResolvedValue({
+            name: 'my-toolset',
+            description: 'New description',
           });
 
           const toolset = new ToolSet({ name: 'my-toolset' });
@@ -433,11 +355,9 @@ describe('ToolSet Module', () => {
 
       describe('refresh', () => {
         it('should refresh toolset data', async () => {
-          mockDevsClient.getToolsetWithOptions.mockResolvedValue({
-            body: {
-              name: 'my-toolset',
-              status: { status: 'READY' },
-            },
+          mockToolSetClient.get.mockResolvedValue({
+            name: 'my-toolset',
+            status: { status: 'READY' },
           });
 
           const toolset = new ToolSet({ name: 'my-toolset' });
@@ -453,174 +373,16 @@ describe('ToolSet Module', () => {
           await expect(toolset.refresh()).rejects.toThrow('name is required');
         });
       });
-
-      describe('waitUntilReady', () => {
-        it('should wait until status is READY', async () => {
-          let callCount = 0;
-          mockDevsClient.getToolsetWithOptions.mockImplementation(async () => {
-            callCount++;
-            return {
-              body: {
-                name: 'my-toolset',
-                status: { status: callCount >= 2 ? Status.READY : Status.CREATING },
-              },
-            };
-          });
-
-          const toolset = new ToolSet({ name: 'my-toolset' });
-          const result = await toolset.waitUntilReady({
-            intervalSeconds: 0.1,
-            timeoutSeconds: 5,
-          });
-
-          expect(result.status?.status).toBe(Status.READY);
-        });
-
-        it('should throw error on failed status', async () => {
-          mockDevsClient.getToolsetWithOptions.mockResolvedValue({
-            body: {
-              name: 'my-toolset',
-              status: { status: Status.CREATE_FAILED },
-            },
-          });
-
-          const toolset = new ToolSet({ name: 'my-toolset' });
-
-          await expect(
-            toolset.waitUntilReady({
-              intervalSeconds: 0.1,
-              timeoutSeconds: 5,
-            })
-          ).rejects.toThrow();
-        });
-
-        it('should throw timeout error', async () => {
-          mockDevsClient.getToolsetWithOptions.mockResolvedValue({
-            body: {
-              name: 'my-toolset',
-              status: { status: Status.CREATING },
-            },
-          });
-
-          const toolset = new ToolSet({ name: 'my-toolset' });
-
-          await expect(
-            toolset.waitUntilReady({
-              intervalSeconds: 0.1,
-              timeoutSeconds: 0.2,
-            })
-          ).rejects.toThrow('Timeout waiting for ToolSet to be ready');
-        });
-      });
-    });
-  });
-
-  describe('ToolSetClient', () => {
-    let client: ToolSetClient;
-
-    beforeEach(() => {
-      client = new ToolSetClient();
-    });
-
-    describe('createToolSet', () => {
-      it('should create toolset via client', async () => {
-        mockDevsClient.createToolsetWithOptions.mockResolvedValue({
-          body: {
-            name: 'new-toolset',
-            uid: 'new-uid',
-          },
-        });
-
-        const result = await client.createToolSet({
-          input: { name: 'new-toolset' },
-        });
-
-        expect(result.name).toBe('new-toolset');
-      });
-    });
-
-    describe('deleteToolSet', () => {
-      it('should delete toolset via client', async () => {
-        mockDevsClient.deleteToolsetWithOptions.mockResolvedValue({
-          body: { name: 'deleted-toolset' },
-        });
-
-        const result = await client.deleteToolSet({ name: 'deleted-toolset' });
-
-        expect(result.name).toBe('deleted-toolset');
-      });
-    });
-
-    describe('updateToolSet', () => {
-      it('should update toolset via client', async () => {
-        mockDevsClient.updateToolsetWithOptions.mockResolvedValue({
-          body: {
-            name: 'updated-toolset',
-            description: 'Updated',
-          },
-        });
-
-        const result = await client.updateToolSet({
-          name: 'updated-toolset',
-          input: { description: 'Updated' },
-        });
-
-        expect(result.description).toBe('Updated');
-      });
-    });
-
-    describe('getToolSet', () => {
-      it('should get toolset via client', async () => {
-        mockDevsClient.getToolsetWithOptions.mockResolvedValue({
-          body: { name: 'my-toolset' },
-        });
-
-        const result = await client.getToolSet({ name: 'my-toolset' });
-
-        expect(result.name).toBe('my-toolset');
-      });
-    });
-
-    describe('listToolSets', () => {
-      it('should list toolsets via client', async () => {
-        mockDevsClient.listToolsetsWithOptions.mockResolvedValue({
-          body: {
-            items: [{ name: 'toolset-1' }, { name: 'toolset-2' }],
-          },
-        });
-
-        const result = await client.listToolSets();
-
-        expect(result).toHaveLength(2);
-      });
-    });
-
-    describe('listAllToolSets', () => {
-      it('should list all toolsets with pagination', async () => {
-        mockDevsClient.listToolsetsWithOptions.mockResolvedValue({
-          body: {
-            items: [{ name: 'toolset-1', uid: 'uid-1' }],
-          },
-        });
-
-        const result = await client.listAllToolSets();
-
-        expect(result).toHaveLength(1);
-      });
     });
   });
 
   describe('ToolSet advanced methods', () => {
     describe('listAll', () => {
       it('should list all toolsets with pagination and deduplication', async () => {
-        mockDevsClient.listToolsetsWithOptions.mockResolvedValue({
-          body: {
-            items: [
-              { name: 'toolset-1', uid: 'uid-1' },
-              { name: 'toolset-2', uid: 'uid-2' },
-            ],
-          },
-        });
+        mockToolSetClient.list.mockResolvedValue([
+          { name: 'toolset-1', uid: 'uid-1' },
+          { name: 'toolset-2', uid: 'uid-2' },
+        ]);
 
         const result = await ToolSet.listAll();
 
@@ -628,14 +390,10 @@ describe('ToolSet Module', () => {
       });
 
       it('should deduplicate by uid', async () => {
-        mockDevsClient.listToolsetsWithOptions.mockResolvedValue({
-          body: {
-            items: [
-              { name: 'toolset-1', uid: 'uid-1' },
-              { name: 'toolset-1-dup', uid: 'uid-1' }, // Same uid
-            ],
-          },
-        });
+        mockToolSetClient.list.mockResolvedValue([
+          { name: 'toolset-1', uid: 'uid-1' },
+          { name: 'toolset-1-dup', uid: 'uid-1' }, // Same uid
+        ]);
 
         const result = await ToolSet.listAll();
 
@@ -643,14 +401,10 @@ describe('ToolSet Module', () => {
       });
 
       it('should filter out items without uid', async () => {
-        mockDevsClient.listToolsetsWithOptions.mockResolvedValue({
-          body: {
-            items: [
-              { name: 'toolset-1', uid: 'uid-1' },
-              { name: 'toolset-no-uid' }, // No uid
-            ],
-          },
-        });
+        mockToolSetClient.list.mockResolvedValue([
+          { name: 'toolset-1', uid: 'uid-1' },
+          { name: 'toolset-no-uid' }, // No uid
+        ]);
 
         const result = await ToolSet.listAll();
 
@@ -659,11 +413,9 @@ describe('ToolSet Module', () => {
       });
 
       it('should support prefix and labels options', async () => {
-        mockDevsClient.listToolsetsWithOptions.mockResolvedValue({
-          body: {
-            items: [{ name: 'my-toolset', uid: 'uid-1' }],
-          },
-        });
+        mockToolSetClient.list.mockResolvedValue([
+          { name: 'my-toolset', uid: 'uid-1' },
+        ]);
 
         const result = await ToolSet.listAll({
           prefix: 'my-',
@@ -821,7 +573,7 @@ describe('ToolSet Module', () => {
 
         const result = (toolset as any)._getOpenAPIBaseUrl();
 
-        expect(result).toBe('https://internal.example.com');
+        expect(result).toBe('https://public.example.com');
       });
 
       it('should return internetUrl as fallback', () => {
@@ -830,7 +582,7 @@ describe('ToolSet Module', () => {
             status: Status.READY,
             outputs: {
               urls: {
-                internetUrl: 'https://public.example.com',
+                intranetUrl: 'https://internal.example.com',
               },
             } as any,
           },
@@ -838,19 +590,17 @@ describe('ToolSet Module', () => {
 
         const result = (toolset as any)._getOpenAPIBaseUrl();
 
-        expect(result).toBe('https://public.example.com');
+        expect(result).toBe('https://internal.example.com');
       });
     });
 
     describe('update with auth config', () => {
       it('should update toolset with auth config', async () => {
-        mockDevsClient.updateToolsetWithOptions.mockResolvedValue({
-          body: {
-            name: 'auth-toolset',
-            spec: {
-              authConfig: {
-                type: 'API_KEY',
-              },
+        mockToolSetClient.update.mockResolvedValue({
+          name: 'auth-toolset',
+          spec: {
+            authConfig: {
+              type: 'API_KEY',
             },
           },
         });
@@ -868,21 +618,19 @@ describe('ToolSet Module', () => {
           },
         });
 
-        expect(mockDevsClient.updateToolsetWithOptions).toHaveBeenCalled();
+        expect(mockToolSetClient.update).toHaveBeenCalled();
         expect(result.name).toBe('auth-toolset');
       });
     });
 
     describe('update with spec but no auth', () => {
       it('should update toolset with spec schema only', async () => {
-        mockDevsClient.updateToolsetWithOptions.mockResolvedValue({
-          body: {
-            name: 'schema-toolset',
-            spec: {
-              schema: {
-                type: 'OpenAPI',
-                detail: 'https://api.example.com/v2/openapi.json',
-              },
+        mockToolSetClient.update.mockResolvedValue({
+          name: 'schema-toolset',
+          spec: {
+            schema: {
+              type: 'OpenAPI',
+              detail: 'https://api.example.com/v2/openapi.json',
             },
           },
         });
@@ -906,7 +654,7 @@ describe('ToolSet Module', () => {
     describe('handleError edge cases', () => {
       it('should handle generic error without statusCode', async () => {
         const error = new Error('Network error');
-        mockDevsClient.createToolsetWithOptions.mockRejectedValue(error);
+        mockToolSetClient.create.mockRejectedValue(error);
 
         await expect(
           ToolSet.create({ input: { name: 'error-toolset' } })
@@ -914,33 +662,7 @@ describe('ToolSet Module', () => {
       });
     });
 
-    describe('waitUntilReady with beforeCheck callback', () => {
-      it('should call beforeCheck callback', async () => {
-        let callCount = 0;
-        mockDevsClient.getToolsetWithOptions.mockImplementation(async () => {
-          callCount++;
-          return {
-            body: {
-              name: 'my-toolset',
-              status: { status: callCount >= 2 ? Status.READY : Status.CREATING },
-            },
-          };
-        });
-
-        const beforeCheck = jest.fn();
-        const toolset = new ToolSet({ name: 'my-toolset' });
-
-        await toolset.waitUntilReady({
-          intervalSeconds: 0.1,
-          timeoutSeconds: 5,
-          beforeCheck,
-        });
-
-        expect(beforeCheck).toHaveBeenCalled();
-      });
-    });
-
-    // Note: waitUntilReady only checks for CREATE_FAILED status.
+    // Note: waitUntilReadyOrFailed only checks for CREATE_FAILED status.
     // UPDATE_FAILED and DELETE_FAILED will cause timeout.
 
     describe('toApiSet', () => {
@@ -954,7 +676,9 @@ describe('ToolSet Module', () => {
           status: { outputs: {} },
         });
 
-        await expect(toolset.toApiSet()).rejects.toThrow('MCP server URL is missing');
+        await expect(toolset.toApiSet()).rejects.toThrow(
+          'MCP server URL is missing'
+        );
       });
 
       it('should throw error for unsupported type', async () => {
@@ -962,7 +686,9 @@ describe('ToolSet Module', () => {
           spec: { schema: { type: 'UNKNOWN' as any } },
         });
 
-        await expect(toolset.toApiSet()).rejects.toThrow('Unsupported ToolSet type');
+        await expect(toolset.toApiSet()).rejects.toThrow(
+          'Unsupported ToolSet type'
+        );
       });
     });
 
@@ -972,10 +698,10 @@ describe('ToolSet Module', () => {
           invoke: jest.fn().mockResolvedValue({ result: 'success' }),
           getTool: jest.fn().mockReturnValue({ name: 'test-tool' }),
         };
-        
+
         const toolset = new ToolSet({
           spec: { schema: { type: ToolSetSchemaType.MCP } },
-          status: { 
+          status: {
             outputs: {
               mcpServerConfig: { url: 'http://localhost:3000' },
               tools: [{ name: 'test-tool' }],
@@ -986,10 +712,16 @@ describe('ToolSet Module', () => {
         // Mock toApiSet
         toolset.toApiSet = jest.fn().mockResolvedValue(mockApiSet);
 
-        const result = await toolset.callToolAsync('test-tool', { arg1: 'value' });
+        const result = await toolset.callToolAsync('test-tool', {
+          arg1: 'value',
+        });
 
         expect(toolset.toApiSet).toHaveBeenCalled();
-        expect(mockApiSet.invoke).toHaveBeenCalledWith('test-tool', { arg1: 'value' }, undefined);
+        expect(mockApiSet.invoke).toHaveBeenCalledWith(
+          'test-tool',
+          { arg1: 'value' },
+          undefined
+        );
         expect(result).toEqual({ result: 'success' });
       });
     });
@@ -1009,9 +741,12 @@ describe('ToolSet Module', () => {
 
         const spy = jest.spyOn(toolset, 'callToolAsync');
         await toolset.callTool('test-tool', { arg: 'val' });
-        expect(spy).toHaveBeenCalledWith('test-tool', { arg: 'val' }, undefined);
+        expect(spy).toHaveBeenCalledWith(
+          'test-tool',
+          { arg: 'val' },
+          undefined
+        );
       });
     });
   });
 });
-

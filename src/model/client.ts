@@ -23,8 +23,8 @@ import { ModelService } from './model-service';
  * Provides create, delete, update and query functions for model services and model proxies.
  */
 export class ModelClient {
-  private controlApi: ModelControlAPI;
   private config?: Config;
+  private controlApi: ModelControlAPI;
 
   /**
    * 初始化客户端 / Initialize client
@@ -45,7 +45,7 @@ export class ModelClient {
    */
   create = async (params: { input: ModelServiceCreateInput | ModelProxyCreateInput; config?: Config }): Promise<ModelService | ModelProxy> => {
     const { input, config } = params;
-    const cfg = config ?? this.config;
+    const cfg = Config.withConfigs(this.config, config);
     
     try {
       if ('modelProxyName' in input) {
@@ -59,17 +59,10 @@ export class ModelClient {
         }
 
         const createInput = new $AgentRun.CreateModelProxyInput({
-          modelProxyName: modelProxyInput.modelProxyName,
-          description: modelProxyInput.description,
-          executionRoleArn: modelProxyInput.executionRoleArn,
-          tags: modelProxyInput.tags,
-          cpu: modelProxyInput.cpu ?? 2,  // 默认值 2
-          litellmVersion: modelProxyInput.litellmVersion,
-          memory: modelProxyInput.memory ?? 4096,  // 默认值 4096
+          ...modelProxyInput,
+          cpu: modelProxyInput.cpu ?? 2, // 默认值 2
+          memory: modelProxyInput.memory ?? 4096, // 默认值 4096
           proxyMode: modelProxyInput.proxyModel,
-          serviceRegionId: modelProxyInput.serviceRegionId,
-          proxyConfig: modelProxyInput.proxyConfig,
-          modelType: modelProxyInput.modelType,
         });
 
         const result = await this.controlApi.createModelProxy({
@@ -84,13 +77,7 @@ export class ModelClient {
         const modelServiceInput = input as ModelServiceCreateInput;
         
         const createInput = new $AgentRun.CreateModelServiceInput({
-          modelServiceName: modelServiceInput.modelServiceName,
-          description: modelServiceInput.description,
-          tags: modelServiceInput.tags,
-          provider: modelServiceInput.provider,
-          modelInfoConfigs: modelServiceInput.modelInfoConfigs,
-          providerSettings: modelServiceInput.providerSettings,
-          modelType: modelServiceInput.modelType,
+          ...modelServiceInput,
         });
 
         const result = await this.controlApi.createModelService({
@@ -123,7 +110,7 @@ export class ModelClient {
    */
   delete = async (params: { name: string; backendType?: BackendType; config?: Config }): Promise<ModelService | ModelProxy> => {
     const { name, backendType, config } = params;
-    const cfg = config ?? this.config;
+    const cfg = Config.withConfigs(this.config, config);
     let error: HTTPError | null = null;
     
     // 如果是 proxy 或未指定类型，先尝试删除 proxy
@@ -178,7 +165,7 @@ export class ModelClient {
    */
   update = async (params: { name: string; input: ModelServiceUpdateInput | ModelProxyUpdateInput; config?: Config }): Promise<ModelService | ModelProxy> => {
     const { name, input, config } = params;
-    const cfg = config ?? this.config;
+    const cfg = Config.withConfigs(this.config, config);
     
     if ('proxyModel' in input || 'executionRoleArn' in input) {
       // 处理 ModelProxyUpdateInput
@@ -192,8 +179,8 @@ export class ModelClient {
         }
         
         const updateInput = new $AgentRun.UpdateModelProxyInput({
-          description: modelProxyInput.description,
-          executionRoleArn: modelProxyInput.executionRoleArn,
+          ...modelProxyInput,
+          proxyMode: modelProxyInput.proxyModel,
         });
         
         const result = await this.controlApi.updateModelProxy({
@@ -216,8 +203,7 @@ export class ModelClient {
       
       try {
         const updateInput = new $AgentRun.UpdateModelServiceInput({
-          description: modelServiceInput.description,
-          providerSettings: modelServiceInput.providerSettings,
+          ...modelServiceInput,
         });
         
         const result = await this.controlApi.updateModelService({
@@ -248,7 +234,7 @@ export class ModelClient {
    */
   get = async (params: { name: string; backendType?: BackendType; config?: Config }): Promise<ModelService | ModelProxy> => {
     const { name, backendType, config } = params;
-    const cfg = config ?? this.config;
+    const cfg = Config.withConfigs(this.config, config);
     let error: HTTPError | null = null;
     
     // 如果是 proxy 或未指定类型，先尝试获取 proxy
@@ -299,18 +285,16 @@ export class ModelClient {
    * @param params - 参数 / Parameters
    * @returns 模型服务列表 / Model service list
    */
-  list = async (params: { input: ModelServiceListInput | ModelProxyListInput; config?: Config }): Promise<ModelService[] | ModelProxy[]> => {
-    const { input, config } = params;
-    const cfg = config ?? this.config;
+  list = async (params?: { input?: ModelServiceListInput | ModelProxyListInput; config?: Config }): Promise<ModelService[] | ModelProxy[]> => {
+    const { input, config } = params ?? {};
+    const cfg = Config.withConfigs(this.config, config);
     
-    if ('modelProxyName' in input) {
+    if (input && 'modelProxyName' in input) {
       // 处理 ModelProxyListInput
       const modelProxyInput = input as ModelProxyListInput;
       
       const request = new $AgentRun.ListModelProxiesRequest({
-        pageNumber: modelProxyInput.pageNumber,
-        pageSize: modelProxyInput.pageSize,
-        modelProxyName: modelProxyInput.modelProxyName,
+        ...modelProxyInput,
       });
       
       const result = await this.controlApi.listModelProxies({
@@ -323,15 +307,11 @@ export class ModelClient {
         return proxy;
       });
     } else {
-      // 处理 ModelServiceListInput
-      const modelServiceInput = input as ModelServiceListInput;
+      // 处理 ModelServiceListInput 或无参数（默认列出 ModelService）
+      const modelServiceInput = (input ?? {}) as ModelServiceListInput;
       
       const request = new $AgentRun.ListModelServicesRequest({
-        pageNumber: modelServiceInput.pageNumber,
-        pageSize: modelServiceInput.pageSize,
-        modelServiceName: modelServiceInput.modelServiceName,
-        modelType: modelServiceInput.modelType,
-        provider: modelServiceInput.provider,
+        ...modelServiceInput,
       });
       
       const result = await this.controlApi.listModelServices({

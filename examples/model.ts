@@ -67,8 +67,9 @@ async function createOrGetModelService(): Promise<ModelService> {
   }
 
   // 等待就绪 / Wait for ready
-  await ms.waitUntilReady({
-    beforeCheck: (service: ModelService) => log(`  当前状态 / Current status: ${service.status}`),
+  await ms.waitUntilReadyOrFailed({
+    beforeCheck: (service: ModelService) =>
+      log(`  当前状态 / Current status: ${service.status}`),
   });
 
   if (ms.status !== Status.READY) {
@@ -95,7 +96,7 @@ async function updateModelService(ms: ModelService): Promise<void> {
     },
   });
 
-  await ms.waitUntilReady();
+  await ms.waitUntilReadyOrFailed();
 
   if (ms.status !== Status.READY) {
     throw new Error(`状态异常 / Unexpected status: ${ms.status}`);
@@ -124,7 +125,7 @@ async function listModelServices(): Promise<void> {
 async function invokeModelService(ms: ModelService): Promise<void> {
   log('调用模型服务进行推理 / Invoking model service for inference');
 
-  const result = await ms.completions({
+  const result = await ms.completion({
     messages: [{ role: 'user', content: '你好,请介绍一下你自己' }],
     stream: true,
   });
@@ -196,8 +197,9 @@ async function createOrGetModelProxy(): Promise<ModelProxy> {
   }
 
   // 等待就绪 / Wait for ready
-  await mp.waitUntilReady({
-    beforeCheck: (proxy: ModelProxy) => log(`  当前状态 / Current status: ${proxy.status}`),
+  await mp.waitUntilReadyOrFailed({
+    beforeCheck: (proxy: ModelProxy) =>
+      log(`  当前状态 / Current status: ${proxy.status}`),
   });
 
   if (mp.status !== Status.READY) {
@@ -226,7 +228,7 @@ async function updateModelProxy(mp: ModelProxy): Promise<void> {
     },
   });
 
-  await mp.waitUntilReady();
+  await mp.waitUntilReadyOrFailed();
 
   if (mp.status !== Status.READY) {
     throw new Error(`状态异常 / Unexpected status: ${mp.status}`);

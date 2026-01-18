@@ -17,8 +17,6 @@
  * - ModelProxy 测试可能因缺少 executionRole 而失败，可暂时忽略
  */
 
-
-
 import {
   ModelClient,
   ModelService,
@@ -27,7 +25,10 @@ import {
   ModelType,
 } from '../../../src/model';
 import { Status } from '../../../src/utils/model';
-import { ResourceNotExistError, ResourceAlreadyExistError } from '../../../src/utils/exception';
+import {
+  ResourceNotExistError,
+  ResourceAlreadyExistError,
+} from '../../../src/utils/exception';
 import { logger } from '../../../src/utils/log';
 import type {
   ModelServiceCreateInput,
@@ -49,7 +50,8 @@ function generateUniqueName(prefix: string): string {
 
 // 测试用的 API 配置（需要有效的 API Key）
 const API_KEY = process.env.API_KEY || 'sk-test-key';
-const BASE_URL = process.env.BASE_URL || 'https://dashscope.aliyuncs.com/compatible-mode/v1';
+const BASE_URL =
+  process.env.BASE_URL || 'https://dashscope.aliyuncs.com/compatible-mode/v1';
 const MODEL_NAMES = ['qwen-flash', 'qwen-max'];
 
 describe('Model E2E Tests', () => {
@@ -96,7 +98,7 @@ describe('Model E2E Tests', () => {
         expect(modelService.modelServiceName).toBe(modelServiceName);
 
         // 等待就绪
-        await modelService.waitUntilReady({
+        await modelService.waitUntilReadyOrFailed({
           timeoutSeconds: 120,
           intervalSeconds: 5,
         });
@@ -139,7 +141,7 @@ describe('Model E2E Tests', () => {
         await modelService.update({ input: updateInput });
 
         // 等待就绪
-        await modelService.waitUntilReady({
+        await modelService.waitUntilReadyOrFailed({
           timeoutSeconds: 120,
           intervalSeconds: 5,
         });
@@ -158,14 +160,18 @@ describe('Model E2E Tests', () => {
       });
 
       it('should list ModelServices', async () => {
-        const modelServices = await ModelService.listAll({ modelType: ModelType.LLM });
+        const modelServices = await ModelService.listAll({
+          modelType: ModelType.LLM,
+        });
 
         expect(modelServices).toBeDefined();
         expect(Array.isArray(modelServices)).toBe(true);
         expect(modelServices.length).toBeGreaterThan(0);
 
         // 验证包含我们创建的 ModelService
-        const found = modelServices.find((ms) => ms.modelServiceName === modelServiceName);
+        const found = modelServices.find(
+          (ms) => ms.modelServiceName === modelServiceName
+        );
         expect(found).toBeDefined();
       });
     });
@@ -226,7 +232,7 @@ describe('Model E2E Tests', () => {
         },
       });
 
-      await modelService.waitUntilReady({
+      await modelService.waitUntilReadyOrFailed({
         timeoutSeconds: 120,
         intervalSeconds: 5,
       });
@@ -279,7 +285,7 @@ describe('Model E2E Tests', () => {
           expect(modelProxy.modelProxyName).toBe(modelProxyName);
 
           // 等待就绪
-          await modelProxy.waitUntilReady({
+          await modelProxy.waitUntilReadyOrFailed({
             timeoutSeconds: 120,
             intervalSeconds: 5,
           });
@@ -301,7 +307,10 @@ describe('Model E2E Tests', () => {
           expect(createdAt.getTime()).toBeLessThan(time2.getTime());
         } catch (error) {
           // 如果因为 executionRole 问题失败，跳过
-          logger.warn('ModelProxy creation failed, possibly due to missing executionRole:', error);
+          logger.warn(
+            'ModelProxy creation failed, possibly due to missing executionRole:',
+            error
+          );
         }
       });
 
@@ -333,7 +342,7 @@ describe('Model E2E Tests', () => {
         await modelProxy.update({ input: updateInput });
 
         // 等待就绪
-        await modelProxy.waitUntilReady({
+        await modelProxy.waitUntilReadyOrFailed({
           timeoutSeconds: 120,
           intervalSeconds: 5,
         });
@@ -350,7 +359,9 @@ describe('Model E2E Tests', () => {
 
         if (modelProxyId) {
           // 验证包含我们创建的 ModelProxy
-          const found = modelProxies.find((mp) => mp.modelProxyName === modelProxyName);
+          const found = modelProxies.find(
+            (mp) => mp.modelProxyName === modelProxyName
+          );
           expect(found).toBeDefined();
         }
       });
@@ -391,4 +402,3 @@ describe('Model E2E Tests', () => {
     });
   });
 });
-

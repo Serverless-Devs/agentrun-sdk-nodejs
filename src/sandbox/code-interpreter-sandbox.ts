@@ -5,19 +5,19 @@
  * context, and process management operations.
  */
 
-import { Config } from "../utils/config";
-import { logger } from "../utils/log";
-import { ServerError } from "../utils/exception";
+import { Config } from '../utils/config';
+import { logger } from '../utils/log';
+import { ServerError } from '../utils/exception';
 
-import { CodeInterpreterDataAPI } from "./api/code-interpreter-data";
+import { CodeInterpreterDataAPI } from './api/code-interpreter-data';
 import {
   CodeLanguage,
   NASConfig,
   OSSMountConfig,
   PolarFsConfig,
   TemplateType,
-} from "./model";
-import { Sandbox } from "./sandbox";
+} from './model';
+import { Sandbox } from './sandbox';
 
 /**
  * File upload/download operations
@@ -70,7 +70,10 @@ export class FileSystemOperations {
   /**
    * Move a file or directory
    */
-  move = async (params: { source: string; destination: string }): Promise<any> => {
+  move = async (params: {
+    source: string;
+    destination: string;
+  }): Promise<any> => {
     return this.sandbox.dataApi.moveFile(params);
   };
 
@@ -198,7 +201,7 @@ export class ContextOperations {
     cwd?: string;
   }): Promise<ContextOperations> => {
     const language = params?.language || CodeLanguage.PYTHON;
-    const cwd = params?.cwd || "/home/user";
+    const cwd = params?.cwd || '/home/user';
 
     const result = await this.sandbox.dataApi.createContext({
       language,
@@ -212,7 +215,7 @@ export class ContextOperations {
       return this;
     }
 
-    throw new ServerError(500, "Failed to create context");
+    throw new ServerError(500, 'Failed to create context');
   };
 
   /**
@@ -221,8 +224,8 @@ export class ContextOperations {
   get = async (params?: { contextId?: string }): Promise<ContextOperations> => {
     const id = params?.contextId || this._contextId;
     if (!id) {
-      logger.error("context id is not set");
-      throw new Error("context id is not set");
+      logger.error('context id is not set');
+      throw new Error('context id is not set');
     }
 
     const result = await this.sandbox.dataApi.getContext({ contextId: id });
@@ -234,7 +237,7 @@ export class ContextOperations {
       return this;
     }
 
-    throw new ServerError(500, "Failed to get context");
+    throw new ServerError(500, 'Failed to get context');
   };
 
   /**
@@ -254,7 +257,7 @@ export class ContextOperations {
     }
 
     if (!contextId && !language) {
-      logger.debug("context id is not set, use default language: python");
+      logger.debug('context id is not set, use default language: python');
       language = CodeLanguage.PYTHON;
     }
 
@@ -273,7 +276,7 @@ export class ContextOperations {
     const id = params?.contextId || this._contextId;
     if (!id) {
       throw new Error(
-        "context_id is required. Either pass it as parameter or create a context first.",
+        'context_id is required. Either pass it as parameter or create a context first.'
       );
     }
 
@@ -304,7 +307,7 @@ export class CodeInterpreterSandbox extends Sandbox {
       ossMountConfig?: OSSMountConfig;
       polarFsConfig?: PolarFsConfig;
     },
-    config?: Config,
+    config?: Config
   ): Promise<CodeInterpreterSandbox> {
     const sandbox = await Sandbox.create(
       {
@@ -314,7 +317,7 @@ export class CodeInterpreterSandbox extends Sandbox {
         ossMountConfig: options?.ossMountConfig,
         polarFsConfig: options?.polarFsConfig,
       },
-      config,
+      config
     );
 
     const ciSandbox = new CodeInterpreterSandbox(sandbox, config);
@@ -337,7 +340,7 @@ export class CodeInterpreterSandbox extends Sandbox {
   get dataApi(): CodeInterpreterDataAPI {
     if (!this._dataApi) {
       this._dataApi = new CodeInterpreterDataAPI({
-        sandboxId: this.sandboxId || "",
+        sandboxId: this.sandboxId || '',
         config: this._config,
       });
     }
@@ -387,51 +390,13 @@ export class CodeInterpreterSandbox extends Sandbox {
   /**
    * Check sandbox health
    */
-  checkHealth = async (params?: { config?: Config }): Promise<{ status: string; [key: string]: any }> => {
-    return this.dataApi.checkHealth({ sandboxId: this.sandboxId!, config: params?.config });
-  };
-
-  /**
-   * Wait for sandbox to be ready (polls health check)
-   */
-  waitUntilReady = async (params?: {
-    maxRetries?: number;
-    retryIntervalMs?: number;
-  }): Promise<void> => {
-    const maxRetries = params?.maxRetries || 60;
-    const retryIntervalMs = params?.retryIntervalMs || 1000;
-    let retryCount = 0;
-
-    logger.debug("Waiting for code interpreter to be ready...");
-
-    while (retryCount < maxRetries) {
-      retryCount += 1;
-
-      try {
-        const health = await this.checkHealth();
-
-        if (health.status === "ok") {
-          logger.debug(`Code Interpreter is ready! (took ${retryCount} seconds)`);
-          return;
-        }
-
-        logger.debug(`[${retryCount}/${maxRetries}] Health status: not ready`);
-        logger.debug(
-          `[${retryCount}/${maxRetries}] Health status: ${health.code} ${health.message}`,
-        );
-      } catch (error) {
-        logger.error(`[${retryCount}/${maxRetries}] Health check failed: ${error}`);
-      }
-
-      if (retryCount < maxRetries) {
-        await new Promise((resolve) => setTimeout(resolve, retryIntervalMs));
-      }
-    }
-
-    throw new Error(
-      `Health check timeout after ${maxRetries} seconds. ` +
-        "Code interpreter did not become ready in time.",
-    );
+  checkHealth = async (params?: {
+    config?: Config;
+  }): Promise<{ status: string; [key: string]: any }> => {
+    return this.dataApi.checkHealth({
+      sandboxId: this.sandboxId!,
+      config: params?.config,
+    });
   };
 
   /**

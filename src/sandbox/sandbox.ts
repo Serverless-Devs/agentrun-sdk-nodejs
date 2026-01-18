@@ -5,29 +5,24 @@
  * This module defines the base Sandbox resource class.
  */
 
-import * as $AgentRun from "@alicloud/agentrun20250910";
-import * as $Util from "@alicloud/tea-util";
+import { Config } from '../utils/config';
+import { ResourceBase, updateObjectProperties } from '../utils/resource';
 
-import { Config } from "../utils/config";
-import { ControlAPI } from "../utils/control-api";
-import { ClientError, HTTPError, ServerError } from "../utils/exception";
-import { logger } from "../utils/log";
-import { updateObjectProperties } from "../utils/resource";
-
-import { SandboxDataAPI } from "./api/sandbox-data";
 import {
   SandboxCreateInput,
   SandboxData,
   SandboxListInput,
   SandboxState,
   TemplateType,
-} from "./model";
+} from './model';
 
 /**
  * Base Sandbox resource class
  * 基础沙箱资源类 / Base Sandbox Resource Class
  */
-export class Sandbox implements SandboxData {
+export class Sandbox extends ResourceBase implements SandboxData {
+  templateType?: TemplateType;
+
   /**
    * 沙箱 ID / Sandbox ID
    */
@@ -84,6 +79,8 @@ export class Sandbox implements SandboxData {
   protected _config?: Config;
 
   constructor(data?: Partial<SandboxData>, config?: Config) {
+    super();
+
     if (data) {
       updateObjectProperties(this, data);
     }
@@ -113,13 +110,14 @@ export class Sandbox implements SandboxData {
         sandboxArn: obj.sandboxArn,
         sandboxIdleTTLInSeconds: obj.sandboxIdleTTLInSeconds,
       },
-      config,
+      config
     );
   }
 
-  protected static getClient(config?: Config): $AgentRun.default {
-    const controlApi = new ControlAPI(config);
-    return (controlApi as any).getClient(config);
+  private static getClient() {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { SandboxClient } = require('./client');
+    return new SandboxClient();
   }
 
   /**
@@ -128,43 +126,9 @@ export class Sandbox implements SandboxData {
    */
   static async create(
     input: SandboxCreateInput,
-    config?: Config,
+    config?: Config
   ): Promise<Sandbox> {
-    try {
-      const cfg = Config.withConfigs(config);
-      
-      // Use Data API to create sandbox (async creation)
-      const dataApi = new SandboxDataAPI({
-        sandboxId: "", // Not needed for creation
-        config: cfg,
-      });
-
-      const result = await dataApi.createSandbox({
-        templateName: input.templateName,
-        sandboxIdleTimeoutSeconds: input.sandboxIdleTimeoutSeconds,
-        nasConfig: input.nasConfig,
-        ossMountConfig: input.ossMountConfig,
-        polarFsConfig: input.polarFsConfig,
-        config: cfg,
-      });
-
-      // Check if creation was successful
-      if (result.code !== "SUCCESS") {
-        throw new ClientError(
-          0,
-          `Failed to create sandbox: ${result.message || "Unknown error"}`,
-        );
-      }
-
-      // Extract data and create Sandbox instance
-      const data = result.data || {};
-      return Sandbox.fromInnerObject(data as any, config);
-    } catch (error) {
-      if (error instanceof HTTPError) {
-        throw error.toResourceError("Sandbox", input.templateName);
-      }
-      Sandbox.handleError(error);
-    }
+    return await Sandbox.getClient().createSandbox({ input, config });
   }
 
   /**
@@ -175,78 +139,15 @@ export class Sandbox implements SandboxData {
     config?: Config;
   }): Promise<Sandbox> {
     const { id, config } = params;
-    try {
-      const cfg = Config.withConfigs(config);
-      
-      // Use Data API to delete sandbox
-      const dataApi = new SandboxDataAPI({
-        sandboxId: id,
-        config: cfg,
-      });
-
-      const result = await dataApi.deleteSandbox({
-        sandboxId: id,
-        config: cfg,
-      });
-
-      // Check if deletion was successful
-      if (result.code !== "SUCCESS") {
-        throw new ClientError(
-          0,
-          `Failed to delete sandbox: ${result.message || "Unknown error"}`,
-        );
-      }
-
-      // Extract data and create Sandbox instance
-      const data = result.data || {};
-      return Sandbox.fromInnerObject(data as any, config);
-    } catch (error) {
-      if (error instanceof HTTPError) {
-        throw error.toResourceError("Sandbox", id);
-      }
-      Sandbox.handleError(error);
-    }
+    return await Sandbox.getClient().deleteSandbox({ id, config });
   }
 
   /**
    * Stop a Sandbox by ID
    */
-  static async stop(params: {
-    id: string;
-    config?: Config;
-  }): Promise<Sandbox> {
+  static async stop(params: { id: string; config?: Config }): Promise<Sandbox> {
     const { id, config } = params;
-    try {
-      const cfg = Config.withConfigs(config);
-      
-      // Use Data API to stop sandbox
-      const dataApi = new SandboxDataAPI({
-        sandboxId: id,
-        config: cfg,
-      });
-
-      const result = await dataApi.stopSandbox({
-        sandboxId: id,
-        config: cfg,
-      });
-
-      // Check if stop was successful
-      if (result.code !== "SUCCESS") {
-        throw new ClientError(
-          0,
-          `Failed to stop sandbox: ${result.message || "Unknown error"}`,
-        );
-      }
-
-      // Extract data and create Sandbox instance
-      const data = result.data || {};
-      return Sandbox.fromInnerObject(data as any, config);
-    } catch (error) {
-      if (error instanceof HTTPError) {
-        throw error.toResourceError("Sandbox", id);
-      }
-      Sandbox.handleError(error);
-    }
+    return await Sandbox.getClient().stopSandbox({ id, config });
   }
 
   /**
@@ -258,64 +159,7 @@ export class Sandbox implements SandboxData {
     config?: Config;
   }): Promise<Sandbox> {
     const { id, templateType, config } = params;
-    try {
-      const cfg = Config.withConfigs(config);
-      
-      // Use Data API to get sandbox
-      const dataApi = new SandboxDataAPI({
-        sandboxId: id,
-        config: cfg,
-      });
-
-      const result = await dataApi.getSandbox({
-        sandboxId: id,
-        config: cfg,
-      });
-
-      // Check if get was successful
-      if (result.code !== "SUCCESS") {
-        throw new ClientError(
-          0,
-          `Failed to get sandbox: ${result.message || "Unknown error"}`,
-        );
-      }
-
-      // Extract data and create Sandbox instance
-      const data = result.data || {};
-      const baseSandbox = Sandbox.fromInnerObject(data as any, config);
-      
-      // If templateType is specified, return the appropriate subclass
-      if (templateType) {
-        // Dynamically import to avoid circular dependencies
-        switch (templateType) {
-          case TemplateType.CODE_INTERPRETER: {
-            const { CodeInterpreterSandbox } = await import('./code-interpreter-sandbox');
-            // Pass baseSandbox instead of raw data
-            const sandbox = new CodeInterpreterSandbox(baseSandbox, config);
-            return sandbox;
-          }
-          case TemplateType.BROWSER: {
-            const { BrowserSandbox } = await import('./browser-sandbox');
-            // Pass baseSandbox instead of raw data
-            const sandbox = new BrowserSandbox(baseSandbox, config);
-            return sandbox;
-          }
-          case TemplateType.AIO: {
-            const { AioSandbox } = await import('./aio-sandbox');
-            // Pass baseSandbox instead of raw data
-            const sandbox = new AioSandbox(baseSandbox, config);
-            return sandbox;
-          }
-        }
-      }
-      
-      return baseSandbox;
-    } catch (error) {
-      if (error instanceof HTTPError) {
-        throw error.toResourceError("Sandbox", id);
-      }
-      Sandbox.handleError(error);
-    }
+    return await Sandbox.getClient().getSandbox({ id, templateType, config });
   }
 
   /**
@@ -323,59 +167,20 @@ export class Sandbox implements SandboxData {
    */
   static async list(
     input?: SandboxListInput,
-    config?: Config,
+    config?: Config
   ): Promise<Sandbox[]> {
-    try {
-      const client = Sandbox.getClient(config);
-      const runtime = new $Util.RuntimeOptions({});
-      const request = new $AgentRun.ListSandboxesRequest({
-        maxResults: input?.maxResults,
-        nextToken: input?.nextToken,
-        status: input?.status,
-        templateName: input?.templateName,
-        templateType: input?.templateType,
-      });
-
-      const response = await client.listSandboxesWithOptions(
-        request,
-        {},
-        runtime,
-      );
-
-      logger.debug(
-        `API listSandboxes called, Request ID: ${response.body?.requestId}`,
-      );
-
-      return (response.body?.data?.sandboxes || []).map(
-        (item: $AgentRun.Sandbox) => Sandbox.fromInnerObject(item, config),
-      );
-    } catch (error) {
-      Sandbox.handleError(error);
-    }
+    return await Sandbox.getClient().listSandboxes({ input, config });
   }
 
-  /**
-   * Handle API errors
-   */
-  protected static handleError(error: unknown): never {
-    if (error && typeof error === "object" && "statusCode" in error) {
-      const e = error as {
-        statusCode: number;
-        message: string;
-        data?: { requestId?: string };
-      };
-      const statusCode = e.statusCode;
-      const message = e.message || "Unknown error";
-      const requestId = e.data?.requestId;
+  get = async (params?: { config?: Config }) => {
+    const { config } = params ?? {};
 
-      if (statusCode >= 400 && statusCode < 500) {
-        throw new ClientError(statusCode, message, { requestId });
-      } else if (statusCode >= 500) {
-        throw new ServerError(statusCode, message, { requestId });
-      }
-    }
-    throw error;
-  }
+    return await Sandbox.get({
+      id: this.sandboxId!,
+      templateType: this.templateType,
+      config: Config.withConfigs(this._config, config),
+    });
+  };
 
   /**
    * Delete this sandbox
@@ -383,7 +188,7 @@ export class Sandbox implements SandboxData {
   delete = async (params?: { config?: Config }): Promise<Sandbox> => {
     const config = params?.config;
     if (!this.sandboxId) {
-      throw new Error("sandboxId is required to delete a Sandbox");
+      throw new Error('sandboxId is required to delete a Sandbox');
     }
 
     const result = await Sandbox.delete({
@@ -400,7 +205,7 @@ export class Sandbox implements SandboxData {
   stop = async (params?: { config?: Config }): Promise<Sandbox> => {
     const config = params?.config;
     if (!this.sandboxId) {
-      throw new Error("sandboxId is required to stop a Sandbox");
+      throw new Error('sandboxId is required to stop a Sandbox');
     }
 
     const result = await Sandbox.stop({
@@ -417,7 +222,7 @@ export class Sandbox implements SandboxData {
   refresh = async (params?: { config?: Config }): Promise<Sandbox> => {
     const config = params?.config;
     if (!this.sandboxId) {
-      throw new Error("sandboxId is required to refresh a Sandbox");
+      throw new Error('sandboxId is required to refresh a Sandbox');
     }
 
     const result = await Sandbox.get({
@@ -437,7 +242,7 @@ export class Sandbox implements SandboxData {
       intervalSeconds?: number;
       beforeCheck?: (sandbox: Sandbox) => void;
     },
-    config?: Config,
+    config?: Config
   ): Promise<Sandbox> => {
     const timeout = (options?.timeoutSeconds ?? 300) * 1000;
     const interval = (options?.intervalSeconds ?? 5) * 1000;
@@ -452,7 +257,10 @@ export class Sandbox implements SandboxData {
 
       // API返回READY状态表示沙箱就绪可以运行
       // API returns READY status to indicate the sandbox is ready to run
-      if (this.state === SandboxState.RUNNING || this.state === SandboxState.READY) {
+      if (
+        this.state === SandboxState.RUNNING ||
+        this.state === SandboxState.READY
+      ) {
         return this;
       }
 
@@ -464,7 +272,9 @@ export class Sandbox implements SandboxData {
     }
 
     throw new Error(
-      `Timeout waiting for Sandbox to be running after ${options?.timeoutSeconds ?? 300} seconds`,
+      `Timeout waiting for Sandbox to be running after ${
+        options?.timeoutSeconds ?? 300
+      } seconds`
     );
   };
 }

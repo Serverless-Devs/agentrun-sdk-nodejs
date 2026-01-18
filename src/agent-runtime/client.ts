@@ -5,12 +5,16 @@
  * This module provides the client API for Agent Runtime.
  */
 
-import { Config } from "../utils/config";
+import * as $AgentRun from '@alicloud/agentrun20250910';
+import { Config } from '../utils/config';
+import { HTTPError } from '../utils/exception';
+import { NetworkMode } from '../utils/model';
 
-import { AgentRuntimeControlAPI } from "./api/control";
-import { AgentRuntimeDataAPI, InvokeArgs } from "./api/data";
-import { AgentRuntimeEndpoint } from "./endpoint";
+import { AgentRuntimeControlAPI } from './api/control';
+import { AgentRuntimeDataAPI, InvokeArgs } from './api/data';
+import { AgentRuntimeEndpoint } from './endpoint';
 import {
+  AgentRuntimeArtifact,
   AgentRuntimeCreateInput,
   AgentRuntimeEndpointCreateInput,
   AgentRuntimeEndpointListInput,
@@ -19,8 +23,8 @@ import {
   AgentRuntimeUpdateInput,
   AgentRuntimeVersion,
   AgentRuntimeVersionListInput,
-} from "./model";
-import { AgentRuntime } from "./runtime";
+} from './model';
+import { AgentRuntime } from './runtime';
 
 /**
  * Agent Runtime Client
@@ -45,15 +49,107 @@ export class AgentRuntimeClient {
     config?: Config;
   }): Promise<AgentRuntime> => {
     const { input, config } = params;
-    return AgentRuntime.create({ input, config: config ?? this.config });
+    const cfg = Config.withConfigs(this.config, config);
+
+    try {
+      // Set default network configuration
+      if (!input.networkConfiguration) {
+        input.networkConfiguration = {};
+      }
+
+      // Auto-detect artifact type
+      if (!input.artifactType) {
+        if (input.codeConfiguration) {
+          input.artifactType = AgentRuntimeArtifact.CODE;
+        } else if (input.containerConfiguration) {
+          input.artifactType = AgentRuntimeArtifact.CONTAINER;
+        } else {
+          throw new Error(
+            'Either codeConfiguration or containerConfiguration must be provided'
+          );
+        }
+      }
+
+      const result = await this.controlApi.createAgentRuntime({
+        input: new $AgentRun.CreateAgentRuntimeInput({
+          ...input,
+          codeConfiguration: input.codeConfiguration
+            ? new $AgentRun.CodeConfiguration({
+                ...input.codeConfiguration,
+              })
+            : undefined,
+          containerConfiguration: input.containerConfiguration
+            ? new $AgentRun.ContainerConfiguration({
+                ...input.containerConfiguration,
+              })
+            : undefined,
+          networkConfiguration: input.networkConfiguration
+            ? new $AgentRun.NetworkConfiguration({
+                networkMode:
+                  input.networkConfiguration.networkMode || NetworkMode.PUBLIC,
+                securityGroupId: input.networkConfiguration.securityGroupId,
+                vpcId: input.networkConfiguration.vpcId,
+                vswitchIds: input.networkConfiguration.vSwitchIds,
+              })
+            : undefined,
+        }),
+        config: cfg,
+      });
+
+      return new AgentRuntime(result, cfg);
+    } catch (error) {
+      if (error instanceof HTTPError) {
+        throw error.toResourceError('AgentRuntime', input.agentRuntimeName);
+      }
+      throw error;
+    }
   };
 
   /**
    * Delete an Agent Runtime
    */
-  delete = async (params: { id: string; config?: Config }): Promise<AgentRuntime> => {
+  delete = async (params: {
+    id: string;
+    config?: Config;
+  }): Promise<AgentRuntime> => {
     const { id, config } = params;
-    return AgentRuntime.delete({ id, config: config ?? this.config });
+    const cfg = Config.withConfigs(this.config, config);
+
+    try {
+      // First delete all endpoints
+      const endpoints = await this.listEndpoints({
+        agentRuntimeId: id,
+        config: cfg,
+      });
+      for (const endpoint of endpoints) {
+        await endpoint.delete({ config: cfg });
+      }
+
+      // Wait for all endpoints to be deleted
+      let remaining = await this.listEndpoints({
+        agentRuntimeId: id,
+        config: cfg,
+      });
+      while (remaining.length > 0) {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        remaining = await this.listEndpoints({
+          agentRuntimeId: id,
+          config: cfg,
+        });
+      }
+
+      const result = await this.controlApi.deleteAgentRuntime({
+        agentId: id,
+        config: cfg,
+      });
+
+      return new AgentRuntime(result, cfg);
+    } catch (error) {
+      if (error instanceof HTTPError) {
+        throw error.toResourceError('AgentRuntime', id);
+      }
+      throw error;
+    }
   };
 
   /**
@@ -65,15 +161,58 @@ export class AgentRuntimeClient {
     config?: Config;
   }): Promise<AgentRuntime> => {
     const { id, input, config } = params;
-    return AgentRuntime.update({ id, input, config: config ?? this.config });
+    const cfg = Config.withConfigs(this.config, config);
+
+    try {
+      const result = await this.controlApi.updateAgentRuntime({
+        agentId: id,
+        input: new $AgentRun.UpdateAgentRuntimeInput({
+          ...input,
+          codeConfiguration: input.codeConfiguration
+            ? new $AgentRun.CodeConfiguration({
+                ...input.codeConfiguration,
+              })
+            : undefined,
+          containerConfiguration: input.containerConfiguration
+            ? new $AgentRun.ContainerConfiguration({
+                ...input.containerConfiguration,
+              })
+            : undefined,
+        }),
+        config: cfg,
+      });
+
+      return new AgentRuntime(result, cfg);
+    } catch (error) {
+      if (error instanceof HTTPError) {
+        throw error.toResourceError('AgentRuntime', id);
+      }
+      throw error;
+    }
   };
 
   /**
    * Get an Agent Runtime
    */
-  get = async (params: { id: string; config?: Config }): Promise<AgentRuntime> => {
+  get = async (params: {
+    id: string;
+    config?: Config;
+  }): Promise<AgentRuntime> => {
     const { id, config } = params;
-    return AgentRuntime.get({ id, config: config ?? this.config });
+    const cfg = Config.withConfigs(this.config, config);
+
+    try {
+      const result = await this.controlApi.getAgentRuntime({
+        agentId: id,
+        config: cfg,
+      });
+      return new AgentRuntime(result, cfg);
+    } catch (error) {
+      if (error instanceof HTTPError) {
+        throw error.toResourceError('AgentRuntime', id);
+      }
+      throw error;
+    }
   };
 
   /**
@@ -84,23 +223,31 @@ export class AgentRuntimeClient {
     config?: Config;
   }): Promise<AgentRuntime[]> => {
     const { input, config } = params ?? {};
-    return AgentRuntime.list(input, config ?? this.config);
+    const cfg = Config.withConfigs(this.config, config);
+    const request = new $AgentRun.ListAgentRuntimesRequest({
+      ...input,
+    });
+    const result = await this.controlApi.listAgentRuntimes({
+      input: request,
+      config: cfg,
+    });
+    return (result.items || []).map((item) => new AgentRuntime(item, cfg));
   };
 
-  /**
-   * List all Agent Runtimes (with pagination)
-   */
-  listAll = async (params?: {
-    options?: {
-      agentRuntimeName?: string;
-      tags?: string;
-      searchMode?: string;
-    };
-    config?: Config;
-  }): Promise<AgentRuntime[]> => {
-    const { options, config } = params ?? {};
-    return AgentRuntime.listAll(options, config ?? this.config);
-  };
+  // /**
+  //  * List all Agent Runtimes (with pagination)
+  //  */
+  // listAll = async (params?: {
+  //   options?: {
+  //     agentRuntimeName?: string;
+  //     tags?: string;
+  //     searchMode?: string;
+  //   };
+  //   config?: Config;
+  // }): Promise<AgentRuntime[]> => {
+  //   const { options, config } = params ?? {};
+  //   return AgentRuntime.listAll(options, config ?? this.config);
+  // };
 
   /**
    * Create an endpoint for an Agent Runtime
@@ -111,11 +258,31 @@ export class AgentRuntimeClient {
     config?: Config;
   }): Promise<AgentRuntimeEndpoint> => {
     const { agentRuntimeId, input, config } = params;
-    return AgentRuntimeEndpoint.create({
-      agentRuntimeId,
-      input,
-      config: config ?? this.config,
-    });
+    const cfg = Config.withConfigs(this.config, config);
+
+    try {
+      // Set default targetVersion to "LATEST" if not provided (same as Python SDK)
+      const targetVersion = input.targetVersion || 'LATEST';
+
+      const result = await this.controlApi.createAgentRuntimeEndpoint({
+        agentId: agentRuntimeId,
+        input: new $AgentRun.CreateAgentRuntimeEndpointInput({
+          ...input,
+          targetVersion,
+        }),
+        config: cfg,
+      });
+
+      return new AgentRuntimeEndpoint(result, cfg);
+    } catch (error) {
+      if (error instanceof HTTPError) {
+        throw error.toResourceError(
+          'AgentRuntimeEndpoint',
+          `${agentRuntimeId}/${input.agentRuntimeEndpointName}`
+        );
+      }
+      throw error;
+    }
   };
 
   /**
@@ -127,11 +294,24 @@ export class AgentRuntimeClient {
     config?: Config;
   }): Promise<AgentRuntimeEndpoint> => {
     const { agentRuntimeId, endpointId, config } = params;
-    return AgentRuntimeEndpoint.delete({
-      agentRuntimeId,
-      endpointId,
-      config: config ?? this.config,
-    });
+    const cfg = Config.withConfigs(this.config, config);
+
+    try {
+      const result = await this.controlApi.deleteAgentRuntimeEndpoint({
+        agentId: agentRuntimeId,
+        endpointId,
+        config: cfg,
+      });
+      return new AgentRuntimeEndpoint(result, cfg);
+    } catch (error) {
+      if (error instanceof HTTPError) {
+        throw error.toResourceError(
+          'AgentRuntimeEndpoint',
+          `${agentRuntimeId}/${endpointId}`
+        );
+      }
+      throw error;
+    }
   };
 
   /**
@@ -144,12 +324,27 @@ export class AgentRuntimeClient {
     config?: Config;
   }): Promise<AgentRuntimeEndpoint> => {
     const { agentRuntimeId, endpointId, input, config } = params;
-    return AgentRuntimeEndpoint.update({
-      agentRuntimeId,
-      endpointId,
-      input,
-      config: config ?? this.config,
-    });
+    const cfg = Config.withConfigs(this.config, config);
+
+    try {
+      const result = await this.controlApi.updateAgentRuntimeEndpoint({
+        agentId: agentRuntimeId,
+        endpointId,
+        input: new $AgentRun.UpdateAgentRuntimeEndpointInput({
+          ...input,
+        }),
+        config: cfg,
+      });
+      return new AgentRuntimeEndpoint(result, cfg);
+    } catch (error) {
+      if (error instanceof HTTPError) {
+        throw error.toResourceError(
+          'AgentRuntimeEndpoint',
+          `${agentRuntimeId}/${endpointId}`
+        );
+      }
+      throw error;
+    }
   };
 
   /**
@@ -161,11 +356,24 @@ export class AgentRuntimeClient {
     config?: Config;
   }): Promise<AgentRuntimeEndpoint> => {
     const { agentRuntimeId, endpointId, config } = params;
-    return AgentRuntimeEndpoint.get({
-      agentRuntimeId,
-      endpointId,
-      config: config ?? this.config,
-    });
+    const cfg = Config.withConfigs(this.config, config);
+
+    try {
+      const result = await this.controlApi.getAgentRuntimeEndpoint({
+        agentId: agentRuntimeId,
+        endpointId,
+        config: cfg,
+      });
+      return new AgentRuntimeEndpoint(result, cfg);
+    } catch (error) {
+      if (error instanceof HTTPError) {
+        throw error.toResourceError(
+          'AgentRuntimeEndpoint',
+          `${agentRuntimeId}/${endpointId}`
+        );
+      }
+      throw error;
+    }
   };
 
   /**
@@ -177,11 +385,26 @@ export class AgentRuntimeClient {
     config?: Config;
   }): Promise<AgentRuntimeEndpoint[]> => {
     const { agentRuntimeId, input, config } = params;
-    return AgentRuntimeEndpoint.listById({
-      agentRuntimeId,
-      input,
-      config: config ?? this.config,
-    });
+    const cfg = Config.withConfigs(this.config, config);
+
+    try {
+      const request = new $AgentRun.ListAgentRuntimeEndpointsRequest({
+        ...input,
+      });
+      const result = await this.controlApi.listAgentRuntimeEndpoints({
+        agentId: agentRuntimeId,
+        input: request,
+        config: cfg,
+      });
+      return (result.items || []).map(
+        (item) => new AgentRuntimeEndpoint(item, cfg)
+      );
+    } catch (error) {
+      if (error instanceof HTTPError) {
+        throw error.toResourceError('AgentRuntime', agentRuntimeId);
+      }
+      throw error;
+    }
   };
 
   /**
@@ -193,10 +416,51 @@ export class AgentRuntimeClient {
     config?: Config;
   }): Promise<AgentRuntimeVersion[]> => {
     const { agentRuntimeId, input, config } = params;
-    return AgentRuntime.listVersionsById({
-      agentRuntimeId,
-      input,
-      config: config ?? this.config,
+    const cfg = Config.withConfigs(this.config, config);
+    const versions: AgentRuntimeVersion[] = [];
+    let page = 1;
+    const pageSize = 50;
+
+    while (true) {
+      const request = new $AgentRun.ListAgentRuntimeVersionsRequest({
+        ...input,
+        pageNumber: input?.pageNumber ?? page,
+        pageSize: input?.pageSize ?? pageSize,
+      });
+      const result = await this.controlApi.listAgentRuntimeVersions({
+        agentId: agentRuntimeId,
+        input: request,
+        config: cfg,
+      });
+
+      if (result.items) {
+        for (const item of result.items) {
+          versions.push({
+            agentRuntimeArn: item.agentRuntimeArn,
+            agentRuntimeId: item.agentRuntimeId,
+            agentRuntimeName: item.agentRuntimeName,
+            agentRuntimeVersion: item.agentRuntimeVersion,
+            description: item.description,
+            lastUpdatedAt: item.lastUpdatedAt,
+          });
+        }
+      }
+
+      if (!result.items || result.items.length < pageSize) {
+        break;
+      }
+
+      page++;
+    }
+
+    // Deduplicate
+    const seen = new Set<string>();
+    return versions.filter((v) => {
+      if (!v.agentRuntimeVersion || seen.has(v.agentRuntimeVersion)) {
+        return false;
+      }
+      seen.add(v.agentRuntimeVersion);
+      return true;
     });
   };
 
@@ -223,11 +487,11 @@ export class AgentRuntimeClient {
     params: {
       agentRuntimeName: string;
       agentRuntimeEndpointName?: string;
-    } & InvokeArgs,
+    } & InvokeArgs
   ) => {
     const {
       agentRuntimeName,
-      agentRuntimeEndpointName = "Default",
+      agentRuntimeEndpointName = 'Default',
       messages,
       stream,
       config,
@@ -240,7 +504,7 @@ export class AgentRuntimeClient {
     const dataApi = new AgentRuntimeDataAPI(
       agentRuntimeName,
       agentRuntimeEndpointName,
-      cfg,
+      cfg
     );
 
     return dataApi.invokeOpenai({

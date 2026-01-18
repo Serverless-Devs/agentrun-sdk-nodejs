@@ -10,7 +10,12 @@ import { ModelClient } from '../../../src/model/client';
 import { Config } from '../../../src/utils/config';
 import { HTTPError, ResourceNotExistError } from '../../../src/utils/exception';
 import { Status } from '../../../src/utils/model';
-import { BackendType, ModelType, Provider, ProxyMode } from '../../../src/model/model';
+import {
+  BackendType,
+  ModelType,
+  Provider,
+  ProxyMode,
+} from '../../../src/model/model';
 
 // Mock the ModelControlAPI
 jest.mock('../../../src/model/api/control', () => {
@@ -51,7 +56,9 @@ jest.mock('@ai-sdk/openai', () => ({
 
 import { ModelControlAPI } from '../../../src/model/api/control';
 
-const MockModelControlAPI = ModelControlAPI as jest.MockedClass<typeof ModelControlAPI>;
+const MockModelControlAPI = ModelControlAPI as jest.MockedClass<
+  typeof ModelControlAPI
+>;
 
 describe('Model Module', () => {
   let mockControlApi: any;
@@ -142,7 +149,7 @@ describe('Model Module', () => {
         mockControlApi.createModelProxy.mockResolvedValue(mockResult);
 
         const client = new ModelClient();
-        
+
         // Single endpoint - should set proxyModel to 'single'
         await client.create({
           input: {
@@ -168,7 +175,10 @@ describe('Model Module', () => {
           input: {
             modelProxyName: 'test-proxy',
             proxyConfig: {
-              endpoints: [{ baseUrl: 'http://test1.com' }, { baseUrl: 'http://test2.com' }],
+              endpoints: [
+                { baseUrl: 'http://test1.com' },
+                { baseUrl: 'http://test2.com' },
+              ],
             },
           },
         });
@@ -187,7 +197,7 @@ describe('Model Module', () => {
         mockControlApi.createModelService.mockRejectedValue(httpError);
 
         const client = new ModelClient();
-        
+
         await expect(
           client.create({
             input: {
@@ -204,7 +214,7 @@ describe('Model Module', () => {
         mockControlApi.createModelProxy.mockRejectedValue(httpError);
 
         const client = new ModelClient();
-        
+
         await expect(
           client.create({
             input: {
@@ -220,7 +230,7 @@ describe('Model Module', () => {
         mockControlApi.createModelService.mockRejectedValue(genericError);
 
         const client = new ModelClient();
-        
+
         await expect(
           client.create({
             input: {
@@ -237,7 +247,7 @@ describe('Model Module', () => {
         mockControlApi.createModelProxy.mockRejectedValue(genericError);
 
         const client = new ModelClient();
-        
+
         await expect(
           client.create({
             input: {
@@ -265,7 +275,9 @@ describe('Model Module', () => {
       });
 
       it('should delete ModelService if ModelProxy not found', async () => {
-        mockControlApi.deleteModelProxy.mockRejectedValue(new HTTPError(404, 'Not found'));
+        mockControlApi.deleteModelProxy.mockRejectedValue(
+          new HTTPError(404, 'Not found')
+        );
         mockControlApi.deleteModelService.mockResolvedValue({
           modelServiceId: 'service-123',
           modelServiceName: 'test-service',
@@ -286,9 +298,9 @@ describe('Model Module', () => {
         });
 
         const client = new ModelClient();
-        const result = await client.delete({ 
-          name: 'test-service', 
-          backendType: BackendType.SERVICE 
+        const result = await client.delete({
+          name: 'test-service',
+          backendType: BackendType.SERVICE,
         });
 
         expect(mockControlApi.deleteModelProxy).not.toHaveBeenCalled();
@@ -301,7 +313,7 @@ describe('Model Module', () => {
         mockControlApi.deleteModelProxy.mockRejectedValue(httpError);
 
         const client = new ModelClient();
-        
+
         await expect(
           client.delete({ name: 'test-proxy', backendType: BackendType.PROXY })
         ).rejects.toThrow();
@@ -312,10 +324,10 @@ describe('Model Module', () => {
         mockControlApi.deleteModelProxy.mockRejectedValue(genericError);
 
         const client = new ModelClient();
-        
-        await expect(
-          client.delete({ name: 'test-proxy' })
-        ).rejects.toThrow('Network error');
+
+        await expect(client.delete({ name: 'test-proxy' })).rejects.toThrow(
+          'Network error'
+        );
       });
 
       it('should rethrow non-HTTP error during service delete', async () => {
@@ -325,10 +337,10 @@ describe('Model Module', () => {
         mockControlApi.deleteModelService.mockRejectedValue(genericError);
 
         const client = new ModelClient();
-        
-        await expect(
-          client.delete({ name: 'test-service' })
-        ).rejects.toThrow('Network error');
+
+        await expect(client.delete({ name: 'test-service' })).rejects.toThrow(
+          'Network error'
+        );
       });
 
       it('should handle HTTP error during service delete', async () => {
@@ -337,10 +349,8 @@ describe('Model Module', () => {
         mockControlApi.deleteModelService.mockRejectedValue(httpError);
 
         const client = new ModelClient();
-        
-        await expect(
-          client.delete({ name: 'test-service' })
-        ).rejects.toThrow();
+
+        await expect(client.delete({ name: 'test-service' })).rejects.toThrow();
       });
     });
 
@@ -372,9 +382,9 @@ describe('Model Module', () => {
         const client = new ModelClient();
         const result = await client.update({
           name: 'test-proxy',
-          input: { 
+          input: {
             proxyModel: ProxyMode.SINGLE,
-            description: 'Updated' 
+            description: 'Updated',
           },
         });
 
@@ -403,7 +413,7 @@ describe('Model Module', () => {
         mockControlApi.updateModelService.mockRejectedValue(httpError);
 
         const client = new ModelClient();
-        
+
         await expect(
           client.update({
             name: 'test-service',
@@ -417,7 +427,7 @@ describe('Model Module', () => {
         mockControlApi.updateModelProxy.mockRejectedValue(httpError);
 
         const client = new ModelClient();
-        
+
         await expect(
           client.update({
             name: 'test-proxy',
@@ -435,7 +445,7 @@ describe('Model Module', () => {
         const client = new ModelClient();
         await client.update({
           name: 'test-proxy',
-          input: { 
+          input: {
             proxyModel: '', // Empty string (falsy but not undefined)
             proxyConfig: {
               endpoints: [{ baseUrl: 'http://test.com' }],
@@ -455,10 +465,13 @@ describe('Model Module', () => {
         const client = new ModelClient();
         await client.update({
           name: 'test-proxy',
-          input: { 
+          input: {
             proxyModel: '', // Empty string (falsy but not undefined)
             proxyConfig: {
-              endpoints: [{ baseUrl: 'http://test1.com' }, { baseUrl: 'http://test2.com' }],
+              endpoints: [
+                { baseUrl: 'http://test1.com' },
+                { baseUrl: 'http://test2.com' },
+              ],
             },
           } as any, // Use any to bypass type check for proxyConfig
         });
@@ -471,7 +484,7 @@ describe('Model Module', () => {
         mockControlApi.updateModelService.mockRejectedValue(genericError);
 
         const client = new ModelClient();
-        
+
         await expect(
           client.update({
             name: 'test-service',
@@ -485,7 +498,7 @@ describe('Model Module', () => {
         mockControlApi.updateModelProxy.mockRejectedValue(genericError);
 
         const client = new ModelClient();
-        
+
         await expect(
           client.update({
             name: 'test-proxy',
@@ -510,7 +523,9 @@ describe('Model Module', () => {
       });
 
       it('should get ModelService if ModelProxy not found', async () => {
-        mockControlApi.getModelProxy.mockRejectedValue(new HTTPError(404, 'Not found'));
+        mockControlApi.getModelProxy.mockRejectedValue(
+          new HTTPError(404, 'Not found')
+        );
         mockControlApi.getModelService.mockResolvedValue({
           modelServiceId: 'service-123',
           modelServiceName: 'test-service',
@@ -531,9 +546,9 @@ describe('Model Module', () => {
         });
 
         const client = new ModelClient();
-        const result = await client.get({ 
-          name: 'test-service', 
-          backendType: BackendType.SERVICE 
+        const result = await client.get({
+          name: 'test-service',
+          backendType: BackendType.SERVICE,
         });
 
         expect(mockControlApi.getModelProxy).not.toHaveBeenCalled();
@@ -546,7 +561,7 @@ describe('Model Module', () => {
         mockControlApi.getModelProxy.mockRejectedValue(httpError);
 
         const client = new ModelClient();
-        
+
         await expect(
           client.get({ name: 'test-proxy', backendType: BackendType.PROXY })
         ).rejects.toThrow();
@@ -557,10 +572,10 @@ describe('Model Module', () => {
         mockControlApi.getModelProxy.mockRejectedValue(genericError);
 
         const client = new ModelClient();
-        
-        await expect(
-          client.get({ name: 'test-proxy' })
-        ).rejects.toThrow('Network error');
+
+        await expect(client.get({ name: 'test-proxy' })).rejects.toThrow(
+          'Network error'
+        );
       });
 
       it('should rethrow non-HTTP error during service get', async () => {
@@ -570,10 +585,10 @@ describe('Model Module', () => {
         mockControlApi.getModelService.mockRejectedValue(genericError);
 
         const client = new ModelClient();
-        
-        await expect(
-          client.get({ name: 'test-service' })
-        ).rejects.toThrow('Network error');
+
+        await expect(client.get({ name: 'test-service' })).rejects.toThrow(
+          'Network error'
+        );
       });
 
       it('should handle HTTP error during service get', async () => {
@@ -582,10 +597,8 @@ describe('Model Module', () => {
         mockControlApi.getModelService.mockRejectedValue(httpError);
 
         const client = new ModelClient();
-        
-        await expect(
-          client.get({ name: 'test-service' })
-        ).rejects.toThrow();
+
+        await expect(client.get({ name: 'test-service' })).rejects.toThrow();
       });
     });
 
@@ -610,9 +623,7 @@ describe('Model Module', () => {
 
       it('should list ModelProxies when input contains modelProxyName', async () => {
         mockControlApi.listModelProxies.mockResolvedValue({
-          items: [
-            { modelProxyId: '1', modelProxyName: 'proxy-1' },
-          ],
+          items: [{ modelProxyId: '1', modelProxyName: 'proxy-1' }],
         });
 
         const client = new ModelClient();
@@ -637,7 +648,9 @@ describe('Model Module', () => {
       });
 
       it('should handle undefined items in ModelServices list response', async () => {
-        mockControlApi.listModelServices.mockResolvedValue({ items: undefined });
+        mockControlApi.listModelServices.mockResolvedValue({
+          items: undefined,
+        });
 
         const client = new ModelClient();
         const result = await client.list({
@@ -776,21 +789,6 @@ describe('Model Module', () => {
 
           expect(result).toHaveLength(2);
         });
-
-        it('should deduplicate results with empty modelServiceId', async () => {
-          mockControlApi.listModelServices.mockResolvedValue({
-            items: [
-              { modelServiceName: 'service-no-id-1' },  // No modelServiceId
-              { modelServiceName: 'service-no-id-2' },  // Another with no modelServiceId
-              { modelServiceId: '3', modelServiceName: 'service-3' },
-            ],
-          });
-
-          const result = await ModelService.listAll();
-
-          // Empty modelServiceIds are treated as same key '', so only first is kept
-          expect(result).toHaveLength(2);
-        });
       });
     });
 
@@ -820,7 +818,9 @@ describe('Model Module', () => {
 
           await expect(
             service.update({ input: { description: 'Updated' } })
-          ).rejects.toThrow('modelServiceName is required to update a ModelService');
+          ).rejects.toThrow(
+            'modelServiceName is required to update a ModelService'
+          );
         });
       });
 
@@ -995,15 +995,15 @@ describe('Model Module', () => {
           const result = await service.modelInfo();
 
           // modelInfo returns undefined when modelNames is empty
-          // The fallback to modelServiceName happens in completions/responses
+          // The fallback to modelServiceName happens in completion/responses
           expect(result.model).toBeUndefined();
         });
       });
 
-      describe('completions', () => {
+      describe('completion', () => {
         it('should call generateText for non-streaming request', async () => {
           const { generateText } = require('ai');
-          
+
           const service = new ModelService();
           service.modelServiceName = 'test-service';
           service.providerSettings = {
@@ -1011,7 +1011,7 @@ describe('Model Module', () => {
             apiKey: 'test-key',
           };
 
-          await service.completions({
+          await service.completion({
             messages: [{ role: 'user', content: 'Hello' }],
           });
 
@@ -1020,7 +1020,7 @@ describe('Model Module', () => {
 
         it('should call streamText for streaming request', async () => {
           const { streamText } = require('ai');
-          
+
           const service = new ModelService();
           service.modelServiceName = 'test-service';
           service.providerSettings = {
@@ -1028,7 +1028,7 @@ describe('Model Module', () => {
             apiKey: 'test-key',
           };
 
-          await service.completions({
+          await service.completion({
             messages: [{ role: 'user', content: 'Hello' }],
             stream: true,
           });
@@ -1038,7 +1038,7 @@ describe('Model Module', () => {
 
         it('should use provided model over info.model', async () => {
           const { generateText } = require('ai');
-          
+
           const service = new ModelService();
           service.modelServiceName = 'test-service';
           service.providerSettings = {
@@ -1047,7 +1047,7 @@ describe('Model Module', () => {
             modelNames: ['default-model'],
           };
 
-          await service.completions({
+          await service.completion({
             messages: [{ role: 'user', content: 'Hello' }],
             model: 'custom-model',
           });
@@ -1057,7 +1057,7 @@ describe('Model Module', () => {
 
         it('should fallback to modelServiceName when no model is available', async () => {
           const { generateText } = require('ai');
-          
+
           const service = new ModelService();
           service.modelServiceName = 'fallback-service';
           service.providerSettings = {
@@ -1066,7 +1066,7 @@ describe('Model Module', () => {
             // No modelNames
           };
 
-          await service.completions({
+          await service.completion({
             messages: [{ role: 'user', content: 'Hello' }],
           });
 
@@ -1076,7 +1076,7 @@ describe('Model Module', () => {
         it('should fallback to empty string when model and info.model are undefined and modelServiceName is empty string', async () => {
           const { generateText } = require('ai');
           jest.clearAllMocks();
-          
+
           const service = new ModelService();
           service.modelServiceName = 'test-service';
           service.providerSettings = {
@@ -1084,7 +1084,7 @@ describe('Model Module', () => {
             apiKey: 'test-key',
             // No modelNames
           };
-          
+
           // Mock modelInfo to return info without model
           const originalModelInfo = service.modelInfo;
           service.modelInfo = jest.fn().mockResolvedValue({
@@ -1093,7 +1093,7 @@ describe('Model Module', () => {
             model: undefined, // No model in info
             headers: {},
           });
-          
+
           // Temporarily set modelServiceName to empty string
           const originalName = service.modelServiceName;
           Object.defineProperty(service, 'modelServiceName', {
@@ -1101,12 +1101,12 @@ describe('Model Module', () => {
             configurable: true,
           });
 
-          await service.completions({
+          await service.completion({
             messages: [{ role: 'user', content: 'Hello' }],
           });
 
           expect(generateText).toHaveBeenCalled();
-          
+
           // Restore
           Object.defineProperty(service, 'modelServiceName', {
             value: originalName,
@@ -1117,113 +1117,7 @@ describe('Model Module', () => {
         });
       });
 
-      describe('responses', () => {
-        it('should convert string input to messages', async () => {
-          const { generateText } = require('ai');
-          
-          const service = new ModelService();
-          service.modelServiceName = 'test-service';
-          service.providerSettings = {
-            baseUrl: 'https://api.example.com',
-            apiKey: 'test-key',
-          };
-
-          await service.responses({
-            input: 'Hello',
-          });
-
-          expect(generateText).toHaveBeenCalledWith(
-            expect.objectContaining({
-              messages: [{ role: 'user', content: 'Hello' }],
-            })
-          );
-        });
-
-        it('should pass array input as messages directly', async () => {
-          const { generateText } = require('ai');
-          
-          const service = new ModelService();
-          service.modelServiceName = 'test-service';
-          service.providerSettings = {
-            baseUrl: 'https://api.example.com',
-            apiKey: 'test-key',
-          };
-
-          const inputMessages = [{ role: 'user', content: 'Hello' }];
-          await service.responses({
-            input: inputMessages,
-          });
-
-          expect(generateText).toHaveBeenCalledWith(
-            expect.objectContaining({
-              messages: inputMessages,
-            })
-          );
-        });
-
-        it('should call streamText for streaming request', async () => {
-          const { streamText } = require('ai');
-          
-          const service = new ModelService();
-          service.modelServiceName = 'test-service';
-          service.providerSettings = {
-            baseUrl: 'https://api.example.com',
-            apiKey: 'test-key',
-          };
-
-          await service.responses({
-            input: 'Hello',
-            stream: true,
-          });
-
-          expect(streamText).toHaveBeenCalled();
-        });
-
-        it('should fallback to empty string when model and info.model are undefined and modelServiceName is empty string', async () => {
-          const { generateText } = require('ai');
-          jest.clearAllMocks();
-          
-          const service = new ModelService();
-          service.modelServiceName = 'test-service';
-          service.providerSettings = {
-            baseUrl: 'https://api.example.com',
-            apiKey: 'test-key',
-            // No modelNames
-          };
-          
-          // Mock modelInfo to return info without model
-          const originalModelInfo = service.modelInfo;
-          service.modelInfo = jest.fn().mockResolvedValue({
-            apiKey: 'test-key',
-            baseUrl: 'https://api.example.com',
-            model: undefined, // No model in info
-            headers: {},
-          });
-          
-          // Temporarily set modelServiceName to empty string
-          const originalName = service.modelServiceName;
-          Object.defineProperty(service, 'modelServiceName', {
-            get: () => '', // Empty string
-            configurable: true,
-          });
-
-          await service.responses({
-            input: 'Hello',
-          });
-
-          expect(generateText).toHaveBeenCalled();
-          
-          // Restore
-          Object.defineProperty(service, 'modelServiceName', {
-            value: originalName,
-            writable: true,
-            configurable: true,
-          });
-          service.modelInfo = originalModelInfo;
-        });
-      });
-
-      describe('waitUntilReady', () => {
+      describe('waitUntilReadyOrFailed', () => {
         it('should wait until status is READY', async () => {
           let callCount = 0;
           mockControlApi.getModelService.mockImplementation(async () => {
@@ -1239,7 +1133,7 @@ describe('Model Module', () => {
           service.modelServiceName = 'test-service';
           service.status = Status.CREATING;
 
-          const result = await service.waitUntilReady({
+          const result = await service.waitUntilReadyOrFailed({
             intervalSeconds: 0.1,
             timeoutSeconds: 5,
           });
@@ -1248,7 +1142,7 @@ describe('Model Module', () => {
           expect(callCount).toBeGreaterThanOrEqual(2);
         });
 
-        it('should call beforeCheck callback', async () => {
+        it('should call callback callback', async () => {
           mockControlApi.getModelService.mockResolvedValue({
             modelServiceId: 'service-123',
             modelServiceName: 'test-service',
@@ -1259,15 +1153,15 @@ describe('Model Module', () => {
           service.modelServiceName = 'test-service';
           service.status = Status.CREATING;
 
-          const beforeCheck = jest.fn();
+          const callback = jest.fn();
 
-          await service.waitUntilReady({
+          await service.waitUntilReadyOrFailed({
             intervalSeconds: 0.1,
             timeoutSeconds: 5,
-            beforeCheck,
+            callback,
           });
 
-          expect(beforeCheck).toHaveBeenCalled();
+          expect(callback).toHaveBeenCalled();
         });
 
         it('should throw error if status becomes CREATE_FAILED', async () => {
@@ -1281,12 +1175,11 @@ describe('Model Module', () => {
           service.modelServiceName = 'test-service';
           service.status = Status.CREATING;
 
-          await expect(
-            service.waitUntilReady({
-              intervalSeconds: 0.1,
-              timeoutSeconds: 5,
-            })
-          ).rejects.toThrow('Model service failed with status');
+          const result = await service.waitUntilReadyOrFailed({
+            intervalSeconds: 0.1,
+            timeoutSeconds: 5,
+          });
+          expect(result.status).toBe('CREATE_FAILED');
         });
 
         it('should throw error if status becomes UPDATE_FAILED', async () => {
@@ -1301,12 +1194,11 @@ describe('Model Module', () => {
           service.modelServiceName = 'test-service';
           service.status = Status.UPDATING;
 
-          await expect(
-            service.waitUntilReady({
-              intervalSeconds: 0.1,
-              timeoutSeconds: 5,
-            })
-          ).rejects.toThrow('Model service failed with status');
+          const result = await service.waitUntilReadyOrFailed({
+            intervalSeconds: 0.1,
+            timeoutSeconds: 5,
+          });
+          expect(result.status).toBe('UPDATE_FAILED');
         });
 
         it('should throw error if status becomes DELETE_FAILED', async () => {
@@ -1320,12 +1212,11 @@ describe('Model Module', () => {
           const service = new ModelService();
           service.modelServiceName = 'test-service';
 
-          await expect(
-            service.waitUntilReady({
-              intervalSeconds: 0.1,
-              timeoutSeconds: 5,
-            })
-          ).rejects.toThrow('Model service failed with status');
+          const result = await service.waitUntilReadyOrFailed({
+            intervalSeconds: 0.1,
+            timeoutSeconds: 5,
+          });
+          expect(result.status).toBe('DELETE_FAILED');
         });
 
         it('should throw timeout error if status does not become READY', async () => {
@@ -1340,11 +1231,11 @@ describe('Model Module', () => {
           service.status = Status.CREATING;
 
           await expect(
-            service.waitUntilReady({
+            service.waitUntilReadyOrFailed({
               intervalSeconds: 0.1,
               timeoutSeconds: 0.2,
             })
-          ).rejects.toThrow('Timeout waiting for model service to be ready');
+          ).rejects.toThrow(/Timeout waiting/);
         });
 
         it('should use default timeout and interval when not provided', async () => {
@@ -1358,7 +1249,7 @@ describe('Model Module', () => {
           service.modelServiceName = 'test-service';
 
           // Call without options to test default values
-          const result = await service.waitUntilReady();
+          const result = await service.waitUntilReadyOrFailed();
 
           expect(result.status).toBe(Status.READY);
         });
@@ -1451,7 +1342,7 @@ describe('Model Module', () => {
           mockControlApi.listModelProxies.mockResolvedValue({
             items: [
               { modelProxyId: 'proxy-1', modelProxyName: 'proxy-1' },
-              { modelProxyId: 'proxy-1', modelProxyName: 'proxy-1-dup' },  // Duplicate
+              { modelProxyId: 'proxy-1', modelProxyName: 'proxy-1-dup' }, // Duplicate
               { modelProxyId: 'proxy-2', modelProxyName: 'proxy-2' },
             ],
           });
@@ -1459,28 +1350,19 @@ describe('Model Module', () => {
           const result = await ModelProxy.listAll();
 
           expect(result).toHaveLength(2);
-          expect(result.map((p) => p.modelProxyId)).toEqual(['proxy-1', 'proxy-2']);
-        });
-
-        it('should deduplicate results with empty modelProxyId', async () => {
-          mockControlApi.listModelProxies.mockResolvedValue({
-            items: [
-              { modelProxyName: 'proxy-no-id-1' },  // No modelProxyId
-              { modelProxyName: 'proxy-no-id-2' },  // Another with no modelProxyId (will be deduplicated as empty string)
-              { modelProxyId: 'proxy-3', modelProxyName: 'proxy-3' },
-            ],
-          });
-
-          const result = await ModelProxy.listAll();
-
-          // Empty modelProxyIds are treated as same key '', so only first is kept
-          expect(result).toHaveLength(2);
+          expect(result.map((p) => p.modelProxyId)).toEqual([
+            'proxy-1',
+            'proxy-2',
+          ]);
         });
 
         it('should pass filter options', async () => {
           mockControlApi.listModelProxies.mockResolvedValue({ items: [] });
 
-          await ModelProxy.listAll({ proxyMode: ProxyMode.SINGLE, status: Status.READY });
+          await ModelProxy.listAll({
+            proxyMode: ProxyMode.SINGLE,
+            status: Status.READY,
+          });
 
           expect(mockControlApi.listModelProxies).toHaveBeenCalled();
         });
@@ -1512,8 +1394,12 @@ describe('Model Module', () => {
           const proxy = new ModelProxy();
 
           await expect(
-            proxy.update({ input: { description: 'Updated', executionRoleArn: 'arn:test' } })
-          ).rejects.toThrow('modelProxyName is required to update a ModelProxy');
+            proxy.update({
+              input: { description: 'Updated', executionRoleArn: 'arn:test' },
+            })
+          ).rejects.toThrow(
+            'modelProxyName is required to update a ModelProxy'
+          );
         });
       });
 
@@ -1648,15 +1534,15 @@ describe('Model Module', () => {
         });
       });
 
-      describe('completions', () => {
+      describe('completion', () => {
         it('should call generateText for non-streaming request', async () => {
           const { generateText } = require('ai');
-          
+
           const proxy = new ModelProxy();
           proxy.modelProxyName = 'test-proxy';
           proxy.endpoint = 'https://api.example.com';
 
-          await proxy.completions({
+          await proxy.completion({
             messages: [{ role: 'user', content: 'Hello' }],
           });
 
@@ -1665,12 +1551,12 @@ describe('Model Module', () => {
 
         it('should call streamText for streaming request', async () => {
           const { streamText } = require('ai');
-          
+
           const proxy = new ModelProxy();
           proxy.modelProxyName = 'test-proxy';
           proxy.endpoint = 'https://api.example.com';
 
-          await proxy.completions({
+          await proxy.completion({
             messages: [{ role: 'user', content: 'Hello' }],
             stream: true,
           });
@@ -1680,12 +1566,12 @@ describe('Model Module', () => {
 
         it('should use provided model over info.model', async () => {
           const { generateText } = require('ai');
-          
+
           const proxy = new ModelProxy();
           proxy.modelProxyName = 'test-proxy';
           proxy.endpoint = 'https://api.example.com';
 
-          await proxy.completions({
+          await proxy.completion({
             messages: [{ role: 'user', content: 'Hello' }],
             model: 'custom-model',
           });
@@ -1695,131 +1581,23 @@ describe('Model Module', () => {
 
         it('should fallback to modelProxyName when no model is available', async () => {
           const { generateText } = require('ai');
-          
+
           const proxy = new ModelProxy();
           proxy.modelProxyName = 'fallback-proxy';
           proxy.endpoint = 'https://api.example.com';
           // No model in modelInfo, no model param
 
-          await proxy.completions({
+          await proxy.completion({
             messages: [{ role: 'user', content: 'Hello' }],
           });
 
           expect(generateText).toHaveBeenCalled();
         });
 
-        it('should fallback to empty string when model and info.model are undefined and modelProxyName is empty string', async () => {
-          const { generateText, streamText } = require('ai');
-          jest.clearAllMocks();
-          
-          const proxy = new ModelProxy();
-          proxy.modelProxyName = 'test-proxy';
-          proxy.endpoint = 'https://api.example.com';
-          
-          // Mock modelInfo to return info without model
-          const originalModelInfo = proxy.modelInfo;
-          proxy.modelInfo = jest.fn().mockResolvedValue({
-            apiKey: 'test-key',
-            baseUrl: 'https://api.example.com',
-            model: undefined, // No model in info
-            headers: {},
-          });
-          
-          // Temporarily set modelProxyName to empty string after modelInfo is mocked
-          // This tests the fallback to empty string in selectedModel calculation
-          const originalName = proxy.modelProxyName;
-          Object.defineProperty(proxy, 'modelProxyName', {
-            get: () => '', // Empty string
-            configurable: true,
-          });
-
-          await proxy.completions({
-            messages: [{ role: 'user', content: 'Hello' }],
-          });
-
-          expect(generateText).toHaveBeenCalled();
-          
-          // Restore
-          Object.defineProperty(proxy, 'modelProxyName', {
-            value: originalName,
-            writable: true,
-            configurable: true,
-          });
-          proxy.modelInfo = originalModelInfo;
-        });
+        
       });
 
-      describe('responses', () => {
-        it('should call generateText for non-streaming request', async () => {
-          const { generateText } = require('ai');
-          
-          const proxy = new ModelProxy();
-          proxy.modelProxyName = 'test-proxy';
-          proxy.endpoint = 'https://api.example.com';
-
-          await proxy.responses({
-            messages: [{ role: 'user', content: 'Hello' }],
-          });
-
-          expect(generateText).toHaveBeenCalled();
-        });
-
-        it('should call streamText for streaming request', async () => {
-          const { streamText } = require('ai');
-          
-          const proxy = new ModelProxy();
-          proxy.modelProxyName = 'test-proxy';
-          proxy.endpoint = 'https://api.example.com';
-
-          await proxy.responses({
-            messages: [{ role: 'user', content: 'Hello' }],
-            stream: true,
-          });
-
-          expect(streamText).toHaveBeenCalled();
-        });
-
-        it('should fallback to empty string when model and info.model are undefined and modelProxyName is empty string', async () => {
-          const { generateText } = require('ai');
-          jest.clearAllMocks();
-          
-          const proxy = new ModelProxy();
-          proxy.modelProxyName = 'test-proxy';
-          proxy.endpoint = 'https://api.example.com';
-          
-          // Mock modelInfo to return info without model
-          const originalModelInfo = proxy.modelInfo;
-          proxy.modelInfo = jest.fn().mockResolvedValue({
-            apiKey: 'test-key',
-            baseUrl: 'https://api.example.com',
-            model: undefined, // No model in info
-            headers: {},
-          });
-          
-          // Temporarily set modelProxyName to empty string after modelInfo is mocked
-          const originalName = proxy.modelProxyName;
-          Object.defineProperty(proxy, 'modelProxyName', {
-            get: () => '', // Empty string
-            configurable: true,
-          });
-
-          await proxy.responses({
-            messages: [{ role: 'user', content: 'Hello' }],
-          });
-
-          expect(generateText).toHaveBeenCalled();
-          
-          // Restore
-          Object.defineProperty(proxy, 'modelProxyName', {
-            value: originalName,
-            writable: true,
-            configurable: true,
-          });
-          proxy.modelInfo = originalModelInfo;
-        });
-      });
-
-      describe('waitUntilReady', () => {
+      describe('waitUntilReadyOrFailed', () => {
         it('should wait until status is READY', async () => {
           let callCount = 0;
           mockControlApi.getModelProxy.mockImplementation(async () => {
@@ -1834,7 +1612,7 @@ describe('Model Module', () => {
           const proxy = new ModelProxy();
           proxy.modelProxyName = 'test-proxy';
 
-          await proxy.waitUntilReady({
+          await proxy.waitUntilReadyOrFailed({
             intervalSeconds: 0.01,
             timeoutSeconds: 5,
           });
@@ -1855,7 +1633,10 @@ describe('Model Module', () => {
           proxy.modelProxyName = 'test-proxy';
 
           await expect(
-            proxy.waitUntilReady({ intervalSeconds: 0.01, timeoutSeconds: 1 })
+            proxy.waitUntilReadyOrFailed({
+              intervalSeconds: 0.01,
+              timeoutSeconds: 1,
+            })
           ).rejects.toThrow();
         });
 
@@ -1870,9 +1651,11 @@ describe('Model Module', () => {
           const proxy = new ModelProxy();
           proxy.modelProxyName = 'test-proxy';
 
-          await expect(
-            proxy.waitUntilReady({ intervalSeconds: 0.01, timeoutSeconds: 1 })
-          ).rejects.toThrow('Model proxy failed with status');
+          const result = await proxy.waitUntilReadyOrFailed({
+            intervalSeconds: 0.1,
+            timeoutSeconds: 5,
+          });
+          expect(result.status).toBe('CREATE_FAILED');
         });
 
         it('should throw error on UPDATE_FAILED status', async () => {
@@ -1886,9 +1669,11 @@ describe('Model Module', () => {
           const proxy = new ModelProxy();
           proxy.modelProxyName = 'test-proxy';
 
-          await expect(
-            proxy.waitUntilReady({ intervalSeconds: 0.01, timeoutSeconds: 1 })
-          ).rejects.toThrow('Model proxy failed with status');
+          const result = await proxy.waitUntilReadyOrFailed({
+            intervalSeconds: 0.1,
+            timeoutSeconds: 5,
+          });
+          expect(result.status).toBe('UPDATE_FAILED');
         });
 
         it('should throw error on DELETE_FAILED status', async () => {
@@ -1902,12 +1687,14 @@ describe('Model Module', () => {
           const proxy = new ModelProxy();
           proxy.modelProxyName = 'test-proxy';
 
-          await expect(
-            proxy.waitUntilReady({ intervalSeconds: 0.01, timeoutSeconds: 1 })
-          ).rejects.toThrow('Model proxy failed with status');
+          const result = await proxy.waitUntilReadyOrFailed({
+            intervalSeconds: 0.1,
+            timeoutSeconds: 5,
+          });
+          expect(result.status).toBe('DELETE_FAILED');
         });
 
-        it('should call beforeCheck callback', async () => {
+        it('should call callback callback', async () => {
           mockControlApi.getModelProxy.mockResolvedValue({
             modelProxyId: 'proxy-123',
             modelProxyName: 'test-proxy',
@@ -1917,15 +1704,15 @@ describe('Model Module', () => {
           const proxy = new ModelProxy();
           proxy.modelProxyName = 'test-proxy';
 
-          const beforeCheck = jest.fn();
+          const callback = jest.fn();
 
-          await proxy.waitUntilReady({
+          await proxy.waitUntilReadyOrFailed({
             intervalSeconds: 0.1,
             timeoutSeconds: 5,
-            beforeCheck,
+            callback,
           });
 
-          expect(beforeCheck).toHaveBeenCalled();
+          expect(callback).toHaveBeenCalled();
         });
 
         it('should throw timeout error', async () => {
@@ -1939,8 +1726,11 @@ describe('Model Module', () => {
           proxy.modelProxyName = 'test-proxy';
 
           await expect(
-            proxy.waitUntilReady({ intervalSeconds: 0.05, timeoutSeconds: 0.1 })
-          ).rejects.toThrow('Timeout waiting for model proxy to be ready');
+            proxy.waitUntilReadyOrFailed({
+              intervalSeconds: 0.05,
+              timeoutSeconds: 0.1,
+            })
+          ).rejects.toThrow(/Timeout waiting/);
         });
 
         it('should use default timeout and interval when not provided', async () => {
@@ -1954,7 +1744,7 @@ describe('Model Module', () => {
           proxy.modelProxyName = 'test-proxy';
 
           // Call without options to test default values
-          const result = await proxy.waitUntilReady();
+          const result = await proxy.waitUntilReadyOrFailed();
 
           expect(result.status).toBe(Status.READY);
         });

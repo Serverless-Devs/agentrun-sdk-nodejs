@@ -26,7 +26,7 @@ async function toolsetExample() {
   // Example 1: Using Baidu Search Tool (OpenAPI)
   logger.info('==== OpenAPI ToolSet Example ====');
   try {
-    const baiduToolset = await client.getToolSet({
+    const baiduToolset = await client.get({
       name: 'web-search-baidu-8wox', // 替换为您的百度搜索工具名称
     });
 
@@ -53,7 +53,7 @@ async function toolsetExample() {
   // Example 2: Using MCP Time Tool
   logger.info('\n==== MCP ToolSet Example ====');
   try {
-    const mcpToolset = await client.getToolSet({
+    const mcpToolset = await client.get({
       name: 'start-mcp-time-ggda', // 替换为您的 MCP 时间工具名称
     });
 

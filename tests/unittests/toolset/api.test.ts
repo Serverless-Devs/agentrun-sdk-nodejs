@@ -7,7 +7,11 @@
 import { Config } from '../../../src/utils/config';
 import { ToolControlAPI } from '../../../src/toolset/api/control';
 import { MCPSession, MCPToolSet } from '../../../src/toolset/api/mcp';
-import { ClientError, HTTPError, ServerError } from '../../../src/utils/exception';
+import {
+  ClientError,
+  HTTPError,
+  ServerError,
+} from '../../../src/utils/exception';
 
 describe('ToolSet API', () => {
   beforeEach(() => {
@@ -34,7 +38,9 @@ describe('ToolSet API', () => {
         getToolsetWithOptions: jest.fn(),
         listToolsetsWithOptions: jest.fn(),
       };
-      getDevsClientSpy = jest.spyOn(ToolControlAPI.prototype as any, 'getDevsClient').mockReturnValue(mockDevsClient);
+      getDevsClientSpy = jest
+        .spyOn(ToolControlAPI.prototype as any, 'getDevsClient')
+        .mockReturnValue(mockDevsClient);
     });
 
     afterEach(() => {
@@ -71,10 +77,7 @@ describe('ToolSet API', () => {
           toolsetId: 'ts-123',
         };
         mockDevsClient.getToolsetWithOptions.mockResolvedValue({
-          body: {
-            requestId: 'req-123',
-            data: mockToolset,
-          },
+          body: mockToolset,
         });
 
         const api = new ToolControlAPI();
@@ -86,14 +89,13 @@ describe('ToolSet API', () => {
 
       it('should throw error on empty response', async () => {
         mockDevsClient.getToolsetWithOptions.mockResolvedValue({
-          body: {
-            requestId: 'req-123',
-            data: null,
-          },
+          body: null,
         });
 
         const api = new ToolControlAPI();
-        await expect(api.getToolset({ name: 'test-toolset' })).rejects.toThrow('Empty response body');
+        await expect(api.getToolset({ name: 'test-toolset' })).rejects.toThrow(
+          'Empty response body'
+        );
       });
 
       it('should handle HTTPError', async () => {
@@ -113,7 +115,9 @@ describe('ToolSet API', () => {
         mockDevsClient.getToolsetWithOptions.mockRejectedValue(error);
 
         const api = new ToolControlAPI();
-        await expect(api.getToolset({ name: 'test' })).rejects.toThrow(ClientError);
+        await expect(api.getToolset({ name: 'test' })).rejects.toThrow(
+          ClientError
+        );
       });
 
       it('should throw ServerError on 5xx status', async () => {
@@ -125,7 +129,9 @@ describe('ToolSet API', () => {
         mockDevsClient.getToolsetWithOptions.mockRejectedValue(error);
 
         const api = new ToolControlAPI();
-        await expect(api.getToolset({ name: 'test' })).rejects.toThrow(ServerError);
+        await expect(api.getToolset({ name: 'test' })).rejects.toThrow(
+          ServerError
+        );
       });
 
       it('should rethrow unknown errors', async () => {
@@ -133,7 +139,9 @@ describe('ToolSet API', () => {
         mockDevsClient.getToolsetWithOptions.mockRejectedValue(unknownError);
 
         const api = new ToolControlAPI();
-        await expect(api.getToolset({ name: 'test' })).rejects.toThrow('Unknown error');
+        await expect(api.getToolset({ name: 'test' })).rejects.toThrow(
+          'Unknown error'
+        );
       });
     });
 
@@ -168,7 +176,9 @@ describe('ToolSet API', () => {
         });
 
         const api = new ToolControlAPI();
-        await expect(api.listToolsets({ input: {} as any })).rejects.toThrow('Empty response body');
+        await expect(api.listToolsets({ input: {} as any })).rejects.toThrow(
+          'Empty response body'
+        );
       });
 
       it('should handle error with statusCode', async () => {
@@ -179,7 +189,9 @@ describe('ToolSet API', () => {
         mockDevsClient.listToolsetsWithOptions.mockRejectedValue(error);
 
         const api = new ToolControlAPI();
-        await expect(api.listToolsets({ input: {} as any })).rejects.toThrow(ClientError);
+        await expect(api.listToolsets({ input: {} as any })).rejects.toThrow(
+          ClientError
+        );
       });
     });
   });
@@ -290,7 +302,10 @@ describe('ToolSet API', () => {
           regionId: 'cn-hangzhou',
           accountId: '123',
         });
-        const toolset = new MCPToolSet('https://mcp.example.com/toolsets', config);
+        const toolset = new MCPToolSet(
+          'https://mcp.example.com/toolsets',
+          config
+        );
         expect(toolset).toBeInstanceOf(MCPToolSet);
       });
 
@@ -314,7 +329,10 @@ describe('ToolSet API', () => {
           regionId: 'cn-hangzhou',
           accountId: '123',
         });
-        const toolset = new MCPToolSet('https://mcp.example.com/toolsets', config);
+        const toolset = new MCPToolSet(
+          'https://mcp.example.com/toolsets',
+          config
+        );
         const session = toolset.newSession(config);
         expect(session).toBeInstanceOf(MCPSession);
       });

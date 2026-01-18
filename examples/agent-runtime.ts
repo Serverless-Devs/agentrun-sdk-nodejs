@@ -88,12 +88,12 @@ async function createOrGetAgentRuntime(): Promise<AgentRuntime> {
         codeConfiguration: await codeFromFile(
           AgentRuntimeLanguage.NODEJS18,
           ['node', 'index.js'],
-          codePath,
+          codePath
         ),
         port: 9000,
         cpu: 2,
         memory: 4096,
-      }
+      },
     });
 
     log(`创建成功 / Created successfully: ${ar.agentRuntimeId}`);
@@ -113,10 +113,10 @@ async function createOrGetAgentRuntime(): Promise<AgentRuntime> {
         ar.status === Status.DELETE_FAILED
       ) {
         log(
-          `已存在的 Agent Runtime 处于失败状态: ${ar.status}, 删除并重新创建 / Existing Agent Runtime is in failed state: ${ar.status}, deleting and recreating`,
+          `已存在的 Agent Runtime 处于失败状态: ${ar.status}, 删除并重新创建 / Existing Agent Runtime is in failed state: ${ar.status}, deleting and recreating`
         );
         await ar.delete();
-        
+
         // Wait for deletion to complete
         log('等待删除完成 / Waiting for deletion to complete...');
         let deleted = false;
@@ -134,7 +134,7 @@ async function createOrGetAgentRuntime(): Promise<AgentRuntime> {
             break;
           }
         }
-        
+
         if (!deleted) {
           throw new Error('等待删除超时 / Deletion timeout');
         }
@@ -155,12 +155,12 @@ async function createOrGetAgentRuntime(): Promise<AgentRuntime> {
         codeConfiguration: await codeFromFile(
           AgentRuntimeLanguage.NODEJS18,
           ['node', 'index.js'],
-          codePath,
+          codePath
         ),
         port: 9000,
         cpu: 2,
         memory: 4096,
-      }
+      },
     });
     log(`创建成功 / Created successfully: ${ar.agentRuntimeId}`);
   }
@@ -168,7 +168,8 @@ async function createOrGetAgentRuntime(): Promise<AgentRuntime> {
   // Wait for ready or failed
   log('等待就绪 / Waiting for ready...');
   await ar.waitUntilReadyOrFailed({
-    beforeCheck: (runtime) => log(`  当前状态 / Current status: ${runtime.status}`),
+    callback: (runtime) =>
+      log(`  当前状态 / Current status: ${runtime.status}`),
   });
 
   if (ar.status !== Status.READY) {
@@ -196,7 +197,8 @@ async function updateAgentRuntime(ar: AgentRuntime): Promise<void> {
   });
 
   await ar.waitUntilReadyOrFailed({
-    beforeCheck: (runtime) => log(`  当前状态 / Current status: ${runtime.status}`),
+    callback: (runtime) =>
+      log(`  当前状态 / Current status: ${runtime.status}`),
   });
 
   if (ar.status !== Status.READY) {
@@ -213,10 +215,10 @@ async function updateAgentRuntime(ar: AgentRuntime): Promise<void> {
 async function listAgentRuntimes(): Promise<void> {
   log('枚举资源列表 / Listing resources');
 
-  const runtimes = await client.listAll();
+  const runtimes = await AgentRuntime.listAll();
   log(
     `共有 ${runtimes.length} 个资源 / Total ${runtimes.length} resources:`,
-    runtimes.map((r) => r.agentRuntimeName),
+    runtimes.map((r) => r.agentRuntimeName)
   );
 }
 
@@ -232,8 +234,9 @@ async function deleteAgentRuntime(ar: AgentRuntime): Promise<void> {
   // Wait for deletion
   log('等待删除完成 / Waiting for deletion...');
   try {
-    await ar.waitUntilReady({
-      beforeCheck: (runtime) => log(`  当前状态 / Current status: ${runtime.status}`),
+    await ar.waitUntilReadyOrFailed({
+      callback: (runtime) =>
+        log(`  当前状态 / Current status: ${runtime.status}`),
     });
   } catch (error) {
     // Expected to fail when resource is deleted
@@ -245,7 +248,9 @@ async function deleteAgentRuntime(ar: AgentRuntime): Promise<void> {
     log('资源仍然存在 / Resource still exists');
   } catch (error) {
     if (error instanceof ResourceNotExistError) {
-      log('得到资源不存在报错，删除成功 / Resource not found, deletion successful');
+      log(
+        '得到资源不存在报错，删除成功 / Resource not found, deletion successful'
+      );
     } else {
       throw error;
     }

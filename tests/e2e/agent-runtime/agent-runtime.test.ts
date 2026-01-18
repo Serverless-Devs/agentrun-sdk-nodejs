@@ -66,7 +66,7 @@ describe('Agent Runtime E2E Tests', () => {
         });
 
         expect(ar.status).toBe(Status.CREATING);
-        await ar.waitUntilReady({
+        await ar.waitUntilReadyOrFailed({
           timeoutSeconds: 300,
           intervalSeconds: 5,
         });
@@ -133,7 +133,7 @@ describe('Agent Runtime E2E Tests', () => {
           },
         });
         expect(ar.status).toBe(Status.UPDATING);
-        await ar.waitUntilReady({
+        await ar.waitUntilReadyOrFailed({
           timeoutSeconds: 300,
           intervalSeconds: 5,
         });
@@ -283,7 +283,7 @@ describe('Agent Runtime E2E Tests', () => {
           }
         });
 
-        await runtime.waitUntilReady({ timeoutSeconds: 300, intervalSeconds: 5 });
+        await runtime.waitUntilReadyOrFailed({ timeoutSeconds: 300, intervalSeconds: 5 });
 
         try {
           // Note: API doesn't return agentRuntimeVersion by default, use "LATEST" as default value
@@ -302,7 +302,7 @@ describe('Agent Runtime E2E Tests', () => {
           expect(endpoint.agentRuntimeEndpointId).toBeDefined();
 
           // 等待 Endpoint 就绪
-          await endpoint.waitUntilReady({
+          await endpoint.waitUntilReadyOrFailed({
             timeoutSeconds: 120,
             intervalSeconds: 5,
           });
@@ -406,7 +406,7 @@ describe('Agent Runtime E2E Tests', () => {
         containerRuntimeId = runtime.agentRuntimeId;
 
         // 等待就绪
-        await runtime.waitUntilReady({
+        await runtime.waitUntilReadyOrFailed({
           timeoutSeconds: 300,
           intervalSeconds: 5,
         });
