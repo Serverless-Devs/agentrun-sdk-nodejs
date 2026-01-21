@@ -126,11 +126,16 @@ describe('CustomSandbox', () => {
     });
 
     it('should use default data endpoint if not configured', () => {
+      // Set environment variable
+
       const baseSandbox = {
         sandboxId: 'sandbox-456',
       } as Sandbox;
 
-      const customSandbox = new CustomSandbox(baseSandbox);
+      // with env accountId=12345
+
+      const config = new Config({ accountId: '12345' });
+      const customSandbox = new CustomSandbox(baseSandbox, config);
 
       const baseUrl = customSandbox.getBaseUrl();
       expect(baseUrl).toContain('sandbox-456');
