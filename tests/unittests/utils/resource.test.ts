@@ -808,12 +808,130 @@ describe('BaseResource', () => {
     expect(await newInstance.customMethod()).toBe('mock-custom-method');
   });
 
-  test('setConfig', async () => {
+  test('setConfig should set config and return this for chaining', () => {
     const newInstance = new NewClass('mock-id');
-    newInstance.setConfig(new Config({ accessKeyId: 'mock-access-key-id' }));
-    expect((newInstance as any)._config?.accessKeyId).toBe(
-      'mock-access-key-id'
-    );
+    const config = new Config({
+      accessKeyId: 'test-key',
+      accessKeySecret: 'test-secret',
+      accountId: 'test-account',
+    });
+
+    const result = newInstance.setConfig(config);
+
+    expect(result).toBe(newInstance);
+    // Verify config is set by checking the internal _config
+    expect((newInstance as any)._config).toBe(config);
+  });
+
+  test('deleteAndWaitUntilFinished should return immediately if resource does not exist on delete', async () => {
+    class NonExistentResource extends NewClass {
+      async delete(): Promise<this> {
+        throw new ResourceNotExistError('NonExistentResource', this.id);
+      }
+    }
+
+    const resource = new NonExistentResource('test-id');
+    const result = await resource.deleteAndWaitUntilFinished({
+      callback: async () => {},
+      intervalSeconds: 0.1,
+      timeoutSeconds: 1,
+    });
+
+    // Should return undefined when resource doesn't exist
+    expect(result).toBeUndefined();
+  });
+
+  test('deleteAndWaitUntilFinished should handle callback and return false when resource still exists', async () => {
+    let getCallCount = 0;
+    class SlowDeletingResource extends NewClass {
+      async delete(): Promise<this> {
+        this.status = Status.DELETING;
+        return this;
+      }
+
+      async get(): Promise<this> {
+        getCallCount++;
+        // First few refreshes succeed (resource still exists)
+        if (getCallCount < 3) {
+          return this; // Returns false in checkFinishedCallback
+        }
+        // Later throws ResourceNotExistError (resource deleted)
+        throw new ResourceNotExistError('SlowDeletingResource', this.id);
+      }
+    }
+
+    const resource = new SlowDeletingResource('test-id');
+    resource.status = Status.READY;
+    const callbacks: Status[] = [];
+
+    await resource.deleteAndWaitUntilFinished({
+      callback: async (r) => {
+        callbacks.push(r.status as Status);
+      },
+      intervalSeconds: 0.05,
+      timeoutSeconds: 5,
+    });
+
+    // Callback should have been called at least once before ResourceNotExistError
+    expect(callbacks.length).toBeGreaterThan(0);
+    expect(callbacks[0]).toBe(Status.DELETING);
+  });
+
+  test('deleteAndWaitUntilFinished should throw error for unexpected status during delete wait', async () => {
+    class ErrorResource extends NewClass {
+      async delete(): Promise<this> {
+        this.status = Status.DELETING;
+        return this;
+      }
+
+      async get(): Promise<this> {
+        // Simulate an unexpected status error (not ResourceNotExistError, not DELETING)
+        this.status = Status.CREATE_FAILED;
+        throw new Error('Unexpected error');
+      }
+    }
+
+    const resource = new ErrorResource('test-id');
+    resource.status = Status.READY;
+
+    await expect(
+      resource.deleteAndWaitUntilFinished({
+        callback: async () => {},
+        intervalSeconds: 0.1,
+        timeoutSeconds: 0.5,
+      })
+    ).rejects.toThrow('Resource status is CREATE_FAILED');
+  });
+
+  test('deleteAndWaitUntilFinished should continue waiting when status is DELETING on error', async () => {
+    let errorCount = 0;
+    class DeletingResource extends NewClass {
+      async delete(): Promise<this> {
+        this.status = Status.DELETING;
+        return this;
+      }
+
+      async get(): Promise<this> {
+        errorCount++;
+        if (errorCount < 3) {
+          // Throw error but status is still DELETING, should continue
+          throw new Error('Transient error');
+        }
+        // Eventually throw ResourceNotExistError
+        throw new ResourceNotExistError('DeletingResource', this.id);
+      }
+    }
+
+    const resource = new DeletingResource('test-id');
+    resource.status = Status.DELETING;
+
+    const result = await resource.deleteAndWaitUntilFinished({
+      callback: async () => {},
+      intervalSeconds: 0.05,
+      timeoutSeconds: 2,
+    });
+
+    expect(result).toBe(resource);
   });
 });
 

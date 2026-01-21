@@ -8,6 +8,7 @@ export { Template } from "./template";
 export { CodeInterpreterSandbox } from "./code-interpreter-sandbox";
 export { BrowserSandbox } from "./browser-sandbox";
 export { AioSandbox } from "./aio-sandbox";
+export { CustomSandbox } from "./custom-sandbox";
 
 // Data API exports
 export { SandboxDataAPI } from "./api/sandbox-data";
