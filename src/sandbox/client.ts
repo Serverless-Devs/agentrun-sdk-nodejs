@@ -174,7 +174,7 @@ export class SandboxClient {
       input: request,
       config: cfg,
     });
-    return (result.items || []).map((item) => new Template(item, cfg));
+    return (result?.items || []).map((item) => new Template(item, cfg));
   };
 
   // ============ Sandbox Operations ============

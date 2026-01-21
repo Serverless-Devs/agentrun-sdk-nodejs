@@ -26,30 +26,31 @@ export default {
     'src/**/*.ts',
     '!src/**/*.d.ts',
     '!src/**/index.ts',
-    // Exclude auto-generated API control files
+    // Exclude auto-generated API control files (thin wrappers, auto-generated)
     '!src/**/api/control.ts',
-    // Exclude server and sandbox modules (as per project requirements)
+    // Exclude server module (requires HTTP server testing infrastructure)
     '!src/server/**',
-    '!src/sandbox/**',
-    // Exclude integration modules
+    // Exclude integration modules (external service dependencies)
     '!src/integration/**',
     // Exclude low-level HTTP client (requires complex network mocking)
     '!src/utils/data-api.ts',
-    // Exclude API data layer (thin wrappers around data-api)
-    '!src/**/api/data.ts',
-    // Exclude OpenAPI parser (requires complex HTTP/schema mocking)
-    '!src/toolset/openapi.ts',
-    '!src/toolset/api/openapi.ts',
+    // Exclude sandbox data API layer (requires network mocking, similar to data-api.ts)
+    '!src/sandbox/api/*.ts',
+    // Exclude sandbox subclasses that heavily depend on Data API (aio, browser, code-interpreter)
+    '!src/sandbox/aio-sandbox.ts',
+    '!src/sandbox/browser-sandbox.ts',
+    '!src/sandbox/code-interpreter-sandbox.ts',
+    // Exclude sandbox.ts and client.ts (complex API response handling and templateType branching logic)
+    '!src/sandbox/sandbox.ts',
+    '!src/sandbox/client.ts',
     // Exclude MCP adapter (requires external MCP server)
     '!src/toolset/api/mcp.ts',
-    // Exclude agent-runtime model (codeFromFile requires complex fs/archiver mocking)
-    '!src/agent-runtime/model.ts',
-    // Exclude logging utilities (complex stack frame parsing, not core business logic)
-    '!src/utils/log.ts',
-    // Exclude toolset.ts (contains complex external SDK client creation and OpenAPI/MCP invocation)
+    // Exclude OpenAPI parser (complex HTTP/schema mocking, partially covered)
+    '!src/toolset/openapi.ts',
+    // Exclude toolset.ts (complex external SDK client creation and OpenAPI/MCP invocation, 86% covered)
     '!src/toolset/toolset.ts',
-    // Exclude agent-runtime client.ts (invokeOpenai method requires Data API client)
-    '!src/agent-runtime/client.ts',
+    // Exclude logging utilities (complex stack frame parsing, 72% covered)
+    '!src/utils/log.ts',
   ],
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'json'],

@@ -5,6 +5,7 @@
  * This module defines the base Sandbox resource class.
  */
 
+import { ClientError, HTTPError } from '@/utils';
 import { Config } from '../utils/config';
 import { ResourceBase, updateObjectProperties } from '../utils/resource';
 
@@ -15,6 +16,7 @@ import {
   SandboxState,
   TemplateType,
 } from './model';
+import { SandboxDataAPI } from './api/sandbox-data';
 
 /**
  * Base Sandbox resource class
@@ -159,7 +161,71 @@ export class Sandbox extends ResourceBase implements SandboxData {
     config?: Config;
   }): Promise<Sandbox> {
     const { id, templateType, config } = params;
-    return await Sandbox.getClient().getSandbox({ id, templateType, config });
+    try {
+      const cfg = Config.withConfigs(config);
+
+      // Use Data API to get sandbox
+      const dataApi = new SandboxDataAPI({
+        sandboxId: id,
+        config: cfg,
+      });
+
+      const result = await dataApi.getSandbox({
+        sandboxId: id,
+        config: cfg,
+      });
+
+      // Check if get was successful
+      if (result.code !== 'SUCCESS') {
+        throw new ClientError(
+          0,
+          `Failed to get sandbox: ${result.message || 'Unknown error'}`
+        );
+      }
+
+      // Extract data and create Sandbox instance
+      const data = result.data || {};
+      const baseSandbox = Sandbox.fromInnerObject(data as any, config);
+
+      // If templateType is specified, return the appropriate subclass
+      if (templateType) {
+        // Dynamically import to avoid circular dependencies
+        switch (templateType) {
+          case TemplateType.CODE_INTERPRETER: {
+            const { CodeInterpreterSandbox } =
+              await import('./code-interpreter-sandbox');
+            // Pass baseSandbox instead of raw data
+            const sandbox = new CodeInterpreterSandbox(baseSandbox, config);
+            return sandbox;
+          }
+          case TemplateType.BROWSER: {
+            const { BrowserSandbox } = await import('./browser-sandbox');
+            // Pass baseSandbox instead of raw data
+            const sandbox = new BrowserSandbox(baseSandbox, config);
+            return sandbox;
+          }
+          case TemplateType.AIO: {
+            const { AioSandbox } = await import('./aio-sandbox');
+            // Pass baseSandbox instead of raw data
+            const sandbox = new AioSandbox(baseSandbox, config);
+            return sandbox;
+          }
+          case TemplateType.CUSTOM: {
+            const { CustomSandbox } = await import('./custom-sandbox');
+            // Pass baseSandbox instead of raw data
+            const sandbox = new CustomSandbox(baseSandbox, config);
+            return sandbox;
+          }
+        }
+      }
+
+      return baseSandbox;
+    } catch (error) {
+      if (error instanceof HTTPError) {
+        throw error.toResourceError('Sandbox', id);
+      }
+      throw error;
+    }
   }
 
   /**

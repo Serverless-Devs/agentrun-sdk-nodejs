@@ -14,6 +14,10 @@ export enum TemplateType {
   CODE_INTERPRETER = "CodeInterpreter",
   BROWSER = "Browser",
   AIO = "AllInOne",
+  /**
+   * 自定义镜像 / Custom Image
+   */
+  CUSTOM = "CustomImage",
 }
 
 /**
@@ -250,6 +254,18 @@ export interface TemplateArmsConfiguration {
 export interface TemplateContainerConfiguration {
   image?: string;
   command?: string[];
+  /**
+   * ACR 实例 ID / ACR Instance ID
+   */
+  acrInstanceId?: string;
+  /**
+   * 镜像注册表类型 / Image Registry Type
+   */
+  imageRegistryType?: string;
+  /**
+   * 端口 / Port
+   */
+  port?: number;
 }
 
 /**

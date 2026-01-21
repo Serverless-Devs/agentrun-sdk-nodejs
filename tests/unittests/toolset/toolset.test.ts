@@ -114,3 +114,177 @@ describe('ToolSetClient', () => {
     expect(client).toBeInstanceOf(ToolSetClient);
   });
 });
+
+describe('ToolSet type method', () => {
+  it('should return OPENAPI when schema type is OpenAPI', () => {
+    const toolset = new ToolSet({
+      spec: {
+        schema: {
+          type: ToolSetSchemaType.OPENAPI,
+          detail: 'https://example.com/openapi.json',
+        },
+      },
+    });
+    expect(toolset.type()).toBe(ToolSetSchemaType.OPENAPI);
+  });
+
+  it('should return MCP when schema type is MCP', () => {
+    const toolset = new ToolSet({
+      spec: {
+        schema: {
+          type: ToolSetSchemaType.MCP,
+          detail: 'https://example.com/mcp',
+        },
+      },
+    });
+    expect(toolset.type()).toBe(ToolSetSchemaType.MCP);
+  });
+
+  it('should return undefined when spec is not set', () => {
+    const toolset = new ToolSet({});
+    expect(toolset.type()).toBeUndefined();
+  });
+});
+
+describe('ToolSet _getOpenAPIAuthDefaults', () => {
+  it('should return empty headers and query when no authConfig', () => {
+    const toolset = new ToolSet({
+      spec: {
+        schema: {
+          type: ToolSetSchemaType.OPENAPI,
+          detail: '{}',
+        },
+      },
+    });
+    const defaults = (toolset as any)._getOpenAPIAuthDefaults();
+    expect(defaults.headers).toEqual({});
+    expect(defaults.query).toEqual({});
+  });
+
+  it('should set header when authType is APIKey with header location', () => {
+    const toolset = new ToolSet({
+      spec: {
+        schema: {
+          type: ToolSetSchemaType.OPENAPI,
+          detail: '{}',
+        },
+        authConfig: {
+          type: 'APIKey',
+          apiKeyHeaderName: 'X-API-Key',
+          apiKeyValue: 'test-key-value',
+        },
+      },
+    });
+    const defaults = (toolset as any)._getOpenAPIAuthDefaults();
+    expect(defaults.headers['X-API-Key']).toBe('test-key-value');
+    expect(defaults.query).toEqual({});
+  });
+
+  it('should return empty when authConfig has no key or value', () => {
+    const toolset = new ToolSet({
+      spec: {
+        schema: {
+          type: ToolSetSchemaType.OPENAPI,
+          detail: '{}',
+        },
+        authConfig: {
+          type: 'APIKey',
+          // Missing key and value
+        },
+      },
+    });
+    const defaults = (toolset as any)._getOpenAPIAuthDefaults();
+    expect(defaults.headers).toEqual({});
+  });
+
+  it('should handle non-APIKey auth types', () => {
+    const toolset = new ToolSet({
+      spec: {
+        schema: {
+          type: ToolSetSchemaType.OPENAPI,
+          detail: '{}',
+        },
+        authConfig: {
+          type: 'Bearer',
+        },
+      },
+    });
+    const defaults = (toolset as any)._getOpenAPIAuthDefaults();
+    expect(defaults.headers).toEqual({});
+    expect(defaults.query).toEqual({});
+  });
+});
+
+describe('ToolSet _getOpenAPIBaseUrl', () => {
+  it('should return internetUrl if available (priority over intranetUrl)', () => {
+    const toolset = new ToolSet({
+      status: {
+        status: Status.READY,
+        outputs: {
+          urls: {
+            intranetUrl: 'https://intranet.example.com',
+            internetUrl: 'https://public.example.com',
+          },
+        },
+      } as unknown as ToolsetStatus,
+    });
+    const baseUrl = (toolset as any)._getOpenAPIBaseUrl();
+    // internetUrl takes priority over intranetUrl
+    expect(baseUrl).toBe('https://public.example.com');
+  });
+
+  it('should return internetUrl if intranetUrl is not available', () => {
+    const toolset = new ToolSet({
+      status: {
+        status: Status.READY,
+        outputs: {
+          urls: {
+            internetUrl: 'https://public.example.com',
+          },
+        },
+      } as unknown as ToolsetStatus,
+    });
+    const baseUrl = (toolset as any)._getOpenAPIBaseUrl();
+    expect(baseUrl).toBe('https://public.example.com');
+  });
+
+  it('should return undefined if no urls', () => {
+    const toolset = new ToolSet({
+      status: {
+        status: Status.READY,
+        outputs: {},
+      } as unknown as ToolsetStatus,
+    });
+    const baseUrl = (toolset as any)._getOpenAPIBaseUrl();
+    expect(baseUrl).toBeUndefined();
+  });
+});
+
+describe('ToolSet outputs tools', () => {
+  it('should access tools from status.outputs', () => {
+    const toolset = new ToolSet({
+      status: {
+        status: Status.READY,
+        outputs: {
+          tools: [
+            { name: 'tool1', description: 'Tool 1' },
+            { name: 'tool2', description: 'Tool 2' },
+          ],
+        },
+      } as unknown as ToolsetStatus,
+    });
+    const tools = (toolset.status?.outputs as any)?.tools || [];
+    expect(tools).toHaveLength(2);
+  });
+
+  it('should return empty when no tools in outputs', () => {
+    const toolset = new ToolSet({
+      status: {
+        status: Status.READY,
+        outputs: {},
+      } as unknown as ToolsetStatus,
+    });
+    const tools = (toolset.status?.outputs as any)?.tools || [];
+    expect(tools).toEqual([]);
+  });
+});
