@@ -216,7 +216,7 @@ describe('ToolSet _getOpenAPIAuthDefaults', () => {
 });
 
 describe('ToolSet _getOpenAPIBaseUrl', () => {
-  it('should return intranetUrl if available', () => {
+  it('should return internetUrl if available (priority over intranetUrl)', () => {
     const toolset = new ToolSet({
       status: {
         status: Status.READY,
@@ -229,7 +229,8 @@ describe('ToolSet _getOpenAPIBaseUrl', () => {
       } as unknown as ToolsetStatus,
     });
     const baseUrl = (toolset as any)._getOpenAPIBaseUrl();
-    expect(baseUrl).toBe('https://intranet.example.com');
+    // internetUrl takes priority over intranetUrl
+    expect(baseUrl).toBe('https://public.example.com');
   });
 
   it('should return internetUrl if intranetUrl is not available', () => {

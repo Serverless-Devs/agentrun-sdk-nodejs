@@ -5,6 +5,7 @@
  * This module defines the base Sandbox resource class.
  */
 
+import { ClientError, HTTPError } from '@/utils';
 import { Config } from '../utils/config';
 import { ResourceBase, updateObjectProperties } from '../utils/resource';
 
@@ -15,6 +16,7 @@ import {
   SandboxState,
   TemplateType,
 } from './model';
+import { SandboxDataAPI } from './api/sandbox-data';
 
 /**
  * Base Sandbox resource class
@@ -222,7 +224,7 @@ export class Sandbox extends ResourceBase implements SandboxData {
       if (error instanceof HTTPError) {
         throw error.toResourceError('Sandbox', id);
       }
-      Sandbox.handleError(error);
+      throw error;
     }
   }
 

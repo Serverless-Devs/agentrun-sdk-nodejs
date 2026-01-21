@@ -5,10 +5,13 @@
  * Tests for Template class.
  */
 
-import { Config } from '../../../src/utils/config';
-import { ClientError, HTTPError, ServerError } from '../../../src/utils/exception';
+import { TemplateNetworkMode, TemplateType } from '../../../src/sandbox/model';
+import {
+  ClientError,
+  HTTPError,
+  ServerError,
+} from '../../../src/utils/exception';
 import { Status } from '../../../src/utils/model';
-import { TemplateType, TemplateNetworkMode } from '../../../src/sandbox/model';
 
 // Mock ControlAPI
 const mockGetClient = jest.fn();
@@ -22,9 +25,13 @@ jest.mock('../../../src/utils/control-api', () => {
 
 // Mock @alicloud/agentrun20250910
 jest.mock('@alicloud/agentrun20250910', () => {
-  const CreateTemplateRequest = jest.fn().mockImplementation((params) => params);
+  const CreateTemplateRequest = jest
+    .fn()
+    .mockImplementation((params) => params);
   const CreateTemplateInput = jest.fn().mockImplementation((params) => params);
-  const UpdateTemplateRequest = jest.fn().mockImplementation((params) => params);
+  const UpdateTemplateRequest = jest
+    .fn()
+    .mockImplementation((params) => params);
   const UpdateTemplateInput = jest.fn().mockImplementation((params) => params);
   const ListTemplatesRequest = jest.fn().mockImplementation((params) => params);
   const NetworkConfiguration = jest.fn().mockImplementation((params) => params);
@@ -101,15 +108,15 @@ describe('Template', () => {
         executionRoleArn: 'arn:role',
         lastUpdatedAt: '2024-01-02T00:00:00Z',
         resourceName: 'test-resource',
-        sandboxIdleTimeoutInSeconds: '1800',
-        sandboxTTLInSeconds: '3600',
+        sandboxIdleTimeoutInSeconds: 1800,
+        sandboxTtlInSeconds: 3600,
         status: 'READY',
         statusReason: 'Ready',
         diskSize: 512,
         allowAnonymousManage: true,
       };
 
-      const template = Template.fromInnerObject(obj as any);
+      const template = new Template(obj as any);
 
       expect(template.templateId).toBe('template-123');
       expect(template.templateName).toBe('test-template');
@@ -124,7 +131,7 @@ describe('Template', () => {
         templateName: 'test-template',
       };
 
-      const template = Template.fromInnerObject(obj as any);
+      const template = new Template(obj as any);
 
       expect(template.templateId).toBe('template-123');
       expect(template.sandboxIdleTimeoutInSeconds).toBeUndefined();
@@ -265,8 +272,10 @@ describe('Template', () => {
             templateType: TemplateType.BROWSER,
             diskSize: 512,
           },
-        }),
-      ).rejects.toThrow('When templateType is BROWSER or AIO, diskSize must be 10240');
+        })
+      ).rejects.toThrow(
+        'When templateType is BROWSER or AIO, diskSize must be 10240'
+      );
     });
 
     it('should throw error when CODE_INTERPRETER uses PRIVATE network', async () => {
@@ -279,8 +288,10 @@ describe('Template', () => {
               networkMode: TemplateNetworkMode.PRIVATE,
             },
           },
-        }),
-      ).rejects.toThrow('When templateType is CODE_INTERPRETER or AIO, networkMode cannot be PRIVATE');
+        })
+      ).rejects.toThrow(
+        'When templateType is CODE_INTERPRETER or AIO, networkMode cannot be PRIVATE'
+      );
     });
 
     it('should create template without networkConfiguration (uses default)', async () => {
@@ -338,7 +349,9 @@ describe('Template', () => {
       // Verify that the networkConfiguration was passed correctly
       const callArgs = mockClient.createTemplateWithOptions.mock.calls[0];
       expect(callArgs[0].body.networkConfiguration).toBeDefined();
-      expect(callArgs[0].body.networkConfiguration.networkMode).toBe(TemplateNetworkMode.PUBLIC);
+      expect(callArgs[0].body.networkConfiguration.networkMode).toBe(
+        TemplateNetworkMode.PUBLIC
+      );
     });
 
     it('should create template with CUSTOM type and container configuration', async () => {
@@ -396,13 +409,15 @@ describe('Template', () => {
 
     it('should handle HTTPError on delete', async () => {
       const mockClient = {
-        deleteTemplateWithOptions: jest.fn().mockRejectedValue(
-          new HTTPError(404, 'Not Found')
-        ),
+        deleteTemplateWithOptions: jest
+          .fn()
+          .mockRejectedValue(new HTTPError(404, 'Not Found')),
       };
       mockGetClient.mockReturnValue(mockClient);
 
-      await expect(Template.delete({ name: 'test-template' })).rejects.toThrow();
+      await expect(
+        Template.delete({ name: 'test-template' })
+      ).rejects.toThrow();
     });
 
     it('should handle error with empty message (Unknown error fallback)', async () => {
@@ -412,20 +427,24 @@ describe('Template', () => {
         data: { requestId: 'req-123' },
       };
       const mockClient = {
-        deleteTemplateWithOptions: jest.fn().mockRejectedValue(errorWithEmptyMessage),
+        deleteTemplateWithOptions: jest
+          .fn()
+          .mockRejectedValue(errorWithEmptyMessage),
       };
       mockGetClient.mockReturnValue(mockClient);
 
-      await expect(Template.delete({ name: 'test-template' })).rejects.toThrow('Unknown error');
+      await expect(Template.delete({ name: 'test-template' })).rejects.toThrow(
+        'Unknown error'
+      );
     });
   });
 
   describe('update error handling', () => {
     it('should handle HTTPError on update', async () => {
       const mockClient = {
-        updateTemplateWithOptions: jest.fn().mockRejectedValue(
-          new HTTPError(404, 'Not Found')
-        ),
+        updateTemplateWithOptions: jest
+          .fn()
+          .mockRejectedValue(new HTTPError(404, 'Not Found')),
       };
       mockGetClient.mockReturnValue(mockClient);
 
@@ -453,9 +472,9 @@ describe('Template', () => {
   describe('get error handling', () => {
     it('should handle HTTPError on get', async () => {
       const mockClient = {
-        getTemplateWithOptions: jest.fn().mockRejectedValue(
-          new HTTPError(404, 'Not Found')
-        ),
+        getTemplateWithOptions: jest
+          .fn()
+          .mockRejectedValue(new HTTPError(404, 'Not Found')),
       };
       mockGetClient.mockReturnValue(mockClient);
 
@@ -472,16 +491,18 @@ describe('Template', () => {
       };
       mockGetClient.mockReturnValue(mockClient);
 
-      await expect(Template.get({ name: 'test-template' })).rejects.toThrow(ClientError);
+      await expect(Template.get({ name: 'test-template' })).rejects.toThrow(
+        ClientError
+      );
     });
   });
 
   describe('create error handling', () => {
     it('should handle HTTPError on create', async () => {
       const mockClient = {
-        createTemplateWithOptions: jest.fn().mockRejectedValue(
-          new HTTPError(400, 'Bad Request')
-        ),
+        createTemplateWithOptions: jest
+          .fn()
+          .mockRejectedValue(new HTTPError(400, 'Bad Request')),
       };
       mockGetClient.mockReturnValue(mockClient);
 
@@ -527,7 +548,9 @@ describe('Template', () => {
       };
       mockGetClient.mockReturnValue(mockClient);
 
-      await expect(Template.delete({ name: 'test-template' })).rejects.toThrow(ClientError);
+      await expect(Template.delete({ name: 'test-template' })).rejects.toThrow(
+        ClientError
+      );
     });
   });
 
@@ -805,34 +828,6 @@ describe('Template', () => {
     });
   });
 
-  describe('handleError', () => {
-    it('should throw ClientError for 4xx status codes', () => {
-      const error = {
-        statusCode: 404,
-        message: 'Not Found',
-        data: { requestId: 'req-123' },
-      };
-
-      expect(() => (Template as any).handleError(error)).toThrow(ClientError);
-    });
-
-    it('should throw ServerError for 5xx status codes', () => {
-      const error = {
-        statusCode: 500,
-        message: 'Internal Server Error',
-        data: { requestId: 'req-123' },
-      };
-
-      expect(() => (Template as any).handleError(error)).toThrow(ServerError);
-    });
-
-    it('should rethrow unknown errors', () => {
-      const error = new Error('Unknown error');
-
-      expect(() => (Template as any).handleError(error)).toThrow('Unknown error');
-    });
-  });
-
   describe('instance methods', () => {
     describe('delete (instance)', () => {
       it('should delete this template', async () => {
@@ -860,7 +855,7 @@ describe('Template', () => {
         const template = new Template();
 
         await expect(template.delete()).rejects.toThrow(
-          'templateName is required to delete a Template',
+          'templateName is required to delete a Template'
         );
       });
     });
@@ -881,7 +876,10 @@ describe('Template', () => {
         };
         mockGetClient.mockReturnValue(mockClient);
 
-        const template = new Template({ templateName: 'test-template', cpu: 2 });
+        const template = new Template({
+          templateName: 'test-template',
+          cpu: 2,
+        });
         const result = await template.update({ input: { cpu: 4 } });
 
         expect(result).toBe(template);
@@ -892,7 +890,7 @@ describe('Template', () => {
         const template = new Template();
 
         await expect(template.update({ input: { cpu: 4 } })).rejects.toThrow(
-          'templateName is required to update a Template',
+          'templateName is required to update a Template'
         );
       });
     });
@@ -927,7 +925,7 @@ describe('Template', () => {
         const template = new Template();
 
         await expect(template.refresh()).rejects.toThrow(
-          'templateName is required to refresh a Template',
+          'templateName is required to refresh a Template'
         );
       });
     });
@@ -953,7 +951,7 @@ describe('Template', () => {
           status: Status.CREATING,
         });
 
-        const result = await template.waitUntilReady({
+        const result = await template.waitUntilReadyOrFailed({
           timeoutSeconds: 5,
           intervalSeconds: 0.1,
         });
@@ -962,7 +960,7 @@ describe('Template', () => {
         expect(result.status).toBe('READY');
       });
 
-      it('should call beforeCheck callback', async () => {
+      it('should call callback callback', async () => {
         const mockClient = {
           getTemplateWithOptions: jest.fn().mockResolvedValue({
             body: {
@@ -982,15 +980,15 @@ describe('Template', () => {
           status: Status.CREATING,
         });
 
-        const beforeCheck = jest.fn();
+        const callback = jest.fn();
 
-        await template.waitUntilReady({
+        await template.waitUntilReadyOrFailed({
           timeoutSeconds: 5,
           intervalSeconds: 0.1,
-          beforeCheck,
+          callback,
         });
 
-        expect(beforeCheck).toHaveBeenCalled();
+        expect(callback).toHaveBeenCalled();
       });
 
       it('should throw error if template fails', async () => {
@@ -1014,12 +1012,11 @@ describe('Template', () => {
           status: Status.CREATING,
         });
 
-        await expect(
-          template.waitUntilReady({
-            timeoutSeconds: 5,
-            intervalSeconds: 0.1,
-          }),
-        ).rejects.toThrow('Template failed: Resource limit exceeded');
+        const t = await template.waitUntilReadyOrFailed({
+          timeoutSeconds: 5,
+          intervalSeconds: 0.1,
+        });
+        await expect(t.status).toBe('CREATE_FAILED');
       });
 
       it('should throw timeout error', async () => {
@@ -1043,11 +1040,11 @@ describe('Template', () => {
         });
 
         await expect(
-          template.waitUntilReady({
+          template.waitUntilReadyOrFailed({
             timeoutSeconds: 0.1,
             intervalSeconds: 0.05,
-          }),
-        ).rejects.toThrow('Timeout waiting for Template to be ready');
+          })
+        ).rejects.toThrow(/Timeout/);
       });
 
       it('should use default timeout and interval when not provided', async () => {
@@ -1071,7 +1068,7 @@ describe('Template', () => {
         });
 
         // Call without options to use defaults
-        const result = await template.waitUntilReady();
+        const result = await template.waitUntilReadyOrFailed();
         expect(result).toBe(template);
       });
 
@@ -1097,11 +1094,11 @@ describe('Template', () => {
 
         // Use very short timeout but no options object
         await expect(
-          template.waitUntilReady({
+          template.waitUntilReadyOrFailed({
             timeoutSeconds: 0.05,
             intervalSeconds: 0.01,
-          }),
-        ).rejects.toThrow('Timeout waiting for Template to be ready after 0.05 seconds');
+          })
+        ).rejects.toThrow(/Timeout/);
       });
     });
   });

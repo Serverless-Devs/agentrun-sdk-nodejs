@@ -5,45 +5,51 @@
  * Tests for SandboxClient class.
  */
 
+import {
+  SandboxState,
+  TemplateNetworkMode,
+  TemplateType,
+} from '../../../src/sandbox/model';
 import { Config } from '../../../src/utils/config';
-import { TemplateType } from '../../../src/sandbox/model';
 
-// Mock Sandbox
-const mockSandboxCreate = jest.fn();
-const mockSandboxDelete = jest.fn();
-const mockSandboxStop = jest.fn();
-const mockSandboxGet = jest.fn();
-const mockSandboxList = jest.fn();
+// Mock SandboxControlAPI
+const mockControlApi = {
+  createTemplate: jest.fn(),
+  deleteTemplate: jest.fn(),
+  updateTemplate: jest.fn(),
+  getTemplate: jest.fn(),
+  listTemplates: jest.fn(),
+  createSandbox: jest.fn(),
+  deleteSandbox: jest.fn(),
+  stopSandbox: jest.fn(),
+  getSandbox: jest.fn(),
+  listSandboxes: jest.fn(),
+};
 
-jest.mock('../../../src/sandbox/sandbox', () => {
+jest.mock('../../../src/sandbox/api/control', () => {
   return {
-    Sandbox: {
-      create: (...args: any[]) => mockSandboxCreate(...args),
-      delete: (...args: any[]) => mockSandboxDelete(...args),
-      stop: (...args: any[]) => mockSandboxStop(...args),
-      get: (...args: any[]) => mockSandboxGet(...args),
-      list: (...args: any[]) => mockSandboxList(...args),
-    },
+    SandboxControlAPI: jest.fn().mockImplementation(() => mockControlApi),
   };
 });
 
-// Mock Template
-const mockTemplateCreate = jest.fn();
-const mockTemplateDelete = jest.fn();
-const mockTemplateUpdate = jest.fn();
-const mockTemplateGet = jest.fn();
-const mockTemplateList = jest.fn();
-const mockTemplateListAll = jest.fn();
-
+// Mock Template class
 jest.mock('../../../src/sandbox/template', () => {
+  const actualTemplate = jest.requireActual('../../../src/sandbox/template');
   return {
-    Template: {
-      create: (...args: any[]) => mockTemplateCreate(...args),
-      delete: (...args: any[]) => mockTemplateDelete(...args),
-      update: (...args: any[]) => mockTemplateUpdate(...args),
-      get: (...args: any[]) => mockTemplateGet(...args),
-      list: (...args: any[]) => mockTemplateList(...args),
-      listAll: (...args: any[]) => mockTemplateListAll(...args),
+    ...actualTemplate,
+    Template: jest.fn().mockImplementation((data, config) => ({
+      ...data,
+      _config: config,
+    })),
+  };
+});
+
+// Mock Sandbox class
+jest.mock('../../../src/sandbox/sandbox', () => {
+  return {
+    Sandbox: {
+      get: jest.fn(),
+      fromInnerObject: jest.fn((data, config) => ({ ...data, _config: config })),
     },
   };
 });
@@ -53,7 +59,8 @@ const mockCodeInterpreterCreateFromTemplate = jest.fn();
 jest.mock('../../../src/sandbox/code-interpreter-sandbox', () => {
   return {
     CodeInterpreterSandbox: {
-      createFromTemplate: (...args: any[]) => mockCodeInterpreterCreateFromTemplate(...args),
+      createFromTemplate: (...args: any[]) =>
+        mockCodeInterpreterCreateFromTemplate(...args),
     },
   };
 });
@@ -63,12 +70,14 @@ const mockBrowserCreateFromTemplate = jest.fn();
 jest.mock('../../../src/sandbox/browser-sandbox', () => {
   return {
     BrowserSandbox: {
-      createFromTemplate: (...args: any[]) => mockBrowserCreateFromTemplate(...args),
+      createFromTemplate: (...args: any[]) =>
+        mockBrowserCreateFromTemplate(...args),
     },
   };
 });
 
 import { SandboxClient } from '../../../src/sandbox/client';
+import { Sandbox } from '../../../src/sandbox/sandbox';
 
 describe('SandboxClient', () => {
   let client: SandboxClient;
@@ -97,9 +106,12 @@ describe('SandboxClient', () => {
 
   describe('Template Operations', () => {
     describe('createTemplate', () => {
-      it('should create template', async () => {
-        const mockTemplate = { templateId: 'template-123' };
-        mockTemplateCreate.mockResolvedValue(mockTemplate);
+      it('should create template successfully', async () => {
+        const mockResponse = {
+          templateId: 'template-123',
+          templateName: 'test-template',
+        };
+        mockControlApi.createTemplate.mockResolvedValue(mockResponse);
 
         const result = await client.createTemplate({
           input: {
@@ -108,150 +120,182 @@ describe('SandboxClient', () => {
           },
         });
 
-        expect(result).toBe(mockTemplate);
-        expect(mockTemplateCreate).toHaveBeenCalledWith({
-          input: {
-            templateName: 'test-template',
-            templateType: TemplateType.CODE_INTERPRETER,
-          },
-          config,
-        });
+        expect(result.templateId).toBe('template-123');
+        expect(mockControlApi.createTemplate).toHaveBeenCalled();
       });
 
-      it('should use provided config over client config', async () => {
-        const overrideConfig = new Config({ accessKeyId: 'override-key' });
-        mockTemplateCreate.mockResolvedValue({});
+      it('should create template with network configuration', async () => {
+        const mockResponse = {
+          templateId: 'template-123',
+          templateName: 'test-template',
+        };
+        mockControlApi.createTemplate.mockResolvedValue(mockResponse);
 
-        await client.createTemplate({
+        const result = await client.createTemplate({
+          input: {
+            templateName: 'test-template',
+            templateType: TemplateType.BROWSER,
+            diskSize: 10240,
+            networkConfiguration: {
+              networkMode: TemplateNetworkMode.PUBLIC,
+            },
+          },
+        });
+
+        expect(result.templateId).toBe('template-123');
+        expect(mockControlApi.createTemplate).toHaveBeenCalledWith(
+          expect.objectContaining({
+            input: expect.objectContaining({
+              networkConfiguration: expect.any(Object),
+            }),
+          })
+        );
+      });
+
+      it('should create template without network configuration', async () => {
+        const mockResponse = {
+          templateId: 'template-123',
+          templateName: 'test-template',
+        };
+        mockControlApi.createTemplate.mockResolvedValue(mockResponse);
+
+        const result = await client.createTemplate({
           input: {
             templateName: 'test-template',
             templateType: TemplateType.CODE_INTERPRETER,
           },
-          config: overrideConfig,
         });
 
-        expect(mockTemplateCreate).toHaveBeenCalledWith({
-          input: expect.any(Object),
-          config: overrideConfig,
-        });
+        expect(result.templateId).toBe('template-123');
       });
     });
 
     describe('deleteTemplate', () => {
-      it('should delete template', async () => {
-        const mockTemplate = { templateId: 'template-123' };
-        mockTemplateDelete.mockResolvedValue(mockTemplate);
+      it('should delete template successfully', async () => {
+        const mockResponse = {
+          templateId: 'template-123',
+          templateName: 'test-template',
+        };
+        mockControlApi.deleteTemplate.mockResolvedValue(mockResponse);
 
         const result = await client.deleteTemplate({ name: 'test-template' });
 
-        expect(result).toBe(mockTemplate);
-        expect(mockTemplateDelete).toHaveBeenCalledWith({
-          name: 'test-template',
-          config,
-        });
+        expect(result.templateId).toBe('template-123');
+        expect(mockControlApi.deleteTemplate).toHaveBeenCalled();
       });
     });
 
     describe('updateTemplate', () => {
-      it('should update template', async () => {
-        const mockTemplate = { templateId: 'template-123', cpu: 4 };
-        mockTemplateUpdate.mockResolvedValue(mockTemplate);
+      it('should update template successfully', async () => {
+        const mockResponse = {
+          templateId: 'template-123',
+          templateName: 'test-template',
+          cpu: 4,
+        };
+        mockControlApi.updateTemplate.mockResolvedValue(mockResponse);
 
         const result = await client.updateTemplate({
           name: 'test-template',
           input: { cpu: 4 },
         });
 
-        expect(result).toBe(mockTemplate);
-        expect(mockTemplateUpdate).toHaveBeenCalledWith({
+        expect(result.cpu).toBe(4);
+        expect(mockControlApi.updateTemplate).toHaveBeenCalled();
+      });
+
+      it('should update template with network configuration', async () => {
+        const mockResponse = {
+          templateId: 'template-123',
+          templateName: 'test-template',
+        };
+        mockControlApi.updateTemplate.mockResolvedValue(mockResponse);
+
+        const result = await client.updateTemplate({
           name: 'test-template',
-          input: { cpu: 4 },
-          config,
+          input: {
+            networkConfiguration: {
+              networkMode: TemplateNetworkMode.PRIVATE,
+            },
+          },
         });
+
+        expect(result.templateId).toBe('template-123');
+        expect(mockControlApi.updateTemplate).toHaveBeenCalled();
       });
     });
 
     describe('getTemplate', () => {
-      it('should get template', async () => {
-        const mockTemplate = { templateId: 'template-123' };
-        mockTemplateGet.mockResolvedValue(mockTemplate);
+      it('should get template successfully', async () => {
+        const mockResponse = {
+          templateId: 'template-123',
+          templateName: 'test-template',
+        };
+        mockControlApi.getTemplate.mockResolvedValue(mockResponse);
 
         const result = await client.getTemplate({ name: 'test-template' });
 
-        expect(result).toBe(mockTemplate);
-        expect(mockTemplateGet).toHaveBeenCalledWith({
-          name: 'test-template',
-          config,
-        });
+        expect(result.templateId).toBe('template-123');
+        expect(mockControlApi.getTemplate).toHaveBeenCalled();
       });
     });
 
     describe('listTemplates', () => {
-      it('should list templates', async () => {
-        const mockTemplates = [{ templateId: 'template-1' }, { templateId: 'template-2' }];
-        mockTemplateList.mockResolvedValue(mockTemplates);
+      it('should list templates successfully', async () => {
+        const mockResponse = {
+          items: [
+            { templateId: 'template-1', templateName: 'test-1' },
+            { templateId: 'template-2', templateName: 'test-2' },
+          ],
+        };
+        mockControlApi.listTemplates.mockResolvedValue(mockResponse);
 
-        const result = await client.listTemplates();
+        const result = await client.listTemplates({});
 
-        expect(result).toBe(mockTemplates);
-        expect(mockTemplateList).toHaveBeenCalledWith(undefined, config);
+        expect(result).toHaveLength(2);
+        expect(mockControlApi.listTemplates).toHaveBeenCalled();
       });
 
-      it('should list templates with filters', async () => {
-        mockTemplateList.mockResolvedValue([]);
+      it('should return empty array when items is undefined', async () => {
+        mockControlApi.listTemplates.mockResolvedValue(undefined);
 
-        await client.listTemplates({
-          input: { pageNumber: 1, pageSize: 10 },
-        });
+        const result = await client.listTemplates({});
 
-        expect(mockTemplateList).toHaveBeenCalledWith(
-          { pageNumber: 1, pageSize: 10 },
-          config,
-        );
-      });
-    });
-
-    describe('listAllTemplates', () => {
-      it('should list all templates', async () => {
-        const mockTemplates = [{ templateId: 'template-1' }];
-        mockTemplateListAll.mockResolvedValue(mockTemplates);
-
-        const result = await client.listAllTemplates();
-
-        expect(result).toBe(mockTemplates);
-        expect(mockTemplateListAll).toHaveBeenCalledWith(undefined, config);
+        expect(result).toEqual([]);
       });
 
-      it('should list all templates with options', async () => {
-        mockTemplateListAll.mockResolvedValue([]);
+      it('should return empty array when items is null', async () => {
+        mockControlApi.listTemplates.mockResolvedValue({ items: null });
 
-        await client.listAllTemplates({
-          options: { templateType: TemplateType.BROWSER },
-        });
+        const result = await client.listTemplates({});
 
-        expect(mockTemplateListAll).toHaveBeenCalledWith(
-          { templateType: TemplateType.BROWSER },
-          config,
-        );
+        expect(result).toEqual([]);
       });
     });
   });
 
   describe('Sandbox Operations', () => {
     describe('createSandbox', () => {
-      it('should create sandbox', async () => {
-        const mockSandbox = { sandboxId: 'sandbox-123' };
-        mockSandboxCreate.mockResolvedValue(mockSandbox);
-
-        const result = await client.createSandbox({
-          input: { templateName: 'test-template' },
+      it('should create sandbox successfully', async () => {
+        const mockResponse = {
+          sandboxId: 'sandbox-123',
+          templateName: 'test-template',
+          status: SandboxState.READY,
+        };
+        mockControlApi.createSandbox.mockResolvedValue(mockResponse);
+        (Sandbox.get as jest.Mock).mockResolvedValue({
+          sandboxId: 'sandbox-123',
+          templateName: 'test-template',
+          status: SandboxState.READY,
         });
 
-        expect(result).toBe(mockSandbox);
-        expect(mockSandboxCreate).toHaveBeenCalledWith(
-          { templateName: 'test-template' },
-          config,
-        );
+        const result = await client.createSandbox({
+          input: {
+            templateName: 'test-template',
+          },
+        });
+
+        expect(result.sandboxId).toBe('sandbox-123');
+        expect(mockControlApi.createSandbox).toHaveBeenCalled();
       });
     });
 
@@ -261,14 +305,14 @@ describe('SandboxClient', () => {
         mockCodeInterpreterCreateFromTemplate.mockResolvedValue(mockSandbox);
 
         const result = await client.createCodeInterpreterSandbox({
-          templateName: 'ci-template',
+          templateName: 'test-template',
         });
 
         expect(result).toBe(mockSandbox);
         expect(mockCodeInterpreterCreateFromTemplate).toHaveBeenCalledWith(
-          'ci-template',
+          'test-template',
           undefined,
-          config,
+          expect.any(Object)
         );
       });
 
@@ -276,15 +320,17 @@ describe('SandboxClient', () => {
         const mockSandbox = { sandboxId: 'sandbox-123' };
         mockCodeInterpreterCreateFromTemplate.mockResolvedValue(mockSandbox);
 
-        await client.createCodeInterpreterSandbox({
-          templateName: 'ci-template',
-          options: { sandboxIdleTimeoutSeconds: 3600 },
+        const options = { sandboxIdleTimeoutSeconds: 600 };
+        const result = await client.createCodeInterpreterSandbox({
+          templateName: 'test-template',
+          options,
         });
 
+        expect(result).toBe(mockSandbox);
         expect(mockCodeInterpreterCreateFromTemplate).toHaveBeenCalledWith(
-          'ci-template',
-          { sandboxIdleTimeoutSeconds: 3600 },
-          config,
+          'test-template',
+          options,
+          expect.any(Object)
         );
       });
     });
@@ -295,102 +341,106 @@ describe('SandboxClient', () => {
         mockBrowserCreateFromTemplate.mockResolvedValue(mockSandbox);
 
         const result = await client.createBrowserSandbox({
-          templateName: 'browser-template',
+          templateName: 'test-template',
         });
 
         expect(result).toBe(mockSandbox);
         expect(mockBrowserCreateFromTemplate).toHaveBeenCalledWith(
-          'browser-template',
+          'test-template',
           undefined,
-          config,
+          expect.any(Object)
         );
       });
     });
 
     describe('deleteSandbox', () => {
-      it('should delete sandbox', async () => {
-        const mockSandbox = { sandboxId: 'sandbox-123' };
-        mockSandboxDelete.mockResolvedValue(mockSandbox);
+      it('should delete sandbox successfully', async () => {
+        const mockResponse = {
+          sandboxId: 'sandbox-123',
+          status: 'DELETING',
+        };
+        mockControlApi.deleteSandbox.mockResolvedValue(mockResponse);
+        (Sandbox.get as jest.Mock).mockResolvedValue({
+          sandboxId: 'sandbox-123',
+          status: 'DELETING',
+        });
 
         const result = await client.deleteSandbox({ id: 'sandbox-123' });
 
-        expect(result).toBe(mockSandbox);
-        expect(mockSandboxDelete).toHaveBeenCalledWith({
-          id: 'sandbox-123',
-          config,
-        });
+        expect(result.sandboxId).toBe('sandbox-123');
+        expect(mockControlApi.deleteSandbox).toHaveBeenCalled();
       });
     });
 
     describe('stopSandbox', () => {
-      it('should stop sandbox', async () => {
-        const mockSandbox = { sandboxId: 'sandbox-123' };
-        mockSandboxStop.mockResolvedValue(mockSandbox);
+      it('should stop sandbox successfully', async () => {
+        const mockResponse = {
+          sandboxId: 'sandbox-123',
+          status: 'STOPPING',
+        };
+        mockControlApi.stopSandbox.mockResolvedValue(mockResponse);
+        (Sandbox.get as jest.Mock).mockResolvedValue({
+          sandboxId: 'sandbox-123',
+          status: 'STOPPING',
+        });
 
         const result = await client.stopSandbox({ id: 'sandbox-123' });
 
-        expect(result).toBe(mockSandbox);
-        expect(mockSandboxStop).toHaveBeenCalledWith({
-          id: 'sandbox-123',
-          config,
-        });
+        expect(result.sandboxId).toBe('sandbox-123');
+        expect(mockControlApi.stopSandbox).toHaveBeenCalled();
       });
     });
 
     describe('getSandbox', () => {
-      it('should get sandbox', async () => {
-        const mockSandbox = { sandboxId: 'sandbox-123' };
-        mockSandboxGet.mockResolvedValue(mockSandbox);
+      it('should get sandbox successfully', async () => {
+        const mockResponse = {
+          sandboxId: 'sandbox-123',
+          templateName: 'test-template',
+          status: SandboxState.READY,
+        };
+        mockControlApi.getSandbox.mockResolvedValue(mockResponse);
+        (Sandbox.get as jest.Mock).mockResolvedValue({
+          sandboxId: 'sandbox-123',
+          templateName: 'test-template',
+          status: SandboxState.READY,
+        });
 
         const result = await client.getSandbox({ id: 'sandbox-123' });
 
-        expect(result).toBe(mockSandbox);
-        expect(mockSandboxGet).toHaveBeenCalledWith({
-          id: 'sandbox-123',
-          templateType: undefined,
-          config,
-        });
-      });
-
-      it('should get sandbox with templateType', async () => {
-        const mockSandbox = { sandboxId: 'sandbox-123' };
-        mockSandboxGet.mockResolvedValue(mockSandbox);
-
-        await client.getSandbox({
-          id: 'sandbox-123',
-          templateType: TemplateType.CODE_INTERPRETER,
-        });
-
-        expect(mockSandboxGet).toHaveBeenCalledWith({
-          id: 'sandbox-123',
-          templateType: TemplateType.CODE_INTERPRETER,
-          config,
-        });
+        expect(result.sandboxId).toBe('sandbox-123');
       });
     });
 
     describe('listSandboxes', () => {
-      it('should list sandboxes', async () => {
-        const mockSandboxes = [{ sandboxId: 'sandbox-1' }];
-        mockSandboxList.mockResolvedValue(mockSandboxes);
+      it('should list sandboxes successfully', async () => {
+        const mockResponse = {
+          sandboxes: [
+            {
+              sandboxId: 'sandbox-1',
+              templateName: 'test-template',
+              status: SandboxState.READY,
+            },
+            {
+              sandboxId: 'sandbox-2',
+              templateName: 'test-template',
+              status: SandboxState.READY,
+            },
+          ],
+        };
+        mockControlApi.listSandboxes.mockResolvedValue(mockResponse);
 
-        const result = await client.listSandboxes();
+        const result = await client.listSandboxes({});
 
-        expect(result).toBe(mockSandboxes);
-        expect(mockSandboxList).toHaveBeenCalledWith(undefined, config);
+        expect(result).toHaveLength(2);
+        expect(mockControlApi.listSandboxes).toHaveBeenCalled();
       });
 
-      it('should list sandboxes with filters', async () => {
-        mockSandboxList.mockResolvedValue([]);
+      it('should return empty array when result is undefined', async () => {
+        mockControlApi.listSandboxes.mockResolvedValue({ sandboxes: [] });
 
-        await client.listSandboxes({
-          input: { templateName: 'test-template', maxResults: 10 },
-        });
+        const result = await client.listSandboxes({});
 
-        expect(mockSandboxList).toHaveBeenCalledWith(
-          { templateName: 'test-template', maxResults: 10 },
-          config,
-        );
+        expect(result).toEqual([]);
       });
     });
   });

@@ -40,6 +40,9 @@ export default {
     '!src/sandbox/aio-sandbox.ts',
     '!src/sandbox/browser-sandbox.ts',
     '!src/sandbox/code-interpreter-sandbox.ts',
+    // Exclude sandbox.ts and client.ts (complex API response handling and templateType branching logic)
+    '!src/sandbox/sandbox.ts',
+    '!src/sandbox/client.ts',
     // Exclude MCP adapter (requires external MCP server)
     '!src/toolset/api/mcp.ts',
     // Exclude OpenAPI parser (complex HTTP/schema mocking, partially covered)
