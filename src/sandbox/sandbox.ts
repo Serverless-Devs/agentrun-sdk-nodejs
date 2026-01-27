@@ -8,9 +8,9 @@
 import { ClientError, HTTPError } from '@/utils';
 import { Config } from '../utils/config';
 import { ResourceBase, updateObjectProperties } from '../utils/resource';
+import { SandboxClient } from './client';
 
 import {
-  SandboxCreateInput,
   SandboxData,
   SandboxListInput,
   SandboxState,
@@ -112,13 +112,12 @@ export class Sandbox extends ResourceBase implements SandboxData {
         sandboxArn: obj.sandboxArn,
         sandboxIdleTTLInSeconds: obj.sandboxIdleTTLInSeconds,
       },
-      config
+      config,
     );
   }
 
   private static getClient() {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { SandboxClient } = require('./client');
     return new SandboxClient();
   }
 
@@ -126,12 +125,10 @@ export class Sandbox extends ResourceBase implements SandboxData {
    * Create a new Sandbox
    * 创建新沙箱 / Create a New Sandbox
    */
-  static async create(
-    input: SandboxCreateInput,
-    config?: Config
-  ): Promise<Sandbox> {
-    return await Sandbox.getClient().createSandbox({ input, config });
-  }
+
+  static create: SandboxClient['createSandbox'] = async (params) => {
+    return (await Sandbox.getClient().createSandbox(params)) as any;
+  };
 
   /**
    * Delete a Sandbox by ID
@@ -179,7 +176,7 @@ export class Sandbox extends ResourceBase implements SandboxData {
       if (result.code !== 'SUCCESS') {
         throw new ClientError(
           0,
-          `Failed to get sandbox: ${result.message || 'Unknown error'}`
+          `Failed to get sandbox: ${result.message || 'Unknown error'}`,
         );
       }
 
@@ -233,7 +230,7 @@ export class Sandbox extends ResourceBase implements SandboxData {
    */
   static async list(
     input?: SandboxListInput,
-    config?: Config
+    config?: Config,
   ): Promise<Sandbox[]> {
     return await Sandbox.getClient().listSandboxes({ input, config });
   }
@@ -308,7 +305,7 @@ export class Sandbox extends ResourceBase implements SandboxData {
       intervalSeconds?: number;
       beforeCheck?: (sandbox: Sandbox) => void;
     },
-    config?: Config
+    config?: Config,
   ): Promise<Sandbox> => {
     const timeout = (options?.timeoutSeconds ?? 300) * 1000;
     const interval = (options?.intervalSeconds ?? 5) * 1000;
@@ -340,7 +337,7 @@ export class Sandbox extends ResourceBase implements SandboxData {
     throw new Error(
       `Timeout waiting for Sandbox to be running after ${
         options?.timeoutSeconds ?? 300
-      } seconds`
+      } seconds`,
     );
   };
 }

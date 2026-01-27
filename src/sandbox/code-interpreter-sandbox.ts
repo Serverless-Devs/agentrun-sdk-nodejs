@@ -309,19 +309,19 @@ export class CodeInterpreterSandbox extends Sandbox {
     },
     config?: Config
   ): Promise<CodeInterpreterSandbox> {
-    const sandbox = await Sandbox.create(
-      {
+    const sandbox = await Sandbox.create({
+      input: {
         templateName,
         sandboxIdleTimeoutSeconds: options?.sandboxIdleTimeoutSeconds,
         nasConfig: options?.nasConfig,
         ossMountConfig: options?.ossMountConfig,
         polarFsConfig: options?.polarFsConfig,
       },
-      config
-    );
+      templateType: TemplateType.CODE_INTERPRETER,
+      config,
+    });
 
-    const ciSandbox = new CodeInterpreterSandbox(sandbox, config);
-    return ciSandbox;
+    return sandbox as CodeInterpreterSandbox;
   }
 
   constructor(sandbox: Sandbox, config?: Config) {

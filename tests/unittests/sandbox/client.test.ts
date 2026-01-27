@@ -46,11 +46,24 @@ jest.mock('../../../src/sandbox/template', () => {
 
 // Mock Sandbox class
 jest.mock('../../../src/sandbox/sandbox', () => {
+  class MockSandbox {
+    sandboxId?: string;
+    templateName?: string;
+    status?: string;
+    _config?: any;
+    
+    constructor(data?: any, config?: any) {
+      Object.assign(this, data);
+      this._config = config;
+    }
+    
+    static get = jest.fn();
+    static fromInnerObject = jest.fn((data, config) => {
+      return new MockSandbox(data, config);
+    });
+  }
   return {
-    Sandbox: {
-      get: jest.fn(),
-      fromInnerObject: jest.fn((data, config) => ({ ...data, _config: config })),
-    },
+    Sandbox: MockSandbox,
   };
 });
 

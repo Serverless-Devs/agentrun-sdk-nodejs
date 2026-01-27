@@ -125,6 +125,40 @@ describe('Template', () => {
       expect(template.allowAnonymousManage).toBe(true);
     });
 
+    it('should normalize numeric fields from strings', () => {
+      const template = new Template({
+        templateId: 'template-123',
+        templateName: 'test-template',
+        sandboxIdleTimeoutInSeconds: '600' as unknown as number,
+        sandboxTtlInSeconds: '3600' as unknown as number,
+        shareConcurrencyLimitPerSandbox: '3' as unknown as number,
+        cpu: '2' as unknown as number,
+        memory: 4096,
+        diskSize: '512' as unknown as number,
+      });
+
+      (template as unknown as { normalizeNumericFields: () => void }).normalizeNumericFields();
+
+      expect(template.sandboxIdleTimeoutInSeconds).toBe(600);
+      expect(template.sandboxTtlInSeconds).toBe(3600);
+      expect(template.shareConcurrencyLimitPerSandbox).toBe(3);
+      expect(template.cpu).toBe(2);
+      expect(template.memory).toBe(4096);
+      expect(template.diskSize).toBe(512);
+    });
+
+    it('should keep invalid numeric strings as-is', () => {
+      const template = new Template({
+        templateId: 'template-456',
+        templateName: 'test-template-invalid',
+        cpu: 'not-a-number' as unknown as number,
+      });
+
+      (template as unknown as { normalizeNumericFields: () => void }).normalizeNumericFields();
+
+      expect(template.cpu).toBe('not-a-number');
+    });
+
     it('should handle missing optional fields', () => {
       const obj = {
         templateId: 'template-123',

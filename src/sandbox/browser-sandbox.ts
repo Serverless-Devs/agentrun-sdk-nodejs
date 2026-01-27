@@ -38,19 +38,19 @@ export class BrowserSandbox extends Sandbox {
     },
     config?: Config
   ): Promise<BrowserSandbox> {
-    const sandbox = await Sandbox.create(
-      {
+    const sandbox = await Sandbox.create({
+      input: {
         templateName,
         sandboxIdleTimeoutSeconds: options?.sandboxIdleTimeoutSeconds,
         nasConfig: options?.nasConfig,
         ossMountConfig: options?.ossMountConfig,
         polarFsConfig: options?.polarFsConfig,
       },
-      config
-    );
+      templateType: TemplateType.BROWSER,
+      config,
+    });
 
-    const browserSandbox = new BrowserSandbox(sandbox, config);
-    return browserSandbox;
+    return sandbox as BrowserSandbox;
   }
 
   constructor(sandbox: Sandbox, config?: Config) {

@@ -106,6 +106,7 @@ export class Template extends ResourceBase implements TemplateData {
 
     if (data) {
       updateObjectProperties(this, data);
+      this.normalizeNumericFields();
     }
 
     this._config = config;
@@ -201,6 +202,7 @@ export class Template extends ResourceBase implements TemplateData {
       config: config ?? this._config,
     });
     updateObjectProperties(this, result);
+    this.normalizeNumericFields();
     return this;
   };
 
@@ -222,6 +224,7 @@ export class Template extends ResourceBase implements TemplateData {
       config: config ?? this._config,
     });
     updateObjectProperties(this, result);
+    this.normalizeNumericFields();
     return this;
   };
 
@@ -239,6 +242,30 @@ export class Template extends ResourceBase implements TemplateData {
       config: config ?? this._config,
     });
     updateObjectProperties(this, result);
+    this.normalizeNumericFields();
     return this;
   };
+
+  private normalizeNumericFields() {
+    const toNumber = (value?: string | number) => {
+      if (typeof value === 'number') return value;
+      if (typeof value === 'string') {
+        const parsed = Number(value);
+        return Number.isNaN(parsed) ? undefined : parsed;
+      }
+      return undefined;
+    };
+
+    this.sandboxIdleTimeoutInSeconds =
+      toNumber(this.sandboxIdleTimeoutInSeconds) ??
+      this.sandboxIdleTimeoutInSeconds;
+    this.sandboxTtlInSeconds =
+      toNumber(this.sandboxTtlInSeconds) ?? this.sandboxTtlInSeconds;
+    this.shareConcurrencyLimitPerSandbox =
+      toNumber(this.shareConcurrencyLimitPerSandbox) ??
+      this.shareConcurrencyLimitPerSandbox;
+    this.cpu = toNumber(this.cpu) ?? this.cpu;
+    this.memory = toNumber(this.memory) ?? this.memory;
+    this.diskSize = toNumber(this.diskSize) ?? this.diskSize;
+  }
 }

@@ -49,6 +49,7 @@ export class ControlAPI {
       regionId: cfg.regionId,
       endpoint: endpoint,
       connectTimeout: cfg.timeout,
+      readTimeout: cfg.timeout,
     });
 
     return new $AgentRunClient(openApiConfig);

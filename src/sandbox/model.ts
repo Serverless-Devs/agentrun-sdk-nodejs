@@ -54,6 +54,7 @@ export enum TemplateOSSPermission {
  */
 export enum CodeLanguage {
   PYTHON = "python",
+  JAVASCRIPT = "javascript",
 }
 
 // ==================== NAS 配置相关 ====================
