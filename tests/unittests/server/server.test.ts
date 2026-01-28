@@ -34,7 +34,7 @@ describe('AgentRunServer', () => {
       });
 
       // Start server
-      testServer.start({ port: testPort });
+      testServer.start({ host: '127.0.0.1', port: testPort });
 
       // Wait for server to start
       await new Promise((resolve) => setTimeout(resolve, 100));
@@ -52,7 +52,7 @@ describe('AgentRunServer', () => {
         invokeAgent: async () => 'Hello, world!',
       });
 
-      server.start({ port: testPort });
+      server.start({ host: '127.0.0.1', port: testPort });
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       // Make health check request
@@ -71,7 +71,7 @@ describe('AgentRunServer', () => {
         },
       });
 
-      server.start({ port: testPort });
+      server.start({ host: '127.0.0.1', port: testPort });
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       const response = await makeRequest(
@@ -100,7 +100,7 @@ describe('AgentRunServer', () => {
         },
       });
 
-      server.start({ port: testPort });
+      server.start({ host: '127.0.0.1', port: testPort });
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       const response = await makeRequest(
@@ -133,7 +133,7 @@ describe('AgentRunServer', () => {
         },
       });
 
-      server.start({ port: testPort });
+      server.start({ host: '127.0.0.1', port: testPort });
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       const response = await makeRequest(
@@ -177,7 +177,7 @@ describe('AgentRunServer', () => {
         },
       });
 
-      server.start({ port: testPort });
+      server.start({ host: '127.0.0.1', port: testPort });
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       const response = await makeRequest(
@@ -209,7 +209,7 @@ describe('AgentRunServer', () => {
         },
       });
 
-      server.start({ port: testPort });
+      server.start({ host: '127.0.0.1', port: testPort });
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       await makeRequest('POST', `http://localhost:${testPort}/openai/v1/chat/completions`, {
@@ -238,7 +238,7 @@ describe('AgentRunServer', () => {
         invokeAgent: async () => 'Hello',
       });
 
-      server.start({ port: testPort });
+      server.start({ host: '127.0.0.1', port: testPort });
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       const response = await makeRequest('GET', `http://localhost:${testPort}/unknown`);
@@ -253,7 +253,7 @@ describe('AgentRunServer', () => {
         invokeAgent: async () => 'Hello',
       });
 
-      server.start({ port: testPort });
+      server.start({ host: '127.0.0.1', port: testPort });
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       const response = await makeRequest(
@@ -277,7 +277,7 @@ describe('AgentRunServer', () => {
         },
       });
 
-      server.start({ port: testPort });
+      server.start({ host: '127.0.0.1', port: testPort });
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       const response = await makeRequest(
@@ -307,7 +307,7 @@ describe('AgentRunServer', () => {
         },
       });
 
-      server.start({ port: testPort });
+      server.start({ host: '127.0.0.1', port: testPort });
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       const response = await makeRequest(
@@ -336,7 +336,7 @@ describe('AgentRunServer', () => {
         },
       });
 
-      server.start({ port: testPort });
+      server.start({ host: '127.0.0.1', port: testPort });
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       await makeRequest('POST', `http://localhost:${testPort}/openai/v1/chat/completions`, {
@@ -355,7 +355,7 @@ describe('AgentRunServer', () => {
         invokeAgent: async () => 'OK',
       });
 
-      server.start({ port: testPort });
+      server.start({ host: '127.0.0.1', port: testPort });
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       const response = await makeRequest(
@@ -393,7 +393,7 @@ describe('AgentRunServer', () => {
         },
       });
 
-      server.start({ port: testPort });
+      server.start({ host: '127.0.0.1', port: testPort });
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       const response = await makeRequest(
@@ -449,7 +449,7 @@ describe('AgentRunServer', () => {
         },
       });
 
-      server.start({ port: testPort });
+      server.start({ host: '127.0.0.1', port: testPort });
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       const response = await makeStreamingRequest(
@@ -501,7 +501,7 @@ describe('AgentRunServer', () => {
         },
       });
 
-      server.start({ port: testPort });
+      server.start({ host: '127.0.0.1', port: testPort });
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       const response = await makeStreamingRequest(
@@ -555,7 +555,7 @@ describe('AgentRunServer', () => {
         },
       });
 
-      server.start({ port: testPort });
+      server.start({ host: '127.0.0.1', port: testPort });
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       const response = await makeStreamingRequest(
@@ -616,7 +616,7 @@ describe('AgentRunServer', () => {
         },
       });
 
-      server.start({ port: testPort });
+      server.start({ host: '127.0.0.1', port: testPort });
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       const response = await makeStreamingRequest(
@@ -690,7 +690,7 @@ describe('AgentRunServer', () => {
         },
       });
 
-      server.start({ port: testPort });
+      server.start({ host: '127.0.0.1', port: testPort });
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       const response = await makeStreamingRequest(
@@ -756,7 +756,7 @@ describe('AgentRunServer', () => {
         },
       });
 
-      server.start({ port: testPort });
+      server.start({ host: '127.0.0.1', port: testPort });
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       const response = await makeStreamingRequest(
@@ -808,7 +808,7 @@ describe('AgentRunServer', () => {
         },
       });
 
-      server.start({ port: testPort });
+      server.start({ host: '127.0.0.1', port: testPort });
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       const response = await makeStreamingRequest(
@@ -860,7 +860,7 @@ function makeRequest(
     const urlObj = new URL(url);
 
     const options: http.RequestOptions = {
-      hostname: urlObj.hostname,
+      hostname: '127.0.0.1',
       port: urlObj.port,
       path: urlObj.pathname,
       method,

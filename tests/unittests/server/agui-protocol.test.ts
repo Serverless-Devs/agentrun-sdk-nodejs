@@ -44,7 +44,7 @@ async function makeRequest(
 ): Promise<{ status: number; body: string; lines: string[] }> {
   return new Promise((resolve, reject) => {
     const options = {
-      hostname: 'localhost',
+      hostname: '127.0.0.1',
       port,
       path,
       method,
