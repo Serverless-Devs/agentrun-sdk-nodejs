@@ -189,7 +189,7 @@ describe('Sandbox', () => {
       expect(mockClientDeleteSandbox).toHaveBeenCalledWith({
         id: 'sandbox-123',
         config: undefined,
-      });
+      }, undefined);
     });
 
     it('should throw ClientError when deletion fails', async () => {
@@ -217,7 +217,7 @@ describe('Sandbox', () => {
       expect(mockClientStopSandbox).toHaveBeenCalledWith({
         id: 'sandbox-123',
         config: undefined,
-      });
+      }, undefined);
     });
 
     it('should throw ClientError when stop fails', async () => {
