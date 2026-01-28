@@ -60,7 +60,7 @@ export class Sandbox extends ResourceBase implements SandboxData {
   /**
    * 沙箱空闲超时时间（秒） / Sandbox Idle Timeout (seconds)
    */
-  sandboxIdleTimeoutSeconds?: number;
+  sandboxIdleTimeoutInSeconds?: number;
   /**
    * 沙箱结束时间 / Sandbox End Time
    */
@@ -105,7 +105,7 @@ export class Sandbox extends ResourceBase implements SandboxData {
         stateReason: obj.stateReason,
         createdAt: obj.createdAt,
         lastUpdatedAt: obj.lastUpdatedAt,
-        sandboxIdleTimeoutSeconds: obj.sandboxIdleTimeoutSeconds,
+        sandboxIdleTimeoutInSeconds: obj.sandboxIdleTimeoutInSeconds,
         // New fields / 新增字段
         endedAt: obj.endedAt,
         metadata: obj.metadata,

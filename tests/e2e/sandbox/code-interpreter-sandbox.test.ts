@@ -89,7 +89,7 @@ describe('Sandbox Code Interpreter E2E Tests', () => {
       // 注意: CodeInterpreterSandbox.createFromTemplate 方法需要先创建模板
       sandbox = await CodeInterpreterSandbox.createFromTemplate(
         templateName,
-        { sandboxIdleTimeoutSeconds: 600 }
+        { sandboxIdleTimeoutInSeconds: 600 }
       );
 
       // 等待 Sandbox 就绪

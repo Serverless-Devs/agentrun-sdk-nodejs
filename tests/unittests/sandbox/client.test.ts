@@ -49,7 +49,10 @@ jest.mock('../../../src/sandbox/sandbox', () => {
   return {
     Sandbox: {
       get: jest.fn(),
-      fromInnerObject: jest.fn((data, config) => ({ ...data, _config: config })),
+      fromInnerObject: jest.fn((data, config) => ({
+        ...data,
+        _config: config,
+      })),
     },
   };
 });
@@ -148,7 +151,7 @@ describe('SandboxClient', () => {
             input: expect.objectContaining({
               networkConfiguration: expect.any(Object),
             }),
-          })
+          }),
         );
       });
 
@@ -312,7 +315,7 @@ describe('SandboxClient', () => {
         expect(mockCodeInterpreterCreateFromTemplate).toHaveBeenCalledWith(
           'test-template',
           undefined,
-          expect.any(Object)
+          expect.any(Object),
         );
       });
 
@@ -320,7 +323,7 @@ describe('SandboxClient', () => {
         const mockSandbox = { sandboxId: 'sandbox-123' };
         mockCodeInterpreterCreateFromTemplate.mockResolvedValue(mockSandbox);
 
-        const options = { sandboxIdleTimeoutSeconds: 600 };
+        const options = { sandboxIdleTimeoutInSeconds: 600 };
         const result = await client.createCodeInterpreterSandbox({
           templateName: 'test-template',
           options,
@@ -330,7 +333,7 @@ describe('SandboxClient', () => {
         expect(mockCodeInterpreterCreateFromTemplate).toHaveBeenCalledWith(
           'test-template',
           options,
-          expect.any(Object)
+          expect.any(Object),
         );
       });
     });
@@ -348,7 +351,7 @@ describe('SandboxClient', () => {
         expect(mockBrowserCreateFromTemplate).toHaveBeenCalledWith(
           'test-template',
           undefined,
-          expect.any(Object)
+          expect.any(Object),
         );
       });
     });

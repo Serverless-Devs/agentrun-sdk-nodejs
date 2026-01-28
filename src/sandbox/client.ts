@@ -59,8 +59,9 @@ export class SandboxClient {
       const result = await this.controlApi.createTemplate({
         input: new $AgentRun.CreateTemplateInput({
           ...finalInput,
-          networkConfiguration: finalInput.networkConfiguration
-            ? new $AgentRun.NetworkConfiguration({
+          networkConfiguration:
+            finalInput.networkConfiguration ?
+              new $AgentRun.NetworkConfiguration({
                 ...finalInput.networkConfiguration,
               })
             : undefined,
@@ -117,8 +118,9 @@ export class SandboxClient {
         templateName: name,
         input: new $AgentRun.UpdateTemplateInput({
           ...input,
-          networkConfiguration: input.networkConfiguration
-            ? new $AgentRun.NetworkConfiguration({
+          networkConfiguration:
+            input.networkConfiguration ?
+              new $AgentRun.NetworkConfiguration({
                 ...input.networkConfiguration,
               })
             : undefined,
@@ -190,6 +192,7 @@ export class SandboxClient {
     const cfg = Config.withConfigs(this.config, config);
 
     try {
+      console.log({ input });
       const result = await this.controlApi.createSandbox({
         input: new $AgentRun.CreateSandboxInput({
           ...input,
@@ -212,7 +215,7 @@ export class SandboxClient {
   createCodeInterpreterSandbox = async (params: {
     templateName: string;
     options?: {
-      sandboxIdleTimeoutSeconds?: number;
+      sandboxIdleTimeoutInSeconds?: number;
       nasConfig?: NASConfig;
       ossMountConfig?: OSSMountConfig;
       polarFsConfig?: PolarFsConfig;
@@ -223,7 +226,7 @@ export class SandboxClient {
     return CodeInterpreterSandbox.createFromTemplate(
       templateName,
       options,
-      config ?? this.config
+      config ?? this.config,
     );
   };
 
@@ -234,7 +237,7 @@ export class SandboxClient {
   createBrowserSandbox = async (params: {
     templateName: string;
     options?: {
-      sandboxIdleTimeoutSeconds?: number;
+      sandboxIdleTimeoutInSeconds?: number;
       nasConfig?: NASConfig;
       ossMountConfig?: OSSMountConfig;
       polarFsConfig?: PolarFsConfig;
@@ -245,7 +248,7 @@ export class SandboxClient {
     return BrowserSandbox.createFromTemplate(
       templateName,
       options,
-      config ?? this.config
+      config ?? this.config,
     );
   };
 
@@ -360,12 +363,12 @@ export class SandboxClient {
       config: cfg,
     });
     return (result.sandboxes || []).map((item: $AgentRun.Sandbox) =>
-      Sandbox.fromInnerObject(item, cfg)
+      Sandbox.fromInnerObject(item, cfg),
     );
   };
 
   private prepareTemplateCreateInput(
-    input: TemplateCreateInput
+    input: TemplateCreateInput,
   ): TemplateCreateInput {
     const defaults = this.getTemplateDefaults(input.templateType);
     const finalInput = { ...defaults, ...input };
@@ -381,7 +384,7 @@ export class SandboxClient {
   }
 
   private getTemplateDefaults(
-    templateType: TemplateType
+    templateType: TemplateType,
   ): Partial<TemplateCreateInput> {
     const base = {
       cpu: 2,
@@ -409,7 +412,7 @@ export class SandboxClient {
       input.diskSize !== 10240
     ) {
       throw new Error(
-        `When templateType is BROWSER or AIO, diskSize must be 10240, got ${input.diskSize}`
+        `When templateType is BROWSER or AIO, diskSize must be 10240, got ${input.diskSize}`,
       );
     }
 
@@ -419,7 +422,7 @@ export class SandboxClient {
       input.networkConfiguration?.networkMode === TemplateNetworkMode.PRIVATE
     ) {
       throw new Error(
-        `When templateType is CODE_INTERPRETER or AIO, networkMode cannot be PRIVATE`
+        `When templateType is CODE_INTERPRETER or AIO, networkMode cannot be PRIVATE`,
       );
     }
   }

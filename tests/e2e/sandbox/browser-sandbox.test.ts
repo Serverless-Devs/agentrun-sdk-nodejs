@@ -87,7 +87,7 @@ describe('Browser Sandbox E2E Tests', () => {
       // 注意: BrowserSandbox.createFromTemplate 方法需要先创建模板
       sandbox = await BrowserSandbox.createFromTemplate(
         templateName,
-        { sandboxIdleTimeoutSeconds: 600 }
+        { sandboxIdleTimeoutInSeconds: 600 }
       );
 
       // 等待 Sandbox 就绪

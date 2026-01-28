@@ -405,7 +405,7 @@ export class SandboxDataAPI {
    */
   createSandbox = async (params: {
     templateName: string;
-    sandboxIdleTimeoutSeconds?: number;
+    sandboxIdleTimeoutInSeconds?: number;
     nasConfig?: Record<string, any>;
     ossMountConfig?: Record<string, any>;
     polarFsConfig?: Record<string, any>;
@@ -419,7 +419,7 @@ export class SandboxDataAPI {
     // Build request data / 构建请求数据
     const data: Record<string, any> = {
       templateName: params.templateName,
-      sandboxIdleTimeoutSeconds: params.sandboxIdleTimeoutSeconds || 600,
+      sandboxIdleTimeoutInSeconds: params.sandboxIdleTimeoutInSeconds || 600,
     };
 
     // Add optional parameters / 添加可选参数

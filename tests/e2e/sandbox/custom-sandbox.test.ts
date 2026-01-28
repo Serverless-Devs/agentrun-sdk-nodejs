@@ -95,7 +95,7 @@ describe('Custom Sandbox E2E Tests', () => {
 
       const sandbox = await Sandbox.create({
         templateName,
-        sandboxIdleTimeoutSeconds: 600,
+        sandboxIdleTimeoutInSeconds: 600,
       });
 
       expect(sandbox).toBeDefined();
@@ -171,7 +171,7 @@ describe('Custom Sandbox E2E Tests', () => {
 
       // READY is an acceptable state (equivalent to RUNNING)
       expect([SandboxState.RUNNING, SandboxState.READY]).toContain(
-        sandbox.state!
+        sandbox.state!,
       );
     });
 
@@ -267,7 +267,7 @@ describe('Custom Sandbox E2E Tests', () => {
 
     it('should create Custom sandbox using createFromTemplate', async () => {
       sandbox = await CustomSandbox.createFromTemplate(templateName, {
-        sandboxIdleTimeoutSeconds: 600,
+        sandboxIdleTimeoutInSeconds: 600,
       });
 
       expect(sandbox).toBeDefined();

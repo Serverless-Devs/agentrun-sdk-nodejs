@@ -354,7 +354,7 @@ export interface SandboxCreateInput {
   /**
    * 沙箱空闲超时时间（秒） / Sandbox Idle Timeout (seconds)
    */
-  sandboxIdleTimeoutSeconds?: number;
+  sandboxIdleTimeoutInSeconds?: number;
   /**
    * 沙箱 ID（可选，用户可指定） / Sandbox ID (optional, user can specify)
    */
@@ -503,7 +503,7 @@ export interface SandboxData {
   /**
    * 沙箱空闲超时时间（秒） / Sandbox Idle Timeout (seconds)
    */
-  sandboxIdleTimeoutSeconds?: number;
+  sandboxIdleTimeoutInSeconds?: number;
   /**
    * 沙箱结束时间 / Sandbox End Time
    */

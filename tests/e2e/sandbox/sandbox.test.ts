@@ -10,16 +10,19 @@
  * - Sandbox 生命周期测试
  */
 
-
-
 import {
   Sandbox,
   Template,
   TemplateType,
   TemplateNetworkMode,
   SandboxState,
+  SandboxClient,
 } from '../../../src/sandbox';
-import { ResourceNotExistError, ClientError } from '../../../src/utils/exception';
+import {
+  ResourceNotExistError,
+  ClientError,
+  ResourceAlreadyExistError,
+} from '../../../src/utils/exception';
 import type { TemplateCreateInput } from '../../../src/sandbox';
 
 /**
@@ -85,7 +88,7 @@ describe('Sandbox E2E Tests', () => {
 
       const sandbox = await Sandbox.create({
         templateName,
-        sandboxIdleTimeoutSeconds: 600,
+        sandboxIdleTimeoutInSeconds: 600,
       });
 
       expect(sandbox).toBeDefined();
@@ -198,7 +201,7 @@ describe('Sandbox E2E Tests', () => {
 
       const sandbox = await Sandbox.create({
         templateName,
-        sandboxIdleTimeoutSeconds: 600,
+        sandboxIdleTimeoutInSeconds: 600,
       });
 
       expect(sandbox).toBeDefined();
@@ -222,7 +225,9 @@ describe('Sandbox E2E Tests', () => {
       });
 
       // READY is an acceptable state (equivalent to RUNNING)
-      expect([SandboxState.RUNNING, SandboxState.READY]).toContain(sandbox.state!);
+      expect([SandboxState.RUNNING, SandboxState.READY]).toContain(
+        sandbox.state!,
+      );
     });
 
     it('should stop a sandbox', async () => {
@@ -290,7 +295,7 @@ describe('Sandbox E2E Tests', () => {
       // 创建 Sandbox
       sandbox = await Sandbox.create({
         templateName,
-        sandboxIdleTimeoutSeconds: 600,
+        sandboxIdleTimeoutInSeconds: 600,
       });
 
       expect(sandbox).toBeDefined();
@@ -340,3 +345,41 @@ describe('Sandbox E2E Tests', () => {
   });
 });
 
+describe('create sandbox optional params', () => {
+  it('sandboxIdleTimeoutInSeconds', async () => {
+    const client = new SandboxClient();
+    const templateName = 'agentrun-nodejs-sdk-e2e-test';
+
+    let tpl: Template;
+
+    try {
+      tpl = await client.createTemplate({
+        input: {
+          templateName,
+          templateType: TemplateType.BROWSER,
+        },
+      });
+    } catch (err) {
+      if (!(err instanceof ResourceAlreadyExistError)) {
+        throw err;
+      }
+
+      tpl = await client.getTemplate({
+        name: templateName,
+      });
+    }
+
+    try {
+      const sandbox = await client.createSandbox({
+        input: {
+          templateName: tpl.templateName!,
+          sandboxIdleTimeoutInSeconds: 1500,
+        },
+      });
+      expect(sandbox.sandboxIdleTimeoutInSeconds).toBe(1500);
+    } finally {
+      await tpl.deleteAndWaitUntilFinished();
+      await expect(tpl.refresh()).rejects.toThrow(ResourceNotExistError);
+    }
+  });
+});

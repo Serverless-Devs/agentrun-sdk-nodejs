@@ -150,7 +150,7 @@ describe('CustomSandbox', () => {
           templateName: 'test-template',
           state: SandboxState.CREATING,
         },
-        undefined
+        undefined,
       );
 
       // Mock Sandbox.create
@@ -163,26 +163,23 @@ describe('CustomSandbox', () => {
         expect.objectContaining({
           templateName: 'test-template',
         }),
-        undefined
+        undefined,
       );
       expect(result).toBeInstanceOf(CustomSandbox);
       expect(result.sandboxId).toBe('sandbox-new');
     });
 
     it('should create CustomSandbox with options', async () => {
-      const mockSandbox = new Sandbox(
-        {
-          sandboxId: 'sandbox-new',
-          templateName: 'test-template',
-        },
-        undefined
-      );
+      const mockSandbox = new Sandbox({
+        sandboxId: 'sandbox-new',
+        templateName: 'test-template',
+      });
 
       const createMock = jest.fn().mockResolvedValue(mockSandbox);
       (Sandbox as any).create = createMock;
 
       const result = await CustomSandbox.createFromTemplate('test-template', {
-        sandboxIdleTimeoutSeconds: 1200,
+        sandboxIdleTimeoutInSeconds: 1200,
         nasConfig: {
           groupId: 100,
           userId: 100,
@@ -195,10 +192,10 @@ describe('CustomSandbox', () => {
       expect(createMock).toHaveBeenCalledWith(
         expect.objectContaining({
           templateName: 'test-template',
-          sandboxIdleTimeoutSeconds: 1200,
+          sandboxIdleTimeoutInSeconds: 1200,
           nasConfig: expect.any(Object),
         }),
-        undefined
+        undefined,
       );
       expect(result).toBeInstanceOf(CustomSandbox);
     });
@@ -209,7 +206,7 @@ describe('CustomSandbox', () => {
           sandboxId: 'sandbox-new',
           templateName: 'test-template',
         },
-        undefined
+        undefined,
       );
 
       const createMock = jest.fn().mockResolvedValue(mockSandbox);
@@ -219,7 +216,7 @@ describe('CustomSandbox', () => {
       const result = await CustomSandbox.createFromTemplate(
         'test-template',
         {},
-        config
+        config,
       );
 
       expect(createMock).toHaveBeenCalledWith(expect.any(Object), config);

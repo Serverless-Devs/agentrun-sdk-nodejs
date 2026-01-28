@@ -30,7 +30,7 @@ export class CustomSandbox extends Sandbox {
   static async createFromTemplate(
     templateName: string,
     options?: {
-      sandboxIdleTimeoutSeconds?: number;
+      sandboxIdleTimeoutInSeconds?: number;
       nasConfig?: NASConfig;
       ossMountConfig?: OSSMountConfig;
       polarFsConfig?: PolarFsConfig;
@@ -40,7 +40,7 @@ export class CustomSandbox extends Sandbox {
     const sandbox = await Sandbox.create(
       {
         templateName,
-        sandboxIdleTimeoutSeconds: options?.sandboxIdleTimeoutSeconds,
+        sandboxIdleTimeoutInSeconds: options?.sandboxIdleTimeoutInSeconds,
         nasConfig: options?.nasConfig,
         ossMountConfig: options?.ossMountConfig,
         polarFsConfig: options?.polarFsConfig,
