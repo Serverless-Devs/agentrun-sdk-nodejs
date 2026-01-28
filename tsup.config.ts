@@ -1,7 +1,49 @@
 import { defineConfig } from 'tsup';
+import { readdirSync, statSync } from 'fs';
+import { join, resolve } from 'path';
+
+// 自动扫描 src 目录下的所有 index.ts 文件作为入口点
+function getEntryPoints(srcDir: string): string[] {
+  const entries: string[] = [];
+  const basePath = resolve(srcDir);
+
+  function scanDir(dir: string, relativePath = ''): void {
+    const items = readdirSync(dir);
+
+    for (const item of items) {
+      const fullPath = join(dir, item);
+      const stat = statSync(fullPath);
+
+      if (stat.isDirectory()) {
+        // 检查是否有 index.ts 文件
+        const indexPath = join(fullPath, 'index.ts');
+        try {
+          if (statSync(indexPath).isFile()) {
+            const entryPath = relativePath ? `${relativePath}/${item}/index.ts` : `${item}/index.ts`;
+            entries.push(`src/${entryPath}`);
+          }
+        } catch {
+          // index.ts 不存在，继续递归扫描子目录
+        }
+
+        // 递归扫描子目录
+        const newRelativePath = relativePath ? `${relativePath}/${item}` : item;
+        scanDir(fullPath, newRelativePath);
+      }
+    }
+  }
+
+  // 总是包含根目录的 index.ts
+  entries.unshift('src/index.ts');
+
+  // 扫描 src 目录
+  scanDir(basePath);
+
+  return entries;
+}
 
 export default defineConfig({
-  entry: ['src/index.ts'],
+  entry: getEntryPoints('src'),
   format: ['esm', 'cjs'],
   dts: true,
   splitting: false,
@@ -26,6 +68,7 @@ export default defineConfig({
     'uuid',
     'zod',
     '@mastra/core',
+    'chromium-bidi',
   ],
   treeshake: true,
   minify: false,
@@ -36,5 +79,3 @@ export default defineConfig({
     };
   },
 });
-
-
