@@ -62,6 +62,25 @@ jest.mock('@alicloud/tea-util', () => {
   };
 });
 
+// Mock SandboxClient
+const mockClientCreateTemplate = jest.fn();
+const mockClientDeleteTemplate = jest.fn();
+const mockClientUpdateTemplate = jest.fn();
+const mockClientGetTemplate = jest.fn();
+const mockClientListTemplates = jest.fn();
+
+jest.mock('../../../src/sandbox/client', () => {
+  return {
+    SandboxClient: jest.fn().mockImplementation(() => ({
+      createTemplate: mockClientCreateTemplate,
+      deleteTemplate: mockClientDeleteTemplate,
+      updateTemplate: mockClientUpdateTemplate,
+      getTemplate: mockClientGetTemplate,
+      listTemplates: mockClientListTemplates,
+    })),
+  };
+});
+
 import { Template } from '../../../src/sandbox/template';
 
 describe('Template', () => {
@@ -125,6 +144,40 @@ describe('Template', () => {
       expect(template.allowAnonymousManage).toBe(true);
     });
 
+    it('should normalize numeric fields from strings', () => {
+      const template = new Template({
+        templateId: 'template-123',
+        templateName: 'test-template',
+        sandboxIdleTimeoutInSeconds: '600' as unknown as number,
+        sandboxTtlInSeconds: '3600' as unknown as number,
+        shareConcurrencyLimitPerSandbox: '3' as unknown as number,
+        cpu: '2' as unknown as number,
+        memory: 4096,
+        diskSize: '512' as unknown as number,
+      });
+
+      (template as unknown as { normalizeNumericFields: () => void }).normalizeNumericFields();
+
+      expect(template.sandboxIdleTimeoutInSeconds).toBe(600);
+      expect(template.sandboxTtlInSeconds).toBe(3600);
+      expect(template.shareConcurrencyLimitPerSandbox).toBe(3);
+      expect(template.cpu).toBe(2);
+      expect(template.memory).toBe(4096);
+      expect(template.diskSize).toBe(512);
+    });
+
+    it('should set invalid numeric strings to undefined', () => {
+      const template = new Template({
+        templateId: 'template-456',
+        templateName: 'test-template-invalid',
+        cpu: 'not-a-number' as unknown as number,
+      });
+
+      (template as unknown as { normalizeNumericFields: () => void }).normalizeNumericFields();
+
+      expect(template.cpu).toBeUndefined();
+    });
+
     it('should handle missing optional fields', () => {
       const obj = {
         templateId: 'template-123',
@@ -140,20 +193,12 @@ describe('Template', () => {
 
   describe('create', () => {
     it('should create a new template successfully', async () => {
-      const mockClient = {
-        createTemplateWithOptions: jest.fn().mockResolvedValue({
-          body: {
-            requestId: 'req-123',
-            data: {
-              templateId: 'new-template-123',
-              templateName: 'test-template',
-              templateType: 'CodeInterpreter',
-              status: 'CREATING',
-            },
-          },
-        }),
-      };
-      mockGetClient.mockReturnValue(mockClient);
+      mockClientCreateTemplate.mockResolvedValue({
+        templateId: 'new-template-123',
+        templateName: 'test-template',
+        templateType: 'CodeInterpreter',
+        status: 'CREATING',
+      });
 
       const template = await Template.create({
         input: {
@@ -167,18 +212,10 @@ describe('Template', () => {
     });
 
     it('should apply default values for CODE_INTERPRETER', async () => {
-      const mockClient = {
-        createTemplateWithOptions: jest.fn().mockResolvedValue({
-          body: {
-            requestId: 'req-123',
-            data: {
-              templateId: 'new-template-123',
-              templateName: 'test-template',
-            },
-          },
-        }),
-      };
-      mockGetClient.mockReturnValue(mockClient);
+      mockClientCreateTemplate.mockResolvedValue({
+        templateId: 'new-template-123',
+        templateName: 'test-template',
+      });
 
       await Template.create({
         input: {
@@ -187,23 +224,15 @@ describe('Template', () => {
         },
       });
 
-      expect(mockClient.createTemplateWithOptions).toHaveBeenCalled();
+      expect(mockClientCreateTemplate).toHaveBeenCalled();
     });
 
     it('should apply default values for BROWSER', async () => {
-      const mockClient = {
-        createTemplateWithOptions: jest.fn().mockResolvedValue({
-          body: {
-            requestId: 'req-123',
-            data: {
-              templateId: 'new-template-123',
-              templateName: 'browser-template',
-              diskSize: 10240,
-            },
-          },
-        }),
-      };
-      mockGetClient.mockReturnValue(mockClient);
+      mockClientCreateTemplate.mockResolvedValue({
+        templateId: 'new-template-123',
+        templateName: 'browser-template',
+        diskSize: 10240,
+      });
 
       await Template.create({
         input: {
@@ -212,23 +241,15 @@ describe('Template', () => {
         },
       });
 
-      expect(mockClient.createTemplateWithOptions).toHaveBeenCalled();
+      expect(mockClientCreateTemplate).toHaveBeenCalled();
     });
 
     it('should apply default values for AIO', async () => {
-      const mockClient = {
-        createTemplateWithOptions: jest.fn().mockResolvedValue({
-          body: {
-            requestId: 'req-123',
-            data: {
-              templateId: 'new-template-123',
-              templateName: 'aio-template',
-              diskSize: 10240,
-            },
-          },
-        }),
-      };
-      mockGetClient.mockReturnValue(mockClient);
+      mockClientCreateTemplate.mockResolvedValue({
+        templateId: 'new-template-123',
+        templateName: 'aio-template',
+        diskSize: 10240,
+      });
 
       await Template.create({
         input: {
@@ -237,22 +258,14 @@ describe('Template', () => {
         },
       });
 
-      expect(mockClient.createTemplateWithOptions).toHaveBeenCalled();
+      expect(mockClientCreateTemplate).toHaveBeenCalled();
     });
 
     it('should apply default values for CUSTOM', async () => {
-      const mockClient = {
-        createTemplateWithOptions: jest.fn().mockResolvedValue({
-          body: {
-            requestId: 'req-123',
-            data: {
-              templateId: 'new-template-123',
-              templateName: 'custom-template',
-            },
-          },
-        }),
-      };
-      mockGetClient.mockReturnValue(mockClient);
+      mockClientCreateTemplate.mockResolvedValue({
+        templateId: 'new-template-123',
+        templateName: 'custom-template',
+      });
 
       await Template.create({
         input: {
@@ -261,10 +274,16 @@ describe('Template', () => {
         },
       });
 
-      expect(mockClient.createTemplateWithOptions).toHaveBeenCalled();
+      expect(mockClientCreateTemplate).toHaveBeenCalled();
     });
 
     it('should throw error when BROWSER diskSize is not 10240', async () => {
+      mockClientCreateTemplate.mockRejectedValue(
+        new Error(
+          'When templateType is BROWSER or AIO, diskSize must be 10240, got 512',
+        ),
+      );
+
       await expect(
         Template.create({
           input: {
@@ -272,13 +291,19 @@ describe('Template', () => {
             templateType: TemplateType.BROWSER,
             diskSize: 512,
           },
-        })
+        }),
       ).rejects.toThrow(
-        'When templateType is BROWSER or AIO, diskSize must be 10240'
+        'When templateType is BROWSER or AIO, diskSize must be 10240',
       );
     });
 
     it('should throw error when CODE_INTERPRETER uses PRIVATE network', async () => {
+      mockClientCreateTemplate.mockRejectedValue(
+        new Error(
+          'When templateType is CODE_INTERPRETER or AIO, networkMode cannot be PRIVATE',
+        ),
+      );
+
       await expect(
         Template.create({
           input: {
@@ -288,25 +313,17 @@ describe('Template', () => {
               networkMode: TemplateNetworkMode.PRIVATE,
             },
           },
-        })
+        }),
       ).rejects.toThrow(
-        'When templateType is CODE_INTERPRETER or AIO, networkMode cannot be PRIVATE'
+        'When templateType is CODE_INTERPRETER or AIO, networkMode cannot be PRIVATE',
       );
     });
 
     it('should create template without networkConfiguration (uses default)', async () => {
-      const mockClient = {
-        createTemplateWithOptions: jest.fn().mockResolvedValue({
-          body: {
-            requestId: 'req-123',
-            data: {
-              templateId: 'new-template-123',
-              templateName: 'test-template',
-            },
-          },
-        }),
-      };
-      mockGetClient.mockReturnValue(mockClient);
+      mockClientCreateTemplate.mockResolvedValue({
+        templateId: 'new-template-123',
+        templateName: 'test-template',
+      });
 
       const template = await Template.create({
         input: {
@@ -321,18 +338,10 @@ describe('Template', () => {
     });
 
     it('should create template with networkConfiguration (PUBLIC mode for BROWSER)', async () => {
-      const mockClient = {
-        createTemplateWithOptions: jest.fn().mockResolvedValue({
-          body: {
-            requestId: 'req-123',
-            data: {
-              templateId: 'new-template-123',
-              templateName: 'network-template',
-            },
-          },
-        }),
-      };
-      mockGetClient.mockReturnValue(mockClient);
+      mockClientCreateTemplate.mockResolvedValue({
+        templateId: 'new-template-123',
+        templateName: 'network-template',
+      });
 
       const template = await Template.create({
         input: {
@@ -347,26 +356,22 @@ describe('Template', () => {
 
       expect(template.templateId).toBe('new-template-123');
       // Verify that the networkConfiguration was passed correctly
-      const callArgs = mockClient.createTemplateWithOptions.mock.calls[0];
-      expect(callArgs[0].body.networkConfiguration).toBeDefined();
-      expect(callArgs[0].body.networkConfiguration.networkMode).toBe(
-        TemplateNetworkMode.PUBLIC
+      expect(mockClientCreateTemplate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          input: expect.objectContaining({
+            networkConfiguration: expect.objectContaining({
+              networkMode: TemplateNetworkMode.PUBLIC,
+            }),
+          }),
+        })
       );
     });
 
     it('should create template with CUSTOM type and container configuration', async () => {
-      const mockClient = {
-        createTemplateWithOptions: jest.fn().mockResolvedValue({
-          body: {
-            requestId: 'req-123',
-            data: {
-              templateId: 'custom-template-123',
-              templateName: 'custom-container-template',
-            },
-          },
-        }),
-      };
-      mockGetClient.mockReturnValue(mockClient);
+      mockClientCreateTemplate.mockResolvedValue({
+        templateId: 'custom-template-123',
+        templateName: 'custom-container-template',
+      });
 
       const template = await Template.create({
         input: {
@@ -388,19 +393,11 @@ describe('Template', () => {
 
   describe('delete', () => {
     it('should delete template successfully', async () => {
-      const mockClient = {
-        deleteTemplateWithOptions: jest.fn().mockResolvedValue({
-          body: {
-            requestId: 'req-123',
-            data: {
-              templateId: 'template-123',
-              templateName: 'test-template',
-              status: 'DELETING',
-            },
-          },
-        }),
-      };
-      mockGetClient.mockReturnValue(mockClient);
+      mockClientDeleteTemplate.mockResolvedValue({
+        templateId: 'template-123',
+        templateName: 'test-template',
+        status: 'DELETING',
+      });
 
       const result = await Template.delete({ name: 'test-template' });
 
@@ -408,12 +405,9 @@ describe('Template', () => {
     });
 
     it('should handle HTTPError on delete', async () => {
-      const mockClient = {
-        deleteTemplateWithOptions: jest
-          .fn()
-          .mockRejectedValue(new HTTPError(404, 'Not Found')),
-      };
-      mockGetClient.mockReturnValue(mockClient);
+      mockClientDeleteTemplate.mockRejectedValue(
+        new HTTPError(404, 'Not Found')
+      );
 
       await expect(
         Template.delete({ name: 'test-template' })
@@ -421,32 +415,21 @@ describe('Template', () => {
     });
 
     it('should handle error with empty message (Unknown error fallback)', async () => {
-      const errorWithEmptyMessage = {
-        statusCode: 400,
-        message: '',
-        data: { requestId: 'req-123' },
-      };
-      const mockClient = {
-        deleteTemplateWithOptions: jest
-          .fn()
-          .mockRejectedValue(errorWithEmptyMessage),
-      };
-      mockGetClient.mockReturnValue(mockClient);
+      mockClientDeleteTemplate.mockRejectedValue(
+        new ClientError(404, '', { requestId: 'req-123' })
+      );
 
       await expect(Template.delete({ name: 'test-template' })).rejects.toThrow(
-        'Unknown error'
+        ClientError
       );
     });
   });
 
   describe('update error handling', () => {
     it('should handle HTTPError on update', async () => {
-      const mockClient = {
-        updateTemplateWithOptions: jest
-          .fn()
-          .mockRejectedValue(new HTTPError(404, 'Not Found')),
-      };
-      mockGetClient.mockReturnValue(mockClient);
+      mockClientUpdateTemplate.mockRejectedValue(
+        new HTTPError(404, 'Not Found')
+      );
 
       await expect(
         Template.update({ name: 'test-template', input: { cpu: 4 } })
@@ -454,14 +437,9 @@ describe('Template', () => {
     });
 
     it('should call handleError for non-HTTPError on update', async () => {
-      const mockClient = {
-        updateTemplateWithOptions: jest.fn().mockRejectedValue({
-          statusCode: 500,
-          message: 'Internal Server Error',
-          data: { requestId: 'req-123' },
-        }),
-      };
-      mockGetClient.mockReturnValue(mockClient);
+      mockClientUpdateTemplate.mockRejectedValue(
+        new ServerError(500, 'Internal Server Error', { requestId: 'req-123' })
+      );
 
       await expect(
         Template.update({ name: 'test-template', input: { cpu: 4 } })
@@ -471,25 +449,17 @@ describe('Template', () => {
 
   describe('get error handling', () => {
     it('should handle HTTPError on get', async () => {
-      const mockClient = {
-        getTemplateWithOptions: jest
-          .fn()
-          .mockRejectedValue(new HTTPError(404, 'Not Found')),
-      };
-      mockGetClient.mockReturnValue(mockClient);
+      mockClientGetTemplate.mockRejectedValue(
+        new HTTPError(404, 'Not Found')
+      );
 
       await expect(Template.get({ name: 'test-template' })).rejects.toThrow();
     });
 
     it('should call handleError for non-HTTPError on get', async () => {
-      const mockClient = {
-        getTemplateWithOptions: jest.fn().mockRejectedValue({
-          statusCode: 400,
-          message: 'Bad Request',
-          data: { requestId: 'req-123' },
-        }),
-      };
-      mockGetClient.mockReturnValue(mockClient);
+      mockClientGetTemplate.mockRejectedValue(
+        new ClientError(400, 'Bad Request', { requestId: 'req-123' })
+      );
 
       await expect(Template.get({ name: 'test-template' })).rejects.toThrow(
         ClientError
@@ -499,12 +469,9 @@ describe('Template', () => {
 
   describe('create error handling', () => {
     it('should handle HTTPError on create', async () => {
-      const mockClient = {
-        createTemplateWithOptions: jest
-          .fn()
-          .mockRejectedValue(new HTTPError(400, 'Bad Request')),
-      };
-      mockGetClient.mockReturnValue(mockClient);
+      mockClientCreateTemplate.mockRejectedValue(
+        new HTTPError(400, 'Bad Request')
+      );
 
       await expect(
         Template.create({
@@ -517,14 +484,9 @@ describe('Template', () => {
     });
 
     it('should call handleError for non-HTTPError on create', async () => {
-      const mockClient = {
-        createTemplateWithOptions: jest.fn().mockRejectedValue({
-          statusCode: 500,
-          message: 'Internal Server Error',
-          data: { requestId: 'req-123' },
-        }),
-      };
-      mockGetClient.mockReturnValue(mockClient);
+      mockClientCreateTemplate.mockRejectedValue(
+        new ServerError(500, 'Internal Server Error', { requestId: 'req-123' })
+      );
 
       await expect(
         Template.create({
@@ -539,14 +501,9 @@ describe('Template', () => {
 
   describe('delete error handling', () => {
     it('should call handleError for non-HTTPError on delete', async () => {
-      const mockClient = {
-        deleteTemplateWithOptions: jest.fn().mockRejectedValue({
-          statusCode: 404,
-          message: 'Not Found',
-          data: { requestId: 'req-123' },
-        }),
-      };
-      mockGetClient.mockReturnValue(mockClient);
+      mockClientDeleteTemplate.mockRejectedValue(
+        new ClientError(404, 'Not Found', { requestId: 'req-123' })
+      );
 
       await expect(Template.delete({ name: 'test-template' })).rejects.toThrow(
         ClientError
@@ -556,19 +513,11 @@ describe('Template', () => {
 
   describe('update', () => {
     it('should update template successfully', async () => {
-      const mockClient = {
-        updateTemplateWithOptions: jest.fn().mockResolvedValue({
-          body: {
-            requestId: 'req-123',
-            data: {
-              templateId: 'template-123',
-              templateName: 'test-template',
-              cpu: 4,
-            },
-          },
-        }),
-      };
-      mockGetClient.mockReturnValue(mockClient);
+      mockClientUpdateTemplate.mockResolvedValue({
+        templateId: 'template-123',
+        templateName: 'test-template',
+        cpu: 4,
+      });
 
       const result = await Template.update({
         name: 'test-template',
@@ -579,18 +528,10 @@ describe('Template', () => {
     });
 
     it('should update template with networkConfiguration', async () => {
-      const mockClient = {
-        updateTemplateWithOptions: jest.fn().mockResolvedValue({
-          body: {
-            requestId: 'req-123',
-            data: {
-              templateId: 'template-123',
-              templateName: 'test-template',
-            },
-          },
-        }),
-      };
-      mockGetClient.mockReturnValue(mockClient);
+      mockClientUpdateTemplate.mockResolvedValue({
+        templateId: 'template-123',
+        templateName: 'test-template',
+      });
 
       const result = await Template.update({
         name: 'test-template',
@@ -605,18 +546,10 @@ describe('Template', () => {
     });
 
     it('should update template without networkConfiguration', async () => {
-      const mockClient = {
-        updateTemplateWithOptions: jest.fn().mockResolvedValue({
-          body: {
-            requestId: 'req-123',
-            data: {
-              templateId: 'template-123',
-              templateName: 'test-template',
-            },
-          },
-        }),
-      };
-      mockGetClient.mockReturnValue(mockClient);
+      mockClientUpdateTemplate.mockResolvedValue({
+        templateId: 'template-123',
+        templateName: 'test-template',
+      });
 
       const result = await Template.update({
         name: 'test-template',
@@ -629,19 +562,11 @@ describe('Template', () => {
 
   describe('get', () => {
     it('should get template successfully', async () => {
-      const mockClient = {
-        getTemplateWithOptions: jest.fn().mockResolvedValue({
-          body: {
-            requestId: 'req-123',
-            data: {
-              templateId: 'template-123',
-              templateName: 'test-template',
-              status: 'READY',
-            },
-          },
-        }),
-      };
-      mockGetClient.mockReturnValue(mockClient);
+      mockClientGetTemplate.mockResolvedValue({
+        templateId: 'template-123',
+        templateName: 'test-template',
+        status: 'READY',
+      });
 
       const result = await Template.get({ name: 'test-template' });
 
@@ -652,20 +577,10 @@ describe('Template', () => {
 
   describe('list', () => {
     it('should list templates successfully', async () => {
-      const mockClient = {
-        listTemplatesWithOptions: jest.fn().mockResolvedValue({
-          body: {
-            requestId: 'req-123',
-            data: {
-              items: [
-                { templateId: 'template-1', templateName: 'template-1' },
-                { templateId: 'template-2', templateName: 'template-2' },
-              ],
-            },
-          },
-        }),
-      };
-      mockGetClient.mockReturnValue(mockClient);
+      mockClientListTemplates.mockResolvedValue([
+        new Template({ templateId: 'template-1', templateName: 'template-1' }),
+        new Template({ templateId: 'template-2', templateName: 'template-2' }),
+      ]);
 
       const result = await Template.list();
 
@@ -674,17 +589,7 @@ describe('Template', () => {
     });
 
     it('should handle empty list', async () => {
-      const mockClient = {
-        listTemplatesWithOptions: jest.fn().mockResolvedValue({
-          body: {
-            requestId: 'req-123',
-            data: {
-              items: [],
-            },
-          },
-        }),
-      };
-      mockGetClient.mockReturnValue(mockClient);
+      mockClientListTemplates.mockResolvedValue([]);
 
       const result = await Template.list();
 
@@ -692,58 +597,30 @@ describe('Template', () => {
     });
 
     it('should handle API error with 4xx status', async () => {
-      const mockClient = {
-        listTemplatesWithOptions: jest.fn().mockRejectedValue({
-          statusCode: 400,
-          message: 'Bad Request',
-          data: { requestId: 'req-123' },
-        }),
-      };
-      mockGetClient.mockReturnValue(mockClient);
+      mockClientListTemplates.mockRejectedValue(
+        new ClientError(400, 'Bad Request', { requestId: 'req-123' })
+      );
 
       await expect(Template.list()).rejects.toThrow(ClientError);
     });
 
     it('should handle API error with 5xx status', async () => {
-      const mockClient = {
-        listTemplatesWithOptions: jest.fn().mockRejectedValue({
-          statusCode: 500,
-          message: 'Internal Server Error',
-          data: { requestId: 'req-123' },
-        }),
-      };
-      mockGetClient.mockReturnValue(mockClient);
+      mockClientListTemplates.mockRejectedValue(
+        new ServerError(500, 'Internal Server Error', { requestId: 'req-123' })
+      );
 
       await expect(Template.list()).rejects.toThrow(ServerError);
     });
 
     it('should handle response with null items array', async () => {
-      const mockClient = {
-        listTemplatesWithOptions: jest.fn().mockResolvedValue({
-          body: {
-            requestId: 'req-123',
-            data: {
-              items: null,
-            },
-          },
-        }),
-      };
-      mockGetClient.mockReturnValue(mockClient);
+      mockClientListTemplates.mockResolvedValue([]);
 
       const result = await Template.list();
       expect(result).toEqual([]);
     });
 
     it('should handle response with undefined data', async () => {
-      const mockClient = {
-        listTemplatesWithOptions: jest.fn().mockResolvedValue({
-          body: {
-            requestId: 'req-123',
-            data: undefined,
-          },
-        }),
-      };
-      mockGetClient.mockReturnValue(mockClient);
+      mockClientListTemplates.mockResolvedValue([]);
 
       const result = await Template.list();
       expect(result).toEqual([]);
@@ -752,33 +629,27 @@ describe('Template', () => {
 
   describe('listAll', () => {
     it('should list all templates with pagination', async () => {
-      const mockClient = {
-        listTemplatesWithOptions: jest
-          .fn()
-          .mockResolvedValueOnce({
-            body: {
-              requestId: 'req-123',
-              data: {
-                items: Array.from({ length: 50 }, (_, i) => ({
-                  templateId: `template-${i}`,
-                  templateName: `template-${i}`,
-                })),
-              },
-            },
-          })
-          .mockResolvedValueOnce({
-            body: {
-              requestId: 'req-124',
-              data: {
-                items: Array.from({ length: 10 }, (_, i) => ({
-                  templateId: `template-${50 + i}`,
-                  templateName: `template-${50 + i}`,
-                })),
-              },
-            },
-          }),
-      };
-      mockGetClient.mockReturnValue(mockClient);
+      mockClientListTemplates
+        .mockResolvedValueOnce(
+          Array.from(
+            { length: 50 },
+            (_, i) =>
+              new Template({
+                templateId: `template-${i}`,
+                templateName: `template-${i}`,
+              }),
+          ),
+        )
+        .mockResolvedValueOnce(
+          Array.from(
+            { length: 10 },
+            (_, i) =>
+              new Template({
+                templateId: `template-${50 + i}`,
+                templateName: `template-${50 + i}`,
+              }),
+          ),
+        );
 
       const result = await Template.listAll();
 
@@ -786,20 +657,10 @@ describe('Template', () => {
     });
 
     it('should deduplicate templates', async () => {
-      const mockClient = {
-        listTemplatesWithOptions: jest.fn().mockResolvedValue({
-          body: {
-            requestId: 'req-123',
-            data: {
-              items: [
-                { templateId: 'template-1', templateName: 'template-1' },
-                { templateId: 'template-1', templateName: 'template-1' }, // duplicate
-              ],
-            },
-          },
-        }),
-      };
-      mockGetClient.mockReturnValue(mockClient);
+      mockClientListTemplates.mockResolvedValue([
+        new Template({ templateId: 'template-1', templateName: 'template-1' }),
+        new Template({ templateId: 'template-1', templateName: 'template-1' }), // duplicate
+      ]);
 
       const result = await Template.listAll();
 
@@ -807,20 +668,10 @@ describe('Template', () => {
     });
 
     it('should filter out templates without templateId', async () => {
-      const mockClient = {
-        listTemplatesWithOptions: jest.fn().mockResolvedValue({
-          body: {
-            requestId: 'req-123',
-            data: {
-              items: [
-                { templateId: 'template-1', templateName: 'template-1' },
-                { templateName: 'template-no-id' }, // no templateId
-              ],
-            },
-          },
-        }),
-      };
-      mockGetClient.mockReturnValue(mockClient);
+      mockClientListTemplates.mockResolvedValue([
+        new Template({ templateId: 'template-1', templateName: 'template-1' }),
+        new Template({ templateName: 'template-no-id' }), // no templateId
+      ]);
 
       const result = await Template.listAll();
 
@@ -831,19 +682,11 @@ describe('Template', () => {
   describe('instance methods', () => {
     describe('delete (instance)', () => {
       it('should delete this template', async () => {
-        const mockClient = {
-          deleteTemplateWithOptions: jest.fn().mockResolvedValue({
-            body: {
-              requestId: 'req-123',
-              data: {
-                templateId: 'template-123',
-                templateName: 'test-template',
-                status: 'DELETING',
-              },
-            },
-          }),
-        };
-        mockGetClient.mockReturnValue(mockClient);
+        mockClientDeleteTemplate.mockResolvedValue({
+          templateId: 'template-123',
+          templateName: 'test-template',
+          status: 'DELETING',
+        });
 
         const template = new Template({ templateName: 'test-template' });
         const result = await template.delete();
@@ -862,19 +705,11 @@ describe('Template', () => {
 
     describe('update (instance)', () => {
       it('should update this template', async () => {
-        const mockClient = {
-          updateTemplateWithOptions: jest.fn().mockResolvedValue({
-            body: {
-              requestId: 'req-123',
-              data: {
-                templateId: 'template-123',
-                templateName: 'test-template',
-                cpu: 4,
-              },
-            },
-          }),
-        };
-        mockGetClient.mockReturnValue(mockClient);
+        mockClientUpdateTemplate.mockResolvedValue({
+          templateId: 'template-123',
+          templateName: 'test-template',
+          cpu: 4,
+        });
 
         const template = new Template({
           templateName: 'test-template',
@@ -897,19 +732,11 @@ describe('Template', () => {
 
     describe('refresh (instance)', () => {
       it('should refresh this template', async () => {
-        const mockClient = {
-          getTemplateWithOptions: jest.fn().mockResolvedValue({
-            body: {
-              requestId: 'req-123',
-              data: {
-                templateId: 'template-123',
-                templateName: 'test-template',
-                status: 'READY',
-              },
-            },
-          }),
-        };
-        mockGetClient.mockReturnValue(mockClient);
+        mockClientGetTemplate.mockResolvedValue({
+          templateId: 'template-123',
+          templateName: 'test-template',
+          status: 'READY',
+        });
 
         const template = new Template({
           templateName: 'test-template',
@@ -932,19 +759,11 @@ describe('Template', () => {
 
     describe('waitUntilReady', () => {
       it('should return immediately if already ready', async () => {
-        const mockClient = {
-          getTemplateWithOptions: jest.fn().mockResolvedValue({
-            body: {
-              requestId: 'req-123',
-              data: {
-                templateId: 'template-123',
-                templateName: 'test-template',
-                status: 'READY',
-              },
-            },
-          }),
-        };
-        mockGetClient.mockReturnValue(mockClient);
+        mockClientGetTemplate.mockResolvedValue({
+          templateId: 'template-123',
+          templateName: 'test-template',
+          status: 'READY',
+        });
 
         const template = new Template({
           templateName: 'test-template',
@@ -961,19 +780,11 @@ describe('Template', () => {
       });
 
       it('should call callback callback', async () => {
-        const mockClient = {
-          getTemplateWithOptions: jest.fn().mockResolvedValue({
-            body: {
-              requestId: 'req-123',
-              data: {
-                templateId: 'template-123',
-                templateName: 'test-template',
-                status: 'READY',
-              },
-            },
-          }),
-        };
-        mockGetClient.mockReturnValue(mockClient);
+        mockClientGetTemplate.mockResolvedValue({
+          templateId: 'template-123',
+          templateName: 'test-template',
+          status: 'READY',
+        });
 
         const template = new Template({
           templateName: 'test-template',
@@ -992,20 +803,12 @@ describe('Template', () => {
       });
 
       it('should throw error if template fails', async () => {
-        const mockClient = {
-          getTemplateWithOptions: jest.fn().mockResolvedValue({
-            body: {
-              requestId: 'req-123',
-              data: {
-                templateId: 'template-123',
-                templateName: 'test-template',
-                status: 'CREATE_FAILED',
-                statusReason: 'Resource limit exceeded',
-              },
-            },
-          }),
-        };
-        mockGetClient.mockReturnValue(mockClient);
+        mockClientGetTemplate.mockResolvedValue({
+          templateId: 'template-123',
+          templateName: 'test-template',
+          status: 'CREATE_FAILED',
+          statusReason: 'Resource limit exceeded',
+        });
 
         const template = new Template({
           templateName: 'test-template',
@@ -1020,19 +823,11 @@ describe('Template', () => {
       });
 
       it('should throw timeout error', async () => {
-        const mockClient = {
-          getTemplateWithOptions: jest.fn().mockResolvedValue({
-            body: {
-              requestId: 'req-123',
-              data: {
-                templateId: 'template-123',
-                templateName: 'test-template',
-                status: 'CREATING',
-              },
-            },
-          }),
-        };
-        mockGetClient.mockReturnValue(mockClient);
+        mockClientGetTemplate.mockResolvedValue({
+          templateId: 'template-123',
+          templateName: 'test-template',
+          status: 'CREATING',
+        });
 
         const template = new Template({
           templateName: 'test-template',
@@ -1048,19 +843,11 @@ describe('Template', () => {
       });
 
       it('should use default timeout and interval when not provided', async () => {
-        const mockClient = {
-          getTemplateWithOptions: jest.fn().mockResolvedValue({
-            body: {
-              requestId: 'req-123',
-              data: {
-                templateId: 'template-123',
-                templateName: 'test-template',
-                status: 'READY',
-              },
-            },
-          }),
-        };
-        mockGetClient.mockReturnValue(mockClient);
+        mockClientGetTemplate.mockResolvedValue({
+          templateId: 'template-123',
+          templateName: 'test-template',
+          status: 'READY',
+        });
 
         const template = new Template({
           templateName: 'test-template',
@@ -1073,19 +860,11 @@ describe('Template', () => {
       });
 
       it('should throw timeout error with default timeout message', async () => {
-        const mockClient = {
-          getTemplateWithOptions: jest.fn().mockResolvedValue({
-            body: {
-              requestId: 'req-123',
-              data: {
-                templateId: 'template-123',
-                templateName: 'test-template',
-                status: 'CREATING',
-              },
-            },
-          }),
-        };
-        mockGetClient.mockReturnValue(mockClient);
+        mockClientGetTemplate.mockResolvedValue({
+          templateId: 'template-123',
+          templateName: 'test-template',
+          status: 'CREATING',
+        });
 
         const template = new Template({
           templateName: 'test-template',

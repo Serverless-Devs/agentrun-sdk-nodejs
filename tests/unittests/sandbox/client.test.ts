@@ -46,11 +46,24 @@ jest.mock('../../../src/sandbox/template', () => {
 
 // Mock Sandbox class
 jest.mock('../../../src/sandbox/sandbox', () => {
+  class MockSandbox {
+    sandboxId?: string;
+    templateName?: string;
+    status?: string;
+    _config?: any;
+    
+    constructor(data?: any, config?: any) {
+      Object.assign(this, data);
+      this._config = config;
+    }
+    
+    static get = jest.fn();
+    static fromInnerObject = jest.fn((data, config) => {
+      return new MockSandbox(data, config);
+    });
+  }
   return {
-    Sandbox: {
-      get: jest.fn(),
-      fromInnerObject: jest.fn((data, config) => ({ ...data, _config: config })),
-    },
+    Sandbox: MockSandbox,
   };
 });
 
@@ -442,6 +455,145 @@ describe('SandboxClient', () => {
 
         expect(result).toEqual([]);
       });
+    });
+  });
+
+  describe('Legacy Compatibility', () => {
+    it('should support createTemplate(input) legacy signature', async () => {
+      const input = {
+        templateName: 'legacy-template',
+        templateType: TemplateType.CODE_INTERPRETER,
+      };
+
+      mockControlApi.createTemplate.mockResolvedValue({
+        templateName: 'legacy-template',
+        status: 'Ready',
+      });
+
+      // @ts-ignore
+      await client.createTemplate(input);
+
+      expect(mockControlApi.createTemplate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          input: expect.objectContaining({
+            templateName: 'legacy-template',
+          }),
+        })
+      );
+    });
+
+    it('should support deleteTemplate(name) legacy signature', async () => {
+      const name = 'legacy-template';
+      mockControlApi.deleteTemplate.mockResolvedValue({
+        templateName: name,
+      });
+
+      // @ts-ignore
+      await client.deleteTemplate(name);
+
+      expect(mockControlApi.deleteTemplate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          templateName: name,
+        })
+      );
+    });
+
+    it('should support updateTemplate(name, input) legacy signature', async () => {
+      const name = 'legacy-template';
+      const input = { description: 'updated' };
+      mockControlApi.updateTemplate.mockResolvedValue({
+        templateName: name,
+        ...input,
+      });
+
+      // @ts-ignore
+      await client.updateTemplate(name, input);
+
+      expect(mockControlApi.updateTemplate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          templateName: name,
+          input: expect.objectContaining(input),
+        })
+      );
+    });
+
+    it('should support getTemplate(name) legacy signature', async () => {
+      const name = 'legacy-template';
+      mockControlApi.getTemplate.mockResolvedValue({
+        templateName: name,
+      });
+
+      // @ts-ignore
+      await client.getTemplate(name);
+
+      expect(mockControlApi.getTemplate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          templateName: name,
+        })
+      );
+    });
+
+    it('should support createSandbox(input) legacy signature', async () => {
+      const input = {
+        templateName: 'legacy-template',
+      };
+
+      const mockResult = {
+        sandboxId: 'sb-legacy',
+        state: SandboxState.RUNNING,
+      };
+      mockControlApi.createSandbox.mockResolvedValue(mockResult);
+
+      // @ts-ignore
+      await client.createSandbox(input);
+
+      expect(mockControlApi.createSandbox).toHaveBeenCalledWith(
+        expect.objectContaining({
+          input: expect.objectContaining(input),
+        })
+      );
+    });
+
+    it('should support deleteSandbox(id) legacy signature', async () => {
+      const id = 'sb-legacy';
+      mockControlApi.deleteSandbox.mockResolvedValue({ sandboxId: id });
+
+      // @ts-ignore
+      await client.deleteSandbox(id);
+
+      expect(mockControlApi.deleteSandbox).toHaveBeenCalledWith(
+        expect.objectContaining({
+          sandboxId: id,
+        })
+      );
+    });
+
+    it('should support stopSandbox(id) legacy signature', async () => {
+      const id = 'sb-legacy';
+      mockControlApi.stopSandbox.mockResolvedValue({ sandboxId: id });
+
+      // @ts-ignore
+      await client.stopSandbox(id);
+
+      expect(mockControlApi.stopSandbox).toHaveBeenCalledWith(
+        expect.objectContaining({
+          sandboxId: id,
+        })
+      );
+    });
+
+    it('should support getSandbox(id) legacy signature', async () => {
+      const id = 'sb-legacy';
+      mockControlApi.getSandbox.mockResolvedValue({ sandboxId: id });
+
+      // @ts-ignore
+      await client.getSandbox(id);
+
+      expect(mockControlApi.getSandbox).toHaveBeenCalledWith(
+        expect.objectContaining({
+          sandboxId: id,
+        })
+      );
     });
   });
 });

@@ -154,7 +154,9 @@ describe('Sandbox', () => {
       mockClientCreateSandbox.mockResolvedValue(mockSandbox);
 
       const sandbox = await Sandbox.create({
-        templateName: 'test-template',
+        input: {
+          templateName: 'test-template',
+        },
       });
 
       expect(sandbox.sandboxId).toBe('new-sandbox-123');
@@ -168,7 +170,7 @@ describe('Sandbox', () => {
       );
 
       await expect(
-        Sandbox.create({ templateName: 'non-existent-template' })
+        Sandbox.create({ input: { templateName: 'non-existent-template' } })
       ).rejects.toThrow(ClientError);
     });
   });
@@ -186,7 +188,6 @@ describe('Sandbox', () => {
       expect(result.sandboxId).toBe('sandbox-123');
       expect(mockClientDeleteSandbox).toHaveBeenCalledWith({
         id: 'sandbox-123',
-        config: undefined,
       });
     });
 
@@ -214,7 +215,6 @@ describe('Sandbox', () => {
       expect(result.sandboxId).toBe('sandbox-123');
       expect(mockClientStopSandbox).toHaveBeenCalledWith({
         id: 'sandbox-123',
-        config: undefined,
       });
     });
 
