@@ -62,23 +62,22 @@ jest.mock('@alicloud/tea-util', () => {
   };
 });
 
-// Mock SandboxControlAPI
-const mockControlApi = {
-  createTemplate: jest.fn(),
-  deleteTemplate: jest.fn(),
-  updateTemplate: jest.fn(),
-  getTemplate: jest.fn(),
-  listTemplates: jest.fn(),
-  createSandbox: jest.fn(),
-  deleteSandbox: jest.fn(),
-  stopSandbox: jest.fn(),
-  getSandbox: jest.fn(),
-  listSandboxes: jest.fn(),
-};
+// Mock SandboxClient
+const mockClientCreateTemplate = jest.fn();
+const mockClientDeleteTemplate = jest.fn();
+const mockClientUpdateTemplate = jest.fn();
+const mockClientGetTemplate = jest.fn();
+const mockClientListTemplates = jest.fn();
 
-jest.mock('../../../src/sandbox/api/control', () => {
+jest.mock('../../../src/sandbox/client', () => {
   return {
-    SandboxControlAPI: jest.fn().mockImplementation(() => mockControlApi),
+    SandboxClient: jest.fn().mockImplementation(() => ({
+      createTemplate: mockClientCreateTemplate,
+      deleteTemplate: mockClientDeleteTemplate,
+      updateTemplate: mockClientUpdateTemplate,
+      getTemplate: mockClientGetTemplate,
+      listTemplates: mockClientListTemplates,
+    })),
   };
 });
 
@@ -167,7 +166,7 @@ describe('Template', () => {
       expect(template.diskSize).toBe(512);
     });
 
-    it('should keep invalid numeric strings as-is', () => {
+    it('should set invalid numeric strings to undefined', () => {
       const template = new Template({
         templateId: 'template-456',
         templateName: 'test-template-invalid',
@@ -176,7 +175,7 @@ describe('Template', () => {
 
       (template as unknown as { normalizeNumericFields: () => void }).normalizeNumericFields();
 
-      expect(template.cpu).toBe('not-a-number');
+      expect(template.cpu).toBeUndefined();
     });
 
     it('should handle missing optional fields', () => {
@@ -194,7 +193,7 @@ describe('Template', () => {
 
   describe('create', () => {
     it('should create a new template successfully', async () => {
-      mockControlApi.createTemplate.mockResolvedValue({
+      mockClientCreateTemplate.mockResolvedValue({
         templateId: 'new-template-123',
         templateName: 'test-template',
         templateType: 'CodeInterpreter',
@@ -213,7 +212,7 @@ describe('Template', () => {
     });
 
     it('should apply default values for CODE_INTERPRETER', async () => {
-      mockControlApi.createTemplate.mockResolvedValue({
+      mockClientCreateTemplate.mockResolvedValue({
         templateId: 'new-template-123',
         templateName: 'test-template',
       });
@@ -225,11 +224,11 @@ describe('Template', () => {
         },
       });
 
-      expect(mockControlApi.createTemplate).toHaveBeenCalled();
+      expect(mockClientCreateTemplate).toHaveBeenCalled();
     });
 
     it('should apply default values for BROWSER', async () => {
-      mockControlApi.createTemplate.mockResolvedValue({
+      mockClientCreateTemplate.mockResolvedValue({
         templateId: 'new-template-123',
         templateName: 'browser-template',
         diskSize: 10240,
@@ -242,11 +241,11 @@ describe('Template', () => {
         },
       });
 
-      expect(mockControlApi.createTemplate).toHaveBeenCalled();
+      expect(mockClientCreateTemplate).toHaveBeenCalled();
     });
 
     it('should apply default values for AIO', async () => {
-      mockControlApi.createTemplate.mockResolvedValue({
+      mockClientCreateTemplate.mockResolvedValue({
         templateId: 'new-template-123',
         templateName: 'aio-template',
         diskSize: 10240,
@@ -259,11 +258,11 @@ describe('Template', () => {
         },
       });
 
-      expect(mockControlApi.createTemplate).toHaveBeenCalled();
+      expect(mockClientCreateTemplate).toHaveBeenCalled();
     });
 
     it('should apply default values for CUSTOM', async () => {
-      mockControlApi.createTemplate.mockResolvedValue({
+      mockClientCreateTemplate.mockResolvedValue({
         templateId: 'new-template-123',
         templateName: 'custom-template',
       });
@@ -275,10 +274,16 @@ describe('Template', () => {
         },
       });
 
-      expect(mockControlApi.createTemplate).toHaveBeenCalled();
+      expect(mockClientCreateTemplate).toHaveBeenCalled();
     });
 
     it('should throw error when BROWSER diskSize is not 10240', async () => {
+      mockClientCreateTemplate.mockRejectedValue(
+        new Error(
+          'When templateType is BROWSER or AIO, diskSize must be 10240, got 512',
+        ),
+      );
+
       await expect(
         Template.create({
           input: {
@@ -286,13 +291,19 @@ describe('Template', () => {
             templateType: TemplateType.BROWSER,
             diskSize: 512,
           },
-        })
+        }),
       ).rejects.toThrow(
-        'When templateType is BROWSER or AIO, diskSize must be 10240'
+        'When templateType is BROWSER or AIO, diskSize must be 10240',
       );
     });
 
     it('should throw error when CODE_INTERPRETER uses PRIVATE network', async () => {
+      mockClientCreateTemplate.mockRejectedValue(
+        new Error(
+          'When templateType is CODE_INTERPRETER or AIO, networkMode cannot be PRIVATE',
+        ),
+      );
+
       await expect(
         Template.create({
           input: {
@@ -302,14 +313,14 @@ describe('Template', () => {
               networkMode: TemplateNetworkMode.PRIVATE,
             },
           },
-        })
+        }),
       ).rejects.toThrow(
-        'When templateType is CODE_INTERPRETER or AIO, networkMode cannot be PRIVATE'
+        'When templateType is CODE_INTERPRETER or AIO, networkMode cannot be PRIVATE',
       );
     });
 
     it('should create template without networkConfiguration (uses default)', async () => {
-      mockControlApi.createTemplate.mockResolvedValue({
+      mockClientCreateTemplate.mockResolvedValue({
         templateId: 'new-template-123',
         templateName: 'test-template',
       });
@@ -327,7 +338,7 @@ describe('Template', () => {
     });
 
     it('should create template with networkConfiguration (PUBLIC mode for BROWSER)', async () => {
-      mockControlApi.createTemplate.mockResolvedValue({
+      mockClientCreateTemplate.mockResolvedValue({
         templateId: 'new-template-123',
         templateName: 'network-template',
       });
@@ -345,7 +356,7 @@ describe('Template', () => {
 
       expect(template.templateId).toBe('new-template-123');
       // Verify that the networkConfiguration was passed correctly
-      expect(mockControlApi.createTemplate).toHaveBeenCalledWith(
+      expect(mockClientCreateTemplate).toHaveBeenCalledWith(
         expect.objectContaining({
           input: expect.objectContaining({
             networkConfiguration: expect.objectContaining({
@@ -357,7 +368,7 @@ describe('Template', () => {
     });
 
     it('should create template with CUSTOM type and container configuration', async () => {
-      mockControlApi.createTemplate.mockResolvedValue({
+      mockClientCreateTemplate.mockResolvedValue({
         templateId: 'custom-template-123',
         templateName: 'custom-container-template',
       });
@@ -382,7 +393,7 @@ describe('Template', () => {
 
   describe('delete', () => {
     it('should delete template successfully', async () => {
-      mockControlApi.deleteTemplate.mockResolvedValue({
+      mockClientDeleteTemplate.mockResolvedValue({
         templateId: 'template-123',
         templateName: 'test-template',
         status: 'DELETING',
@@ -394,7 +405,7 @@ describe('Template', () => {
     });
 
     it('should handle HTTPError on delete', async () => {
-      mockControlApi.deleteTemplate.mockRejectedValue(
+      mockClientDeleteTemplate.mockRejectedValue(
         new HTTPError(404, 'Not Found')
       );
 
@@ -404,7 +415,7 @@ describe('Template', () => {
     });
 
     it('should handle error with empty message (Unknown error fallback)', async () => {
-      mockControlApi.deleteTemplate.mockRejectedValue(
+      mockClientDeleteTemplate.mockRejectedValue(
         new ClientError(404, '', { requestId: 'req-123' })
       );
 
@@ -416,7 +427,7 @@ describe('Template', () => {
 
   describe('update error handling', () => {
     it('should handle HTTPError on update', async () => {
-      mockControlApi.updateTemplate.mockRejectedValue(
+      mockClientUpdateTemplate.mockRejectedValue(
         new HTTPError(404, 'Not Found')
       );
 
@@ -426,7 +437,7 @@ describe('Template', () => {
     });
 
     it('should call handleError for non-HTTPError on update', async () => {
-      mockControlApi.updateTemplate.mockRejectedValue(
+      mockClientUpdateTemplate.mockRejectedValue(
         new ServerError(500, 'Internal Server Error', { requestId: 'req-123' })
       );
 
@@ -438,7 +449,7 @@ describe('Template', () => {
 
   describe('get error handling', () => {
     it('should handle HTTPError on get', async () => {
-      mockControlApi.getTemplate.mockRejectedValue(
+      mockClientGetTemplate.mockRejectedValue(
         new HTTPError(404, 'Not Found')
       );
 
@@ -446,7 +457,7 @@ describe('Template', () => {
     });
 
     it('should call handleError for non-HTTPError on get', async () => {
-      mockControlApi.getTemplate.mockRejectedValue(
+      mockClientGetTemplate.mockRejectedValue(
         new ClientError(400, 'Bad Request', { requestId: 'req-123' })
       );
 
@@ -458,7 +469,7 @@ describe('Template', () => {
 
   describe('create error handling', () => {
     it('should handle HTTPError on create', async () => {
-      mockControlApi.createTemplate.mockRejectedValue(
+      mockClientCreateTemplate.mockRejectedValue(
         new HTTPError(400, 'Bad Request')
       );
 
@@ -473,7 +484,7 @@ describe('Template', () => {
     });
 
     it('should call handleError for non-HTTPError on create', async () => {
-      mockControlApi.createTemplate.mockRejectedValue(
+      mockClientCreateTemplate.mockRejectedValue(
         new ServerError(500, 'Internal Server Error', { requestId: 'req-123' })
       );
 
@@ -490,7 +501,7 @@ describe('Template', () => {
 
   describe('delete error handling', () => {
     it('should call handleError for non-HTTPError on delete', async () => {
-      mockControlApi.deleteTemplate.mockRejectedValue(
+      mockClientDeleteTemplate.mockRejectedValue(
         new ClientError(404, 'Not Found', { requestId: 'req-123' })
       );
 
@@ -502,7 +513,7 @@ describe('Template', () => {
 
   describe('update', () => {
     it('should update template successfully', async () => {
-      mockControlApi.updateTemplate.mockResolvedValue({
+      mockClientUpdateTemplate.mockResolvedValue({
         templateId: 'template-123',
         templateName: 'test-template',
         cpu: 4,
@@ -517,7 +528,7 @@ describe('Template', () => {
     });
 
     it('should update template with networkConfiguration', async () => {
-      mockControlApi.updateTemplate.mockResolvedValue({
+      mockClientUpdateTemplate.mockResolvedValue({
         templateId: 'template-123',
         templateName: 'test-template',
       });
@@ -535,7 +546,7 @@ describe('Template', () => {
     });
 
     it('should update template without networkConfiguration', async () => {
-      mockControlApi.updateTemplate.mockResolvedValue({
+      mockClientUpdateTemplate.mockResolvedValue({
         templateId: 'template-123',
         templateName: 'test-template',
       });
@@ -551,7 +562,7 @@ describe('Template', () => {
 
   describe('get', () => {
     it('should get template successfully', async () => {
-      mockControlApi.getTemplate.mockResolvedValue({
+      mockClientGetTemplate.mockResolvedValue({
         templateId: 'template-123',
         templateName: 'test-template',
         status: 'READY',
@@ -566,12 +577,10 @@ describe('Template', () => {
 
   describe('list', () => {
     it('should list templates successfully', async () => {
-      mockControlApi.listTemplates.mockResolvedValue({
-        items: [
-          { templateId: 'template-1', templateName: 'template-1' },
-          { templateId: 'template-2', templateName: 'template-2' },
-        ],
-      });
+      mockClientListTemplates.mockResolvedValue([
+        new Template({ templateId: 'template-1', templateName: 'template-1' }),
+        new Template({ templateId: 'template-2', templateName: 'template-2' }),
+      ]);
 
       const result = await Template.list();
 
@@ -580,9 +589,7 @@ describe('Template', () => {
     });
 
     it('should handle empty list', async () => {
-      mockControlApi.listTemplates.mockResolvedValue({
-        items: [],
-      });
+      mockClientListTemplates.mockResolvedValue([]);
 
       const result = await Template.list();
 
@@ -590,7 +597,7 @@ describe('Template', () => {
     });
 
     it('should handle API error with 4xx status', async () => {
-      mockControlApi.listTemplates.mockRejectedValue(
+      mockClientListTemplates.mockRejectedValue(
         new ClientError(400, 'Bad Request', { requestId: 'req-123' })
       );
 
@@ -598,7 +605,7 @@ describe('Template', () => {
     });
 
     it('should handle API error with 5xx status', async () => {
-      mockControlApi.listTemplates.mockRejectedValue(
+      mockClientListTemplates.mockRejectedValue(
         new ServerError(500, 'Internal Server Error', { requestId: 'req-123' })
       );
 
@@ -606,16 +613,14 @@ describe('Template', () => {
     });
 
     it('should handle response with null items array', async () => {
-      mockControlApi.listTemplates.mockResolvedValue({
-        items: null,
-      });
+      mockClientListTemplates.mockResolvedValue([]);
 
       const result = await Template.list();
       expect(result).toEqual([]);
     });
 
     it('should handle response with undefined data', async () => {
-      mockControlApi.listTemplates.mockResolvedValue(undefined);
+      mockClientListTemplates.mockResolvedValue([]);
 
       const result = await Template.list();
       expect(result).toEqual([]);
@@ -624,19 +629,27 @@ describe('Template', () => {
 
   describe('listAll', () => {
     it('should list all templates with pagination', async () => {
-      mockControlApi.listTemplates
-        .mockResolvedValueOnce({
-          items: Array.from({ length: 50 }, (_, i) => ({
-            templateId: `template-${i}`,
-            templateName: `template-${i}`,
-          })),
-        })
-        .mockResolvedValueOnce({
-          items: Array.from({ length: 10 }, (_, i) => ({
-            templateId: `template-${50 + i}`,
-            templateName: `template-${50 + i}`,
-          })),
-        });
+      mockClientListTemplates
+        .mockResolvedValueOnce(
+          Array.from(
+            { length: 50 },
+            (_, i) =>
+              new Template({
+                templateId: `template-${i}`,
+                templateName: `template-${i}`,
+              }),
+          ),
+        )
+        .mockResolvedValueOnce(
+          Array.from(
+            { length: 10 },
+            (_, i) =>
+              new Template({
+                templateId: `template-${50 + i}`,
+                templateName: `template-${50 + i}`,
+              }),
+          ),
+        );
 
       const result = await Template.listAll();
 
@@ -644,12 +657,10 @@ describe('Template', () => {
     });
 
     it('should deduplicate templates', async () => {
-      mockControlApi.listTemplates.mockResolvedValue({
-        items: [
-          { templateId: 'template-1', templateName: 'template-1' },
-          { templateId: 'template-1', templateName: 'template-1' }, // duplicate
-        ],
-      });
+      mockClientListTemplates.mockResolvedValue([
+        new Template({ templateId: 'template-1', templateName: 'template-1' }),
+        new Template({ templateId: 'template-1', templateName: 'template-1' }), // duplicate
+      ]);
 
       const result = await Template.listAll();
 
@@ -657,12 +668,10 @@ describe('Template', () => {
     });
 
     it('should filter out templates without templateId', async () => {
-      mockControlApi.listTemplates.mockResolvedValue({
-        items: [
-          { templateId: 'template-1', templateName: 'template-1' },
-          { templateName: 'template-no-id' }, // no templateId
-        ],
-      });
+      mockClientListTemplates.mockResolvedValue([
+        new Template({ templateId: 'template-1', templateName: 'template-1' }),
+        new Template({ templateName: 'template-no-id' }), // no templateId
+      ]);
 
       const result = await Template.listAll();
 
@@ -673,7 +682,7 @@ describe('Template', () => {
   describe('instance methods', () => {
     describe('delete (instance)', () => {
       it('should delete this template', async () => {
-        mockControlApi.deleteTemplate.mockResolvedValue({
+        mockClientDeleteTemplate.mockResolvedValue({
           templateId: 'template-123',
           templateName: 'test-template',
           status: 'DELETING',
@@ -696,7 +705,7 @@ describe('Template', () => {
 
     describe('update (instance)', () => {
       it('should update this template', async () => {
-        mockControlApi.updateTemplate.mockResolvedValue({
+        mockClientUpdateTemplate.mockResolvedValue({
           templateId: 'template-123',
           templateName: 'test-template',
           cpu: 4,
@@ -723,7 +732,7 @@ describe('Template', () => {
 
     describe('refresh (instance)', () => {
       it('should refresh this template', async () => {
-        mockControlApi.getTemplate.mockResolvedValue({
+        mockClientGetTemplate.mockResolvedValue({
           templateId: 'template-123',
           templateName: 'test-template',
           status: 'READY',
@@ -750,7 +759,7 @@ describe('Template', () => {
 
     describe('waitUntilReady', () => {
       it('should return immediately if already ready', async () => {
-        mockControlApi.getTemplate.mockResolvedValue({
+        mockClientGetTemplate.mockResolvedValue({
           templateId: 'template-123',
           templateName: 'test-template',
           status: 'READY',
@@ -771,7 +780,7 @@ describe('Template', () => {
       });
 
       it('should call callback callback', async () => {
-        mockControlApi.getTemplate.mockResolvedValue({
+        mockClientGetTemplate.mockResolvedValue({
           templateId: 'template-123',
           templateName: 'test-template',
           status: 'READY',
@@ -794,7 +803,7 @@ describe('Template', () => {
       });
 
       it('should throw error if template fails', async () => {
-        mockControlApi.getTemplate.mockResolvedValue({
+        mockClientGetTemplate.mockResolvedValue({
           templateId: 'template-123',
           templateName: 'test-template',
           status: 'CREATE_FAILED',
@@ -814,7 +823,7 @@ describe('Template', () => {
       });
 
       it('should throw timeout error', async () => {
-        mockControlApi.getTemplate.mockResolvedValue({
+        mockClientGetTemplate.mockResolvedValue({
           templateId: 'template-123',
           templateName: 'test-template',
           status: 'CREATING',
@@ -834,7 +843,7 @@ describe('Template', () => {
       });
 
       it('should use default timeout and interval when not provided', async () => {
-        mockControlApi.getTemplate.mockResolvedValue({
+        mockClientGetTemplate.mockResolvedValue({
           templateId: 'template-123',
           templateName: 'test-template',
           status: 'READY',
@@ -851,7 +860,7 @@ describe('Template', () => {
       });
 
       it('should throw timeout error with default timeout message', async () => {
-        mockControlApi.getTemplate.mockResolvedValue({
+        mockClientGetTemplate.mockResolvedValue({
           templateId: 'template-123',
           templateName: 'test-template',
           status: 'CREATING',

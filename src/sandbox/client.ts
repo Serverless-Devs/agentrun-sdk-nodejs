@@ -340,13 +340,8 @@ export class SandboxClient {
     let templateType: TemplateType | undefined;
     let config: Config | undefined;
 
-    if ('templateName' in arg1) {
-      logger.warn(
-        'Deprecated: createSandbox(input, config) is deprecated. Use createSandbox({ input, config }) instead.',
-      );
-      input = arg1 as SandboxCreateInput;
-      config = arg2;
-    } else {
+    if ('input' in arg1) {
+      // New API: createSandbox({ input, templateType?, config? })
       const params = arg1 as {
         input: SandboxCreateInput;
         templateType?: TemplateType;
@@ -355,6 +350,13 @@ export class SandboxClient {
       input = params.input;
       templateType = params.templateType;
       config = params.config;
+    } else {
+      // Legacy API: createSandbox(input, config?)
+      logger.warn(
+        'Deprecated: createSandbox(input, config) is deprecated. Use createSandbox({ input, config }) instead.',
+      );
+      input = arg1 as SandboxCreateInput;
+      config = arg2;
     }
 
     const cfg = Config.withConfigs(this.config, config);
@@ -483,18 +485,23 @@ export class SandboxClient {
     (params: { id: string; config?: Config }): Promise<Sandbox>;
     /** @deprecated Use stopSandbox({ id, config }) instead. */
     (id: string, config?: Config): Promise<Sandbox>;
-  } = async (...args: any[]): Promise<Sandbox> => {
-    let params: { id: string; config?: Config } = args?.[0];
+  } = async (
+    arg1: { id: string; config?: Config } | string,
+    arg2?: Config,
+  ): Promise<Sandbox> => {
+    let id: string;
+    let config: Config | undefined;
 
-    if (typeof args[0] === 'string') {
+    if (typeof arg1 === 'string') {
       logger.warn(
         'Deprecated: stopSandbox(id, config) is deprecated. Use stopSandbox({ id, config }) instead.',
       );
-
-      params = { id: args[0], config: args[1] };
+      id = arg1;
+      config = arg2;
+    } else {
+      id = arg1.id;
+      config = arg1.config;
     }
-
-    const { id, config } = params;
 
     const cfg = Config.withConfigs(this.config, config);
 

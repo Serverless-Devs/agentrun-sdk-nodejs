@@ -251,16 +251,15 @@ export class Template extends ResourceBase implements TemplateData {
       return undefined;
     };
 
-    this.sandboxIdleTimeoutInSeconds =
-      toNumber(this.sandboxIdleTimeoutInSeconds) ??
-      this.sandboxIdleTimeoutInSeconds;
-    this.sandboxTtlInSeconds =
-      toNumber(this.sandboxTtlInSeconds) ?? this.sandboxTtlInSeconds;
-    this.shareConcurrencyLimitPerSandbox =
-      toNumber(this.shareConcurrencyLimitPerSandbox) ??
-      this.shareConcurrencyLimitPerSandbox;
-    this.cpu = toNumber(this.cpu) ?? this.cpu;
-    this.memory = toNumber(this.memory) ?? this.memory;
-    this.diskSize = toNumber(this.diskSize) ?? this.diskSize;
+    this.sandboxIdleTimeoutInSeconds = toNumber(
+      this.sandboxIdleTimeoutInSeconds,
+    );
+    this.sandboxTtlInSeconds = toNumber(this.sandboxTtlInSeconds);
+    this.shareConcurrencyLimitPerSandbox = toNumber(
+      this.shareConcurrencyLimitPerSandbox,
+    );
+    this.cpu = toNumber(this.cpu);
+    this.memory = toNumber(this.memory);
+    this.diskSize = toNumber(this.diskSize);
   }
 }

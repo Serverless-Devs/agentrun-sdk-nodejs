@@ -175,7 +175,15 @@ export class Sandbox extends ResourceBase implements SandboxData {
       | SandboxCreateInput,
     arg2?: Config,
   ): Promise<Sandbox> {
-    return await Sandbox.getClient().createSandbox(arg1 as any, arg2);
+    if (typeof arg1 === 'object' && arg1 !== null && 'input' in arg1) {
+      // New API: create({ input, templateType?, config? })
+      return await Sandbox.getClient().createSandbox(arg1);
+    }
+    // Legacy API: create(input, config?)
+    logger.warn(
+      'Deprecated: Sandbox.create(input, config) is deprecated. Use Sandbox.create({ input, config }) instead.',
+    );
+    return await Sandbox.getClient().createSandbox(arg1 as SandboxCreateInput, arg2);
   }
 
   /**
@@ -193,6 +201,9 @@ export class Sandbox extends ResourceBase implements SandboxData {
   ): Promise<Sandbox> {
     if (typeof arg1 === 'string') {
       // Legacy API: delete(id, config?)
+      logger.warn(
+        'Sandbox.delete(id, config) is deprecated. Use Sandbox.delete({ id, config }) instead.',
+      );
       return await Sandbox.getClient().deleteSandbox(arg1, arg2);
     }
     // New API: delete({ id, config })
@@ -211,6 +222,9 @@ export class Sandbox extends ResourceBase implements SandboxData {
   ): Promise<Sandbox> {
     if (typeof arg1 === 'string') {
       // Legacy API: stop(id, config?)
+      logger.warn(
+        'Sandbox.stop(id, config) is deprecated. Use Sandbox.stop({ id, config }) instead.',
+      );
       return await Sandbox.getClient().stopSandbox(arg1, arg2);
     }
     // New API: stop({ id, config })
@@ -347,9 +361,13 @@ export class Sandbox extends ResourceBase implements SandboxData {
         ('maxResults' in arg1 ||
           'nextToken' in arg1 ||
           'status' in arg1 ||
-          'templateName' in arg1))
+          'templateName' in arg1 ||
+          'templateType' in arg1))
     ) {
       // Legacy API: list(input, config?)
+      logger.warn(
+        'Deprecated: Sandbox.list(input, config) is deprecated. Use Sandbox.list({ input, config }) instead.',
+      );
       return await Sandbox.getClient().listSandboxes(
         arg1 as SandboxListInput,
         arg2,
