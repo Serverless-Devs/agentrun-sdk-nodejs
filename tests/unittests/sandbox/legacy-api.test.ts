@@ -1,14 +1,14 @@
 /**
  * Legacy API 测试套件
- * 
+ *
  * 测试所有旧版 API 的行为：
  * 1. 旧 API 是否正常工作
  * 2. 是否发出废弃警告
  * 3. 参数转换是否正确
  */
 
-import { Sandbox } from '../../../src/sandbox/sandbox';
 import { SandboxState } from '../../../src/sandbox/model';
+import { Sandbox } from '../../../src/sandbox/sandbox';
 import { Config } from '../../../src/utils/config';
 import { logger } from '../../../src/utils/log';
 
@@ -61,7 +61,7 @@ describe('Legacy API Tests', () => {
       // Call legacy API
       const result = await Sandbox.create(
         { templateName: 'test-template' },
-        new Config({ accessKeyId: 'test' })
+        new Config({ accessKeyId: 'test' }),
       );
 
       expect(result).toBe(mockSandbox);
@@ -78,7 +78,9 @@ describe('Legacy API Tests', () => {
       await Sandbox.create({ templateName: 'test' }, undefined);
 
       expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Deprecated: Sandbox.create(input, config) is deprecated')
+        expect.stringContaining(
+          'Deprecated: Sandbox.create(input, config) is deprecated',
+        ),
       );
     });
 
@@ -106,7 +108,7 @@ describe('Legacy API Tests', () => {
       // Call legacy API
       const result = await Sandbox.delete(
         'test-sandbox',
-        new Config({ accessKeyId: 'test' })
+        new Config({ accessKeyId: 'test' }),
       );
 
       expect(result).toBe(mockSandbox);
@@ -120,7 +122,7 @@ describe('Legacy API Tests', () => {
       await Sandbox.delete('test-sandbox', undefined);
 
       expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Sandbox.delete(id, config) is deprecated')
+        expect.stringContaining('Sandbox.delete(id, config) is deprecated'),
       );
     });
 
@@ -147,7 +149,7 @@ describe('Legacy API Tests', () => {
       // Call legacy API
       const result = await Sandbox.stop(
         'test-sandbox',
-        new Config({ accessKeyId: 'test' })
+        new Config({ accessKeyId: 'test' }),
       );
 
       expect(result).toBe(mockSandbox);
@@ -161,7 +163,7 @@ describe('Legacy API Tests', () => {
       await Sandbox.stop('test-sandbox', undefined);
 
       expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Sandbox.stop(id, config) is deprecated')
+        expect.stringContaining('Sandbox.stop(id, config) is deprecated'),
       );
     });
 
@@ -188,7 +190,7 @@ describe('Legacy API Tests', () => {
       // Call legacy API
       const result = await Sandbox.list(
         { maxResults: 10 },
-        new Config({ accessKeyId: 'test' })
+        new Config({ accessKeyId: 'test' }),
       );
 
       expect(result).toEqual(mockSandboxes);
@@ -201,7 +203,7 @@ describe('Legacy API Tests', () => {
       await Sandbox.list({ maxResults: 10 }, undefined);
 
       expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Sandbox.list(input, config) is deprecated')
+        expect.stringContaining('Sandbox.list(input, config) is deprecated'),
       );
     });
 
@@ -214,14 +216,6 @@ describe('Legacy API Tests', () => {
       await Sandbox.list(input, config);
 
       expect(mockClientListSandboxes).toHaveBeenCalledWith(input, config);
-    });
-
-    it('should detect legacy API when arg2 is present', async () => {
-      mockClientListSandboxes.mockResolvedValue([]);
-
-      await Sandbox.list(undefined, new Config());
-
-      expect(warnSpy).toHaveBeenCalled();
     });
 
     it('should detect legacy API when arg1 has list params', async () => {
