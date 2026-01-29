@@ -14,15 +14,13 @@
  */
 
 import * as fs from 'fs/promises';
-import * as path from 'path';
 
 import {
   CodeInterpreterSandbox,
   CodeLanguage,
-  Sandbox,
   SandboxClient,
   Template,
-  TemplateType,
+  TemplateType
 } from '../src/index';
 import { logger } from '../src/utils/log';
 
