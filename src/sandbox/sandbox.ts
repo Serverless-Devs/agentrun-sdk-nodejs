@@ -9,7 +9,6 @@ import { ClientError, HTTPError } from '@/utils';
 import { logger } from '../utils/log';
 import { Config } from '../utils/config';
 import { ResourceBase, updateObjectProperties } from '../utils/resource';
-import type { SandboxClient } from './client';
 
 import {
   SandboxCreateInput,
@@ -23,6 +22,7 @@ import type { AioSandbox } from './aio-sandbox';
 import type { BrowserSandbox } from './browser-sandbox';
 import type { CodeInterpreterSandbox } from './code-interpreter-sandbox';
 import type { CustomSandbox } from './custom-sandbox';
+import type { SandboxClient } from './client';
 
 /**
  * Base Sandbox resource class
@@ -122,12 +122,12 @@ export class Sandbox extends ResourceBase implements SandboxData {
     );
   }
 
-  private static getClient() {
+  private static getClient(): SandboxClient {
     // lazy-require to avoid circular runtime import between sandbox <-> client
     // keep this dynamic require so module initialization order doesn't break
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { SandboxClient: SandboxClientCtor } = require('./client');
-    return new SandboxClientCtor();
+    const { SandboxClient } = require('./client') as { SandboxClient: new () => SandboxClient };
+    return new SandboxClient();
   }
 
   /**
@@ -191,7 +191,12 @@ export class Sandbox extends ResourceBase implements SandboxData {
     arg1: { id: string; config?: Config } | string,
     arg2?: Config,
   ): Promise<Sandbox> {
-    return await Sandbox.getClient().deleteSandbox(arg1 as any, arg2);
+    if (typeof arg1 === 'string') {
+      // Legacy API: delete(id, config?)
+      return await Sandbox.getClient().deleteSandbox(arg1, arg2);
+    }
+    // New API: delete({ id, config })
+    return await Sandbox.getClient().deleteSandbox(arg1);
   }
 
   /**
@@ -204,7 +209,12 @@ export class Sandbox extends ResourceBase implements SandboxData {
     arg1: { id: string; config?: Config } | string,
     arg2?: Config,
   ): Promise<Sandbox> {
-    return await Sandbox.getClient().stopSandbox(arg1 as any, arg2);
+    if (typeof arg1 === 'string') {
+      // Legacy API: stop(id, config?)
+      return await Sandbox.getClient().stopSandbox(arg1, arg2);
+    }
+    // New API: stop({ id, config })
+    return await Sandbox.getClient().stopSandbox(arg1);
   }
 
   /**
@@ -330,7 +340,25 @@ export class Sandbox extends ResourceBase implements SandboxData {
     arg1?: SandboxListInput | { input?: SandboxListInput; config?: Config },
     arg2?: Config,
   ): Promise<Sandbox[]> {
-    return await Sandbox.getClient().listSandboxes(arg1 as any, arg2);
+    // Check if using legacy API (arg1 is input object with list params)
+    if (
+      arg2 !== undefined ||
+      (arg1 &&
+        ('maxResults' in arg1 ||
+          'nextToken' in arg1 ||
+          'status' in arg1 ||
+          'templateName' in arg1))
+    ) {
+      // Legacy API: list(input, config?)
+      return await Sandbox.getClient().listSandboxes(
+        arg1 as SandboxListInput,
+        arg2,
+      );
+    }
+    // New API: list({ input, config }) or list()
+    return await Sandbox.getClient().listSandboxes(
+      arg1 as { input?: SandboxListInput; config?: Config },
+    );
   }
 
   get = async (params?: { config?: Config }) => {

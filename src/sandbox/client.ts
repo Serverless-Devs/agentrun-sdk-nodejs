@@ -11,8 +11,10 @@ import { HTTPError } from '../utils/exception';
 import { logger } from '../utils/log';
 import { SandboxControlAPI } from './api/control';
 
+import { AioSandbox } from './aio-sandbox';
 import { BrowserSandbox } from './browser-sandbox';
 import { CodeInterpreterSandbox } from './code-interpreter-sandbox';
+import { CustomSandbox } from './custom-sandbox';
 import {
   NASConfig,
   OSSMountConfig,
@@ -28,8 +30,6 @@ import {
 } from './model';
 import { Sandbox } from './sandbox';
 import { Template } from './template';
-import { AioSandbox } from './aio-sandbox';
-import { CustomSandbox } from './custom-sandbox';
 
 /**
  * Sandbox Client
@@ -268,7 +268,7 @@ export class SandboxClient {
     if (
       arg2 ||
       (arg1 &&
-        ('maxResults' in arg1 || 'nextToken' in arg1 || 'templateType' in arg1))
+        ('pageNumber' in arg1 || 'pageSize' in arg1 || 'templateType' in arg1))
     ) {
       logger.warn(
         'Deprecated: listTemplates(input, config) is deprecated. Use listTemplates({ input, config }) instead.',
@@ -483,23 +483,18 @@ export class SandboxClient {
     (params: { id: string; config?: Config }): Promise<Sandbox>;
     /** @deprecated Use stopSandbox({ id, config }) instead. */
     (id: string, config?: Config): Promise<Sandbox>;
-  } = async (
-    arg1: { id: string; config?: Config } | string,
-    arg2?: Config,
-  ): Promise<Sandbox> => {
-    let id: string;
-    let config: Config | undefined;
+  } = async (...args: any[]): Promise<Sandbox> => {
+    let params: { id: string; config?: Config } = args?.[0];
 
-    if (typeof arg1 === 'string') {
+    if (typeof args[0] === 'string') {
       logger.warn(
         'Deprecated: stopSandbox(id, config) is deprecated. Use stopSandbox({ id, config }) instead.',
       );
-      id = arg1;
-      config = arg2;
-    } else {
-      id = arg1.id;
-      config = arg1.config;
+
+      params = { id: args[0], config: args[1] };
     }
+
+    const { id, config } = params;
 
     const cfg = Config.withConfigs(this.config, config);
 
