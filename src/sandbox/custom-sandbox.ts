@@ -37,19 +37,17 @@ export class CustomSandbox extends Sandbox {
     },
     config?: Config
   ): Promise<CustomSandbox> {
-    const sandbox = await Sandbox.create(
-      {
+    return (await Sandbox.create({
+      input: {
         templateName,
         sandboxIdleTimeoutSeconds: options?.sandboxIdleTimeoutSeconds,
         nasConfig: options?.nasConfig,
         ossMountConfig: options?.ossMountConfig,
         polarFsConfig: options?.polarFsConfig,
       },
-      config
-    );
-
-    const customSandbox = new CustomSandbox(sandbox, config);
-    return customSandbox;
+      templateType: TemplateType.CUSTOM,
+      config,
+    })) as CustomSandbox;
   }
 
   constructor(sandbox: Sandbox, config?: Config) {

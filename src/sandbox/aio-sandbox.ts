@@ -311,19 +311,19 @@ export class AioSandbox extends Sandbox {
     },
     config?: Config
   ): Promise<AioSandbox> {
-    const sandbox = await Sandbox.create(
-      {
+    const sandbox = await Sandbox.create({
+      input: {
         templateName,
         sandboxIdleTimeoutSeconds: options?.sandboxIdleTimeoutSeconds,
         nasConfig: options?.nasConfig,
         ossMountConfig: options?.ossMountConfig,
         polarFsConfig: options?.polarFsConfig,
       },
-      config
-    );
+      templateType: TemplateType.AIO,
+      config,
+    });
 
-    const aioSandbox = new AioSandbox(sandbox, config);
-    return aioSandbox;
+    return sandbox as AioSandbox;
   }
 
   constructor(sandbox: Sandbox, config?: Config) {
