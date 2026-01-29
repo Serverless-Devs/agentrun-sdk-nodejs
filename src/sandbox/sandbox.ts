@@ -6,8 +6,10 @@
  */
 
 import { ClientError, HTTPError } from '@/utils';
+import { logger } from '../utils/log';
 import { Config } from '../utils/config';
 import { ResourceBase, updateObjectProperties } from '../utils/resource';
+import type { SandboxClient } from './client';
 
 import {
   SandboxCreateInput,
@@ -17,6 +19,10 @@ import {
   TemplateType,
 } from './model';
 import { SandboxDataAPI } from './api/sandbox-data';
+import type { AioSandbox } from './aio-sandbox';
+import type { BrowserSandbox } from './browser-sandbox';
+import type { CodeInterpreterSandbox } from './code-interpreter-sandbox';
+import type { CustomSandbox } from './custom-sandbox';
 
 /**
  * Base Sandbox resource class
@@ -112,25 +118,64 @@ export class Sandbox extends ResourceBase implements SandboxData {
         sandboxArn: obj.sandboxArn,
         sandboxIdleTTLInSeconds: obj.sandboxIdleTTLInSeconds,
       },
-      config
+      config,
     );
   }
 
   private static getClient() {
+    // lazy-require to avoid circular runtime import between sandbox <-> client
+    // keep this dynamic require so module initialization order doesn't break
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { SandboxClient } = require('./client');
-    return new SandboxClient();
+    const { SandboxClient: SandboxClientCtor } = require('./client');
+    return new SandboxClientCtor();
   }
 
   /**
    * Create a new Sandbox
    * 创建新沙箱 / Create a New Sandbox
    */
+  static async create(params: {
+    input: SandboxCreateInput;
+    templateType: TemplateType.AIO;
+    config?: Config;
+  }): Promise<AioSandbox>;
+  static async create(params: {
+    input: SandboxCreateInput;
+    templateType: TemplateType.BROWSER;
+    config?: Config;
+  }): Promise<BrowserSandbox>;
+  static async create(params: {
+    input: SandboxCreateInput;
+    templateType: TemplateType.CODE_INTERPRETER;
+    config?: Config;
+  }): Promise<CodeInterpreterSandbox>;
+  static async create(params: {
+    input: SandboxCreateInput;
+    templateType: TemplateType.CUSTOM;
+    config?: Config;
+  }): Promise<CustomSandbox>;
+  static async create(params: {
+    input: SandboxCreateInput;
+    templateType?: TemplateType;
+    config?: Config;
+  }): Promise<Sandbox>;
+  /** @deprecated Use create({ input, config }) instead. */
   static async create(
     input: SandboxCreateInput,
-    config?: Config
+    config?: Config,
+  ): Promise<Sandbox>;
+
+  static async create(
+    arg1:
+      | {
+          input: SandboxCreateInput;
+          templateType?: TemplateType;
+          config?: Config;
+        }
+      | SandboxCreateInput,
+    arg2?: Config,
   ): Promise<Sandbox> {
-    return await Sandbox.getClient().createSandbox({ input, config });
+    return await Sandbox.getClient().createSandbox(arg1 as any, arg2);
   }
 
   /**
@@ -139,17 +184,27 @@ export class Sandbox extends ResourceBase implements SandboxData {
   static async delete(params: {
     id: string;
     config?: Config;
-  }): Promise<Sandbox> {
-    const { id, config } = params;
-    return await Sandbox.getClient().deleteSandbox({ id, config });
+  }): Promise<Sandbox>;
+  /** @deprecated Use delete({ id, config }) instead. */
+  static async delete(id: string, config?: Config): Promise<Sandbox>;
+  static async delete(
+    arg1: { id: string; config?: Config } | string,
+    arg2?: Config,
+  ): Promise<Sandbox> {
+    return await Sandbox.getClient().deleteSandbox(arg1 as any, arg2);
   }
 
   /**
    * Stop a Sandbox by ID
    */
-  static async stop(params: { id: string; config?: Config }): Promise<Sandbox> {
-    const { id, config } = params;
-    return await Sandbox.getClient().stopSandbox({ id, config });
+  static async stop(params: { id: string; config?: Config }): Promise<Sandbox>;
+  /** @deprecated Use stop({ id, config }) instead. */
+  static async stop(id: string, config?: Config): Promise<Sandbox>;
+  static async stop(
+    arg1: { id: string; config?: Config } | string,
+    arg2?: Config,
+  ): Promise<Sandbox> {
+    return await Sandbox.getClient().stopSandbox(arg1 as any, arg2);
   }
 
   /**
@@ -159,8 +214,39 @@ export class Sandbox extends ResourceBase implements SandboxData {
     id: string;
     templateType?: TemplateType;
     config?: Config;
-  }): Promise<Sandbox> {
-    const { id, templateType, config } = params;
+  }): Promise<Sandbox>;
+  /** @deprecated Use get({ id, templateType, config }) instead. */
+  static async get(
+    id: string,
+    templateType?: TemplateType,
+    config?: Config,
+  ): Promise<Sandbox>;
+  static async get(
+    arg1: { id: string; templateType?: TemplateType; config?: Config } | string,
+    arg2?: TemplateType | Config,
+    arg3?: Config,
+  ): Promise<Sandbox> {
+    let id: string;
+    let templateType: TemplateType | undefined;
+    let config: Config | undefined;
+
+    if (typeof arg1 === 'string') {
+      logger.warn(
+        'Deprecated: Sandbox.get(id, templateType?, config?) is deprecated. Use Sandbox.get({ id, templateType, config }) instead.',
+      );
+      id = arg1;
+      if (arg2 && typeof arg2 === 'string') {
+        templateType = arg2 as TemplateType;
+        config = arg3;
+      } else {
+        config = arg2 as Config;
+      }
+    } else {
+      id = arg1.id;
+      templateType = arg1.templateType;
+      config = arg1.config;
+    }
+
     try {
       const cfg = Config.withConfigs(config);
 
@@ -179,7 +265,7 @@ export class Sandbox extends ResourceBase implements SandboxData {
       if (result.code !== 'SUCCESS') {
         throw new ClientError(
           0,
-          `Failed to get sandbox: ${result.message || 'Unknown error'}`
+          `Failed to get sandbox: ${result.message || 'Unknown error'}`,
         );
       }
 
@@ -231,11 +317,20 @@ export class Sandbox extends ResourceBase implements SandboxData {
   /**
    * List Sandboxes
    */
+  static async list(params?: {
+    input?: SandboxListInput;
+    config?: Config;
+  }): Promise<Sandbox[]>;
+  /** @deprecated Use list({ input, config }) instead. */
   static async list(
-    input?: SandboxListInput,
-    config?: Config
+    input: SandboxListInput,
+    config?: Config,
+  ): Promise<Sandbox[]>;
+  static async list(
+    arg1?: SandboxListInput | { input?: SandboxListInput; config?: Config },
+    arg2?: Config,
   ): Promise<Sandbox[]> {
-    return await Sandbox.getClient().listSandboxes({ input, config });
+    return await Sandbox.getClient().listSandboxes(arg1 as any, arg2);
   }
 
   get = async (params?: { config?: Config }) => {
@@ -308,7 +403,7 @@ export class Sandbox extends ResourceBase implements SandboxData {
       intervalSeconds?: number;
       beforeCheck?: (sandbox: Sandbox) => void;
     },
-    config?: Config
+    config?: Config,
   ): Promise<Sandbox> => {
     const timeout = (options?.timeoutSeconds ?? 300) * 1000;
     const interval = (options?.intervalSeconds ?? 5) * 1000;
@@ -340,7 +435,7 @@ export class Sandbox extends ResourceBase implements SandboxData {
     throw new Error(
       `Timeout waiting for Sandbox to be running after ${
         options?.timeoutSeconds ?? 300
-      } seconds`
+      } seconds`,
     );
   };
 }

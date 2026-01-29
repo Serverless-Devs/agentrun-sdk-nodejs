@@ -8,6 +8,19 @@
 import { TemplateType, SandboxState } from '../../../src/sandbox/model';
 import { Config } from '../../../src/utils/config';
 
+// Mock all sandbox types to avoid circular dependency issues
+jest.mock('../../../src/sandbox/browser-sandbox', () => ({
+  BrowserSandbox: class MockBrowserSandbox {},
+}));
+
+jest.mock('../../../src/sandbox/aio-sandbox', () => ({
+  AioSandbox: class MockAioSandbox {},
+}));
+
+jest.mock('../../../src/sandbox/code-interpreter-sandbox', () => ({
+  CodeInterpreterSandbox: class MockCodeInterpreterSandbox {},
+}));
+
 // Mock SandboxDataAPI
 jest.mock('../../../src/sandbox/api/sandbox-data', () => {
   return {
@@ -144,7 +157,7 @@ describe('CustomSandbox', () => {
 
   describe('createFromTemplate', () => {
     it('should create CustomSandbox from template', async () => {
-      const mockSandbox = new Sandbox(
+      const baseSandbox = new Sandbox(
         {
           sandboxId: 'sandbox-new',
           templateName: 'test-template',
@@ -152,6 +165,7 @@ describe('CustomSandbox', () => {
         },
         undefined
       );
+      const mockSandbox = new CustomSandbox(baseSandbox, undefined);
 
       // Mock Sandbox.create
       const createMock = jest.fn().mockResolvedValue(mockSandbox);
@@ -159,24 +173,26 @@ describe('CustomSandbox', () => {
 
       const result = await CustomSandbox.createFromTemplate('test-template');
 
-      expect(createMock).toHaveBeenCalledWith(
-        expect.objectContaining({
+      expect(createMock).toHaveBeenCalledWith({
+        input: expect.objectContaining({
           templateName: 'test-template',
         }),
-        undefined
-      );
+        templateType: TemplateType.CUSTOM,
+        config: undefined,
+      });
       expect(result).toBeInstanceOf(CustomSandbox);
       expect(result.sandboxId).toBe('sandbox-new');
     });
 
     it('should create CustomSandbox with options', async () => {
-      const mockSandbox = new Sandbox(
+      const baseSandbox = new Sandbox(
         {
           sandboxId: 'sandbox-new',
           templateName: 'test-template',
         },
         undefined
       );
+      const mockSandbox = new CustomSandbox(baseSandbox, undefined);
 
       const createMock = jest.fn().mockResolvedValue(mockSandbox);
       (Sandbox as any).create = createMock;
@@ -192,25 +208,27 @@ describe('CustomSandbox', () => {
         },
       });
 
-      expect(createMock).toHaveBeenCalledWith(
-        expect.objectContaining({
+      expect(createMock).toHaveBeenCalledWith({
+        input: expect.objectContaining({
           templateName: 'test-template',
           sandboxIdleTimeoutSeconds: 1200,
           nasConfig: expect.any(Object),
         }),
-        undefined
-      );
+        templateType: TemplateType.CUSTOM,
+        config: undefined,
+      });
       expect(result).toBeInstanceOf(CustomSandbox);
     });
 
     it('should create CustomSandbox with config', async () => {
-      const mockSandbox = new Sandbox(
+      const baseSandbox = new Sandbox(
         {
           sandboxId: 'sandbox-new',
           templateName: 'test-template',
         },
         undefined
       );
+      const mockSandbox = new CustomSandbox(baseSandbox, undefined);
 
       const createMock = jest.fn().mockResolvedValue(mockSandbox);
       (Sandbox as any).create = createMock;
@@ -222,7 +240,11 @@ describe('CustomSandbox', () => {
         config
       );
 
-      expect(createMock).toHaveBeenCalledWith(expect.any(Object), config);
+      expect(createMock).toHaveBeenCalledWith({
+        input: expect.any(Object),
+        templateType: TemplateType.CUSTOM,
+        config,
+      });
       expect(result).toBeInstanceOf(CustomSandbox);
     });
   });

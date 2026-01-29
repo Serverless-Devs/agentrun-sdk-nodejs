@@ -106,6 +106,7 @@ export class Template extends ResourceBase implements TemplateData {
 
     if (data) {
       updateObjectProperties(this, data);
+      this.normalizeNumericFields();
     }
 
     this._config = config;
@@ -126,8 +127,7 @@ export class Template extends ResourceBase implements TemplateData {
     input: TemplateCreateInput;
     config?: Config;
   }): Promise<Template> {
-    const { input, config } = params;
-    return await Template.getClient().createTemplate({ input, config });
+    return await Template.getClient().createTemplate(params);
   }
 
   /**
@@ -137,8 +137,7 @@ export class Template extends ResourceBase implements TemplateData {
     name: string;
     config?: Config;
   }): Promise<Template> {
-    const { name, config } = params;
-    return await Template.getClient().deleteTemplate({ name, config });
+    return await Template.getClient().deleteTemplate(params);
   }
 
   /**
@@ -149,8 +148,7 @@ export class Template extends ResourceBase implements TemplateData {
     input: TemplateUpdateInput;
     config?: Config;
   }): Promise<Template> {
-    const { name, input, config } = params;
-    return await Template.getClient().updateTemplate({ name, input, config });
+    return await Template.getClient().updateTemplate(params);
   }
 
   /**
@@ -160,8 +158,7 @@ export class Template extends ResourceBase implements TemplateData {
     name: string;
     config?: Config;
   }): Promise<Template> {
-    const { name, config } = params;
-    return await Template.getClient().getTemplate({ name, config });
+    return await Template.getClient().getTemplate(params);
   }
 
   /**
@@ -171,8 +168,7 @@ export class Template extends ResourceBase implements TemplateData {
     input?: TemplateListInput;
     config?: Config;
   }): Promise<Template[]> {
-    const { input, config } = params ?? {};
-    return await Template.getClient().listTemplates({ input, config });
+    return await Template.getClient().listTemplates(params);
   }
 
   /**
@@ -201,6 +197,7 @@ export class Template extends ResourceBase implements TemplateData {
       config: config ?? this._config,
     });
     updateObjectProperties(this, result);
+    this.normalizeNumericFields();
     return this;
   };
 
@@ -222,6 +219,7 @@ export class Template extends ResourceBase implements TemplateData {
       config: config ?? this._config,
     });
     updateObjectProperties(this, result);
+    this.normalizeNumericFields();
     return this;
   };
 
@@ -239,6 +237,30 @@ export class Template extends ResourceBase implements TemplateData {
       config: config ?? this._config,
     });
     updateObjectProperties(this, result);
+    this.normalizeNumericFields();
     return this;
   };
+
+  private normalizeNumericFields() {
+    const toNumber = (value?: string | number) => {
+      if (typeof value === 'number') return value;
+      if (typeof value === 'string') {
+        const parsed = Number(value);
+        return Number.isNaN(parsed) ? undefined : parsed;
+      }
+      return undefined;
+    };
+
+    this.sandboxIdleTimeoutInSeconds =
+      toNumber(this.sandboxIdleTimeoutInSeconds) ??
+      this.sandboxIdleTimeoutInSeconds;
+    this.sandboxTtlInSeconds =
+      toNumber(this.sandboxTtlInSeconds) ?? this.sandboxTtlInSeconds;
+    this.shareConcurrencyLimitPerSandbox =
+      toNumber(this.shareConcurrencyLimitPerSandbox) ??
+      this.shareConcurrencyLimitPerSandbox;
+    this.cpu = toNumber(this.cpu) ?? this.cpu;
+    this.memory = toNumber(this.memory) ?? this.memory;
+    this.diskSize = toNumber(this.diskSize) ?? this.diskSize;
+  }
 }
