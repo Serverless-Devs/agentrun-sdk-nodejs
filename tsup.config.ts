@@ -1,4 +1,8 @@
 import { defineConfig } from 'tsup';
+import { readFileSync } from 'fs';
+
+// Read version from package.json
+const pkg = JSON.parse(readFileSync('./package.json', 'utf-8'));
 
 export default defineConfig({
   entry: ['src/index.ts'],
@@ -34,6 +38,10 @@ export default defineConfig({
     return {
       js: format === 'cjs' ? '.cjs' : '.js',
     };
+  },
+  // Define constants to be replaced at build time
+  define: {
+    __VERSION__: JSON.stringify(pkg.version),
   },
 });
 
