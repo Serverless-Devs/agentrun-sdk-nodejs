@@ -19,7 +19,6 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["src/**/*", "tests/**/*", "types/**/*"],
+  "include": ["src/**/*", "examples/**/*", "tests/**/*", "types/**/*"],
   "exclude": ["node_modules", "dist"]
 }
-
