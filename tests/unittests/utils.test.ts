@@ -5,10 +5,7 @@ import {
   ResourceAlreadyExistError,
   ResourceNotExistError,
 } from '../../src/utils/exception';
-import {
-  listAllResourcesFunction,
-  updateObjectProperties,
-} from '../../src/utils/resource';
+import { listAllResourcesFunction, updateObjectProperties } from '../../src/utils/resource';
 
 describe('utils - config', () => {
   test('config defaults and data/control/devs endpoints and accountId error', () => {
@@ -70,10 +67,7 @@ describe('utils - resource helpers', () => {
     const firstPage = Array.from({ length: 50 }, (_, i) => ({
       uniqIdCallback: () => `${i + 1}`,
     }));
-    const secondPage = [
-      { uniqIdCallback: () => '50' },
-      { uniqIdCallback: () => '51' },
-    ];
+    const secondPage = [{ uniqIdCallback: () => '50' }, { uniqIdCallback: () => '51' }];
     const pages = [firstPage, secondPage];
     let called = 0;
     const list = async (params?: any) => {
@@ -101,29 +95,14 @@ describe('utils - data-api small surface', () => {
     const cfg = new Config({ token: 'tok', accountId: 'acct' });
     const d = new DataAPI('name', ResourceType.Runtime, cfg, 'ns') as any;
 
-    const r1 = await d.prepareRequest(
-      'POST',
-      'https://example.com/x',
-      { a: 1 },
-      { H: 'v' }
-    );
+    const r1 = await d.prepareRequest('POST', 'https://example.com/x', { a: 1 }, { H: 'v' });
     expect(r1.body).toBeDefined();
     expect(r1.headers['Agentrun-Access-Token']).toBe('tok');
 
-    const r2 = await d.prepareRequest(
-      'PUT',
-      'https://example.com/x',
-      Buffer.from('hi'),
-      {}
-    );
+    const r2 = await d.prepareRequest('PUT', 'https://example.com/x', Buffer.from('hi'), {});
     expect(Buffer.isBuffer(r2.body)).toBe(true);
 
-    const r3 = await d.prepareRequest(
-      'PATCH',
-      'https://example.com/x',
-      'rawtext',
-      {}
-    );
+    const r3 = await d.prepareRequest('PATCH', 'https://example.com/x', 'rawtext', {});
     expect(r3.body).toBe('rawtext');
   });
 });

@@ -6,11 +6,7 @@
 
 import { ToolSet, ToolSetSchemaType } from '../../../src/toolset';
 import { Config } from '../../../src/utils/config';
-import {
-  ClientError,
-  HTTPError,
-  ServerError,
-} from '../../../src/utils/exception';
+import { ClientError, HTTPError, ServerError } from '../../../src/utils/exception';
 import { Status } from '../../../src/utils/model';
 
 // Mock ToolSetClient at the instance level by spying on getClient
@@ -142,9 +138,7 @@ describe('ToolSet Module', () => {
       });
 
       it('should handle 400 error', async () => {
-        mockToolSetClient.create.mockRejectedValue(
-          new ClientError(400, 'Bad request')
-        );
+        mockToolSetClient.create.mockRejectedValue(new ClientError(400, 'Bad request'));
 
         await expect(
           ToolSet.create({
@@ -154,9 +148,7 @@ describe('ToolSet Module', () => {
       });
 
       it('should handle 500 error', async () => {
-        mockToolSetClient.create.mockRejectedValue(
-          new ServerError(500, 'Server error')
-        );
+        mockToolSetClient.create.mockRejectedValue(new ServerError(500, 'Server error'));
 
         await expect(
           ToolSet.create({
@@ -192,22 +184,16 @@ describe('ToolSet Module', () => {
       });
 
       it('should handle 404 error', async () => {
-        mockToolSetClient.delete.mockRejectedValue(
-          new ClientError(404, 'Not found')
-        );
+        mockToolSetClient.delete.mockRejectedValue(new ClientError(404, 'Not found'));
 
-        await expect(ToolSet.delete({ name: 'not-found' })).rejects.toThrow(
-          ClientError
-        );
+        await expect(ToolSet.delete({ name: 'not-found' })).rejects.toThrow(ClientError);
       });
 
       it('should handle HTTPError during delete', async () => {
         const httpError = new HTTPError(404, 'Not found');
         mockToolSetClient.delete.mockRejectedValue(httpError);
 
-        await expect(
-          ToolSet.delete({ name: 'not-found-http' })
-        ).rejects.toThrow();
+        await expect(ToolSet.delete({ name: 'not-found-http' })).rejects.toThrow();
       });
     });
 
@@ -231,19 +217,15 @@ describe('ToolSet Module', () => {
         const httpError = new HTTPError(400, 'Bad request');
         mockToolSetClient.update.mockRejectedValue(httpError);
 
-        await expect(
-          ToolSet.update({ name: 'error-toolset', input: {} })
-        ).rejects.toThrow();
+        await expect(ToolSet.update({ name: 'error-toolset', input: {} })).rejects.toThrow();
       });
 
       it('should handle generic error during update', async () => {
-        mockToolSetClient.update.mockRejectedValue(
-          new ServerError(500, 'Server error')
-        );
+        mockToolSetClient.update.mockRejectedValue(new ServerError(500, 'Server error'));
 
-        await expect(
-          ToolSet.update({ name: 'error-toolset', input: {} })
-        ).rejects.toThrow(ServerError);
+        await expect(ToolSet.update({ name: 'error-toolset', input: {} })).rejects.toThrow(
+          ServerError
+        );
       });
     });
 
@@ -264,9 +246,7 @@ describe('ToolSet Module', () => {
       it('should throw error when body is empty', async () => {
         mockToolSetClient.get.mockRejectedValue(new Error('Empty response body'));
 
-        await expect(ToolSet.get({ name: 'empty-body' })).rejects.toThrow(
-          'Empty response body'
-        );
+        await expect(ToolSet.get({ name: 'empty-body' })).rejects.toThrow('Empty response body');
       });
 
       it('should handle HTTPError during get', async () => {
@@ -277,13 +257,9 @@ describe('ToolSet Module', () => {
       });
 
       it('should handle generic error during get', async () => {
-        mockToolSetClient.get.mockRejectedValue(
-          new ServerError(500, 'Server error')
-        );
+        mockToolSetClient.get.mockRejectedValue(new ServerError(500, 'Server error'));
 
-        await expect(ToolSet.get({ name: 'error-toolset' })).rejects.toThrow(
-          ServerError
-        );
+        await expect(ToolSet.get({ name: 'error-toolset' })).rejects.toThrow(ServerError);
       });
     });
 
@@ -347,9 +323,9 @@ describe('ToolSet Module', () => {
         it('should throw error if name not set', async () => {
           const toolset = new ToolSet();
 
-          await expect(
-            toolset.update({ input: { description: 'test' } })
-          ).rejects.toThrow('name is required');
+          await expect(toolset.update({ input: { description: 'test' } })).rejects.toThrow(
+            'name is required'
+          );
         });
       });
 
@@ -413,9 +389,7 @@ describe('ToolSet Module', () => {
       });
 
       it('should support prefix and labels options', async () => {
-        mockToolSetClient.list.mockResolvedValue([
-          { name: 'my-toolset', uid: 'uid-1' },
-        ]);
+        mockToolSetClient.list.mockResolvedValue([{ name: 'my-toolset', uid: 'uid-1' }]);
 
         const result = await ToolSet.listAll({
           prefix: 'my-',
@@ -656,9 +630,9 @@ describe('ToolSet Module', () => {
         const error = new Error('Network error');
         mockToolSetClient.create.mockRejectedValue(error);
 
-        await expect(
-          ToolSet.create({ input: { name: 'error-toolset' } })
-        ).rejects.toThrow('Network error');
+        await expect(ToolSet.create({ input: { name: 'error-toolset' } })).rejects.toThrow(
+          'Network error'
+        );
       });
     });
 
@@ -676,9 +650,7 @@ describe('ToolSet Module', () => {
           status: { outputs: {} },
         });
 
-        await expect(toolset.toApiSet()).rejects.toThrow(
-          'MCP server URL is missing'
-        );
+        await expect(toolset.toApiSet()).rejects.toThrow('MCP server URL is missing');
       });
 
       it('should throw error for unsupported type', async () => {
@@ -686,9 +658,7 @@ describe('ToolSet Module', () => {
           spec: { schema: { type: 'UNKNOWN' as any } },
         });
 
-        await expect(toolset.toApiSet()).rejects.toThrow(
-          'Unsupported ToolSet type'
-        );
+        await expect(toolset.toApiSet()).rejects.toThrow('Unsupported ToolSet type');
       });
     });
 
@@ -717,11 +687,7 @@ describe('ToolSet Module', () => {
         });
 
         expect(toolset.toApiSet).toHaveBeenCalled();
-        expect(mockApiSet.invoke).toHaveBeenCalledWith(
-          'test-tool',
-          { arg1: 'value' },
-          undefined
-        );
+        expect(mockApiSet.invoke).toHaveBeenCalledWith('test-tool', { arg1: 'value' }, undefined);
         expect(result).toEqual({ result: 'success' });
       });
     });
@@ -741,11 +707,7 @@ describe('ToolSet Module', () => {
 
         const spy = jest.spyOn(toolset, 'callToolAsync');
         await toolset.callTool('test-tool', { arg: 'val' });
-        expect(spy).toHaveBeenCalledWith(
-          'test-tool',
-          { arg: 'val' },
-          undefined
-        );
+        expect(spy).toHaveBeenCalledWith('test-tool', { arg: 'val' }, undefined);
       });
     });
   });

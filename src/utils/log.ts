@@ -83,7 +83,7 @@ class Logger {
     const err = new Error();
     const stack = err.stack;
     if (!stack) return {};
-    const lines = stack.split('\n').map((l) => l.trim());
+    const lines = stack.split('\n').map(l => l.trim());
     // try the requested offset, if absent try next few frames
 
     for (let i = 3; i < lines.length; i++) {
@@ -135,8 +135,7 @@ class Logger {
       )
         continue;
       if (fp.includes('/src/utils/log.ts')) continue;
-      if (fp.startsWith(cwd))
-        return { filepath: parsed.filepath, line: parsed.line };
+      if (fp.startsWith(cwd)) return { filepath: parsed.filepath, line: parsed.line };
     }
     // final fallback: first non-node_modules parsed frame
     for (let i = 0; i < lines.length; i++) {
@@ -195,58 +194,42 @@ class Logger {
   debug(message: string, ...args: unknown[]): void {
     if (this.shouldLog('debug')) {
       const caller = this.getCallerByOffset();
-      console.debug(
-        this.formatMessage('debug', message, caller.filepath, caller.line),
-        ...args
-      );
+      console.debug(this.formatMessage('debug', message, caller.filepath, caller.line), ...args);
     }
   }
 
   info(message: string, ...args: unknown[]): void {
     if (this.shouldLog('info')) {
       const caller = this.getCallerByOffset();
-      console.info(
-        this.formatMessage('info', message, caller.filepath, caller.line),
-        ...args
-      );
+      console.info(this.formatMessage('info', message, caller.filepath, caller.line), ...args);
     }
   }
 
   warn(message: string, ...args: unknown[]): void {
     if (this.shouldLog('warn')) {
       const caller = this.getCallerByOffset();
-      console.warn(
-        this.formatMessage('warn', message, caller.filepath, caller.line),
-        ...args
-      );
+      console.warn(this.formatMessage('warn', message, caller.filepath, caller.line), ...args);
     }
   }
 
   error(message: string, ...args: unknown[]): void {
     if (this.shouldLog('error')) {
       const caller = this.getCallerByOffset();
-      console.error(
-        this.formatMessage('error', message, caller.filepath, caller.line),
-        ...args
-      );
+      console.error(this.formatMessage('error', message, caller.filepath, caller.line), ...args);
     }
   }
 }
 
 export const logger = new Logger();
 if (
-  ![undefined, null, "", "False", "FALSE", "false", "0"].includes(
-    process.env["AGENTRUN_SDK_DEBUG"],
-  )
+  ![undefined, null, '', 'False', 'FALSE', 'false', '0'].includes(process.env['AGENTRUN_SDK_DEBUG'])
 ) {
-  logger.setLevel("debug");
+  logger.setLevel('debug');
 
   if (!(globalThis as any)._AGENTRUN_DEBUG_LOGGED) {
-    logger.warn(
-      "启用 AgentRun SDK 调试日志， 移除 AGENTRUN_SDK_DEBUG 环境变量以关闭",
-    );
+    logger.warn('启用 AgentRun SDK 调试日志， 移除 AGENTRUN_SDK_DEBUG 环境变量以关闭');
     (globalThis as any)._AGENTRUN_DEBUG_LOGGED = true;
   }
 } else {
-  logger.setLevel("info");
+  logger.setLevel('info');
 }

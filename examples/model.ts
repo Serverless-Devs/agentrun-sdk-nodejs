@@ -13,8 +13,21 @@
  *   npm run example:model
  */
 
-import type { ModelProxyCreateInput, ModelServiceCreateInput, ProviderSettings, ProxyConfig } from '../src/index';
-import { ModelClient, ModelProxy, ModelService, ModelType, ResourceAlreadyExistError, ResourceNotExistError, Status } from '../src/index';
+import type {
+  ModelProxyCreateInput,
+  ModelServiceCreateInput,
+  ProviderSettings,
+  ProxyConfig,
+} from '../src/index';
+import {
+  ModelClient,
+  ModelProxy,
+  ModelService,
+  ModelType,
+  ResourceAlreadyExistError,
+  ResourceNotExistError,
+  Status,
+} from '../src/index';
 import { Config } from '../src/utils/config';
 import { logger } from '../src/utils/log';
 
@@ -68,8 +81,7 @@ async function createOrGetModelService(): Promise<ModelService> {
 
   // 等待就绪 / Wait for ready
   await ms.waitUntilReadyOrFailed({
-    callback: (service) =>
-      log(`  当前状态 / Current status: ${service.status}`),
+    callback: service => log(`  当前状态 / Current status: ${service.status}`),
   });
 
   if (ms.status !== Status.READY) {
@@ -114,12 +126,12 @@ async function listModelServices(): Promise<void> {
 
   const services = await ModelService.list({
     input: {
-      modelType: ModelType.LLM
-    }
+      modelType: ModelType.LLM,
+    },
   });
   log(
     `共有 ${services.length} 个资源，分别为 / Total ${services.length} resources:`,
-    services.map((s) => s.modelServiceName)
+    services.map(s => s.modelServiceName)
   );
 }
 
@@ -177,7 +189,7 @@ async function createOrGetModelProxy(): Promise<ModelProxy> {
   try {
     const cfg = new Config();
     const proxyConfig: ProxyConfig = {
-      endpoints: MODEL_NAMES.map((modelName) => ({
+      endpoints: MODEL_NAMES.map(modelName => ({
         modelNames: [modelName],
         modelServiceName,
       })),
@@ -204,8 +216,7 @@ async function createOrGetModelProxy(): Promise<ModelProxy> {
 
   // 等待就绪 / Wait for ready
   await mp.waitUntilReadyOrFailed({
-    callback: (proxy) =>
-      log(`  当前状态 / Current status: ${proxy.status}`),
+    callback: proxy => log(`  当前状态 / Current status: ${proxy.status}`),
   });
 
   if (mp.status !== Status.READY) {
@@ -253,7 +264,7 @@ async function listModelProxies(): Promise<void> {
   const proxies = await ModelProxy.list({});
   log(
     `共有 ${proxies.length} 个资源，分别为 / Total ${proxies.length} resources:`,
-    proxies.map((p) => p.modelProxyName)
+    proxies.map(p => p.modelProxyName)
   );
 }
 
@@ -313,7 +324,7 @@ async function main() {
     await listModelServices();
     const ms = await createOrGetModelService();
     await updateModelService(ms);
-    
+
     await invokeModelService(ms);
 
     await listModelProxies();

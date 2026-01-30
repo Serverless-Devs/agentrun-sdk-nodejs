@@ -22,7 +22,9 @@ function getEntryPoints(srcDir: string): string[] {
         const indexPath = join(fullPath, 'index.ts');
         try {
           if (statSync(indexPath).isFile()) {
-            const entryPath = relativePath ? `${relativePath}/${item}/index.ts` : `${item}/index.ts`;
+            const entryPath = relativePath
+              ? `${relativePath}/${item}/index.ts`
+              : `${item}/index.ts`;
             entries.push(`src/${entryPath}`);
           }
         } catch {

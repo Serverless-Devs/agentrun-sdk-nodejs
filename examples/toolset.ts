@@ -39,10 +39,9 @@ async function toolsetExample() {
     logger.info('Available Tools:', JSON.stringify(tools, null, 2));
 
     // 调用工具 / Call tool
-    const result = await baiduToolset.callTool(
-      'baidu_search',
-      { body: { search_input: '比特币价格' } }
-    );
+    const result = await baiduToolset.callTool('baidu_search', {
+      body: { search_input: '比特币价格' },
+    });
     logger.info('Tool Result:', result);
   } catch (error) {
     logger.error('Error with Baidu Search Tool:', error);
@@ -66,10 +65,7 @@ async function toolsetExample() {
     logger.info('Available Tools:', JSON.stringify(tools, null, 2));
 
     // 调用工具 / Call tool
-    const result = await mcpToolset.callTool(
-      'get_current_time',
-      { timezone: 'Asia/Shanghai' }
-    );
+    const result = await mcpToolset.callTool('get_current_time', { timezone: 'Asia/Shanghai' });
     logger.info('Tool Result:', result);
   } catch (error) {
     logger.error('Error with MCP Time Tool:', error);

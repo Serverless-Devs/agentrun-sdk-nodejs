@@ -121,7 +121,7 @@ async function createOrGetAgentRuntime(): Promise<AgentRuntime> {
         log('等待删除完成 / Waiting for deletion to complete...');
         let deleted = false;
         for (let i = 0; i < 30; i++) {
-          await new Promise((resolve) => setTimeout(resolve, 2000));
+          await new Promise(resolve => setTimeout(resolve, 2000));
           try {
             const runtimes = await client.list({ input: { agentRuntimeName } });
             if (runtimes.length === 0) {
@@ -168,8 +168,7 @@ async function createOrGetAgentRuntime(): Promise<AgentRuntime> {
   // Wait for ready or failed
   log('等待就绪 / Waiting for ready...');
   await ar.waitUntilReadyOrFailed({
-    callback: (runtime) =>
-      log(`  当前状态 / Current status: ${runtime.status}`),
+    callback: runtime => log(`  当前状态 / Current status: ${runtime.status}`),
   });
 
   if (ar.status !== Status.READY) {
@@ -197,8 +196,7 @@ async function updateAgentRuntime(ar: AgentRuntime): Promise<void> {
   });
 
   await ar.waitUntilReadyOrFailed({
-    callback: (runtime) =>
-      log(`  当前状态 / Current status: ${runtime.status}`),
+    callback: runtime => log(`  当前状态 / Current status: ${runtime.status}`),
   });
 
   if (ar.status !== Status.READY) {
@@ -218,7 +216,7 @@ async function listAgentRuntimes(): Promise<void> {
   const runtimes = await AgentRuntime.listAll();
   log(
     `共有 ${runtimes.length} 个资源 / Total ${runtimes.length} resources:`,
-    runtimes.map((r) => r.agentRuntimeName)
+    runtimes.map(r => r.agentRuntimeName)
   );
 }
 
@@ -235,8 +233,7 @@ async function deleteAgentRuntime(ar: AgentRuntime): Promise<void> {
   log('等待删除完成 / Waiting for deletion...');
   try {
     await ar.waitUntilReadyOrFailed({
-      callback: (runtime) =>
-        log(`  当前状态 / Current status: ${runtime.status}`),
+      callback: runtime => log(`  当前状态 / Current status: ${runtime.status}`),
     });
   } catch (error) {
     // Expected to fail when resource is deleted
@@ -248,9 +245,7 @@ async function deleteAgentRuntime(ar: AgentRuntime): Promise<void> {
     log('资源仍然存在 / Resource still exists');
   } catch (error) {
     if (error instanceof ResourceNotExistError) {
-      log(
-        '得到资源不存在报错，删除成功 / Resource not found, deletion successful'
-      );
+      log('得到资源不存在报错，删除成功 / Resource not found, deletion successful');
     } else {
       throw error;
     }

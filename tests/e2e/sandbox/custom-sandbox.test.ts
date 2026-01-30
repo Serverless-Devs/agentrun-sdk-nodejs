@@ -80,9 +80,7 @@ describe('Custom Sandbox E2E Tests', () => {
 
     it('should create a Custom template with container configuration', async () => {
       if (!CUSTOM_SANDBOX_IMAGE) {
-        console.warn(
-          'CUSTOM_SANDBOX_IMAGE not set, skipping Custom Sandbox tests.',
-        );
+        console.warn('CUSTOM_SANDBOX_IMAGE not set, skipping Custom Sandbox tests.');
         return;
       }
 
@@ -187,7 +185,7 @@ describe('Custom Sandbox E2E Tests', () => {
       expect(sandboxes.length).toBeGreaterThan(0);
 
       // 验证包含我们创建的 sandbox
-      const found = sandboxes.find((s) => s.sandboxId === createdSandboxId);
+      const found = sandboxes.find(s => s.sandboxId === createdSandboxId);
       expect(found).toBeDefined();
     });
 
@@ -205,9 +203,7 @@ describe('Custom Sandbox E2E Tests', () => {
       });
 
       // READY is an acceptable state (equivalent to RUNNING)
-      expect([SandboxState.RUNNING, SandboxState.READY]).toContain(
-        sandbox.state!,
-      );
+      expect([SandboxState.RUNNING, SandboxState.READY]).toContain(sandbox.state!);
     });
 
     it('should stop a Custom sandbox', async () => {
@@ -257,7 +253,7 @@ describe('Custom Sandbox E2E Tests', () => {
 
       if (!CUSTOM_SANDBOX_IMAGE) {
         console.warn(
-          'CUSTOM_SANDBOX_IMAGE not set, skipping CustomSandbox.createFromTemplate tests.',
+          'CUSTOM_SANDBOX_IMAGE not set, skipping CustomSandbox.createFromTemplate tests.'
         );
         return;
       }
@@ -291,15 +287,10 @@ describe('Custom Sandbox E2E Tests', () => {
 
         templateReady = template.status === 'READY';
         if (!templateReady) {
-          console.warn(
-            'Custom template not ready, skipping createFromTemplate tests.',
-          );
+          console.warn('Custom template not ready, skipping createFromTemplate tests.');
         }
       } catch (error) {
-        console.warn(
-          'Custom template creation failed, skipping createFromTemplate tests.',
-          error,
-        );
+        console.warn('Custom template creation failed, skipping createFromTemplate tests.', error);
       }
     });
 
@@ -362,9 +353,7 @@ describe('Custom Sandbox E2E Tests', () => {
 
     it('should create template with new container configuration fields', async () => {
       if (!CUSTOM_SANDBOX_IMAGE) {
-        console.warn(
-          'CUSTOM_SANDBOX_IMAGE not set, skipping container configuration test.',
-        );
+        console.warn('CUSTOM_SANDBOX_IMAGE not set, skipping container configuration test.');
         return;
       }
 

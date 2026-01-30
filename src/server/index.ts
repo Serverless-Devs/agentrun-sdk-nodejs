@@ -2,7 +2,7 @@
  * Server Module Exports
  */
 
-import "@/utils/version-check";
+import '@/utils/version-check';
 
 // Core layer
 export { EventType, MessageRole } from './core/model';

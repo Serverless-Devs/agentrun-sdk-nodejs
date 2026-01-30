@@ -1,4 +1,4 @@
-import "@/utils/version-check";
+import '@/utils/version-check';
 
 // Mastra integration
 export * from './mastra';

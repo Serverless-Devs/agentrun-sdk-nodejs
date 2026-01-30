@@ -7,7 +7,7 @@
 
 import type { Request, Response, Express, NextFunction } from 'express';
 
-import { AgentInvoker, } from '../core/invoker';
+import { AgentInvoker } from '../core/invoker';
 import type { InvokeAgentHandler } from '../core/invoker';
 import { ProtocolRequest, ProtocolResponse, ServerConfig } from '../core/model';
 import { ProtocolHandler } from '../protocol/base';
@@ -220,7 +220,8 @@ export class ExpressAdapter {
    * Set CORS headers
    */
   private setCorsHeaders(res: Response): void {
-    const origin = this.corsOrigins.length === 1 ? this.corsOrigins[0] : this.corsOrigins.join(', ');
+    const origin =
+      this.corsOrigins.length === 1 ? this.corsOrigins[0] : this.corsOrigins.join(', ');
     res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -234,7 +235,7 @@ export class ExpressAdapter {
  */
 export function createExpressAdapter(
   handler: InvokeAgentHandler,
-  options?: ExpressAdapterOptions,
+  options?: ExpressAdapterOptions
 ): ExpressAdapter {
   return new ExpressAdapter(handler, options);
 }

@@ -37,9 +37,7 @@ export class ModelAPI {
     return provider(model);
   };
 
-  private getEmbeddingModel = async (
-    params: Parameters<ModelAPI['getProvider']>[0]
-  ) => {
+  private getEmbeddingModel = async (params: Parameters<ModelAPI['getProvider']>[0]) => {
     const { provider, model } = await this.getProvider(params);
     return provider.embeddingModel(model);
   };

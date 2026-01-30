@@ -66,9 +66,7 @@ export class MastraConverter {
    * ```
    */
 
-  *convert<T extends ChunkType<U>, U = undefined>(
-    chunk: T,
-  ): Generator<AgentEventItem> {
+  *convert<T extends ChunkType<U>, U = undefined>(chunk: T): Generator<AgentEventItem> {
     logger.debug(`[MastraConverter] Processing chunk type: ${chunk.type}`);
 
     // Handle text delta - direct text output
@@ -206,10 +204,7 @@ export class MastraConverter {
    * Extract tool result information from chunk payload
    * 从 chunk payload 提取工具结果信息
    */
-  private extractToolResultFromPayload(payload?: {
-    result: any;
-    toolCallId: string;
-  }): {
+  private extractToolResultFromPayload(payload?: { result: any; toolCallId: string }): {
     id: string;
     result: string;
   } | null {
@@ -240,9 +235,7 @@ export class MastraConverter {
    * Extract error message from chunk payload
    * 从 chunk payload 提取错误信息
    */
-  private extractErrorFromPayload(
-    payload?: Record<string, unknown>,
-  ): string | null {
+  private extractErrorFromPayload(payload?: Record<string, unknown>): string | null {
     if (!payload) return null;
 
     // Mastra error payload: { error: string | Error, ... }

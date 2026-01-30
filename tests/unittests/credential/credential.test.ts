@@ -90,12 +90,16 @@ describe('Credential Module', () => {
 
     describe('inboundRemoteJwt', () => {
       it('should create remote JWT credential config with defaults', () => {
-        const config = CredentialConfig.inboundRemoteJwt('https://example.com/.well-known/jwks.json');
+        const config = CredentialConfig.inboundRemoteJwt(
+          'https://example.com/.well-known/jwks.json'
+        );
         const configAny = config as any;
 
         expect(configAny.credentialSourceType).toBe('internal');
         expect(configAny.credentialAuthType).toBe('jwt');
-        expect(configAny.credentialPublicConfig?.uri).toBe('https://example.com/.well-known/jwks.json');
+        expect(configAny.credentialPublicConfig?.uri).toBe(
+          'https://example.com/.well-known/jwks.json'
+        );
         expect(configAny.credentialPublicConfig?.timeout).toBe(3000);
         expect(configAny.credentialPublicConfig?.ttl).toBe(30000);
       });
@@ -497,18 +501,16 @@ describe('Credential Module', () => {
         const httpError = new HTTPError(400, 'Bad request');
         mockClientInstance.update.mockRejectedValue(httpError);
 
-        await expect(
-          Credential.update({ name: 'cred', input: {} })
-        ).rejects.toThrow();
+        await expect(Credential.update({ name: 'cred', input: {} })).rejects.toThrow();
       });
 
       it('should re-throw non-HTTP errors', async () => {
         const genericError = new Error('Update failed');
         mockClientInstance.update.mockRejectedValue(genericError);
 
-        await expect(
-          Credential.update({ name: 'cred', input: {} })
-        ).rejects.toThrow('Update failed');
+        await expect(Credential.update({ name: 'cred', input: {} })).rejects.toThrow(
+          'Update failed'
+        );
       });
     });
 
@@ -528,9 +530,7 @@ describe('Credential Module', () => {
       });
 
       it('should list credentials with filter', async () => {
-        const mockList = [
-          new CredentialListOutput({ credentialName: 'api-cred' }),
-        ];
+        const mockList = [new CredentialListOutput({ credentialName: 'api-cred' })];
 
         mockClientInstance.list.mockResolvedValue(mockList);
 
@@ -586,7 +586,7 @@ describe('Credential Module', () => {
         const result = await Credential.listAll();
 
         expect(result).toHaveLength(2);
-        expect(result.map((c) => c.credentialId)).toEqual(['cred1', 'cred2']);
+        expect(result.map(c => c.credentialId)).toEqual(['cred1', 'cred2']);
       });
 
       it('should support input and config options', async () => {
@@ -680,9 +680,9 @@ describe('Credential Module', () => {
         it('should throw error if credentialName is not set', async () => {
           const credential = new Credential();
 
-          await expect(
-            credential.update({ input: { description: 'test' } })
-          ).rejects.toThrow('credentialName is required to update a Credential');
+          await expect(credential.update({ input: { description: 'test' } })).rejects.toThrow(
+            'credentialName is required to update a Credential'
+          );
         });
       });
 

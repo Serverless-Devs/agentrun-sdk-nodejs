@@ -2,7 +2,7 @@
  * Protocol Layer Exports
  */
 
-import "@/utils/version-check";
+import '@/utils/version-check';
 
 export type { ProtocolHandler, RouteDefinition } from './base';
 export { OpenAIProtocolHandler } from './openai';

@@ -4,8 +4,6 @@
  * 测试 Config 类的各种功能。
  */
 
-
-
 import { Config } from '../../../src/utils/config';
 
 describe('Config', () => {
@@ -168,9 +166,7 @@ describe('Config', () => {
         accountId: '123456789',
       });
 
-      expect(config.dataEndpoint).toBe(
-        'https://123456789.agentrun-data.cn-beijing.aliyuncs.com',
-      );
+      expect(config.dataEndpoint).toBe('https://123456789.agentrun-data.cn-beijing.aliyuncs.com');
     });
   });
 
@@ -333,7 +329,7 @@ describe('Config', () => {
       const config = new Config();
 
       expect(() => config.accountId).toThrow(
-        'Account ID is not set. Please add AGENTRUN_ACCOUNT_ID environment variable or set it in code.',
+        'Account ID is not set. Please add AGENTRUN_ACCOUNT_ID environment variable or set it in code.'
       );
     });
   });

@@ -8,13 +8,12 @@
  * @packageDocumentation
  */
 
-import "@/utils/version-check";
+import '@/utils/version-check';
 
 // Version is injected at build time from package.json
 declare const __VERSION__: string;
 
-export const VERSION =
-  typeof __VERSION__ !== 'undefined' ? __VERSION__ : '0.0.0-dev';
+export const VERSION = typeof __VERSION__ !== 'undefined' ? __VERSION__ : '0.0.0-dev';
 
 // Config
 export { Config, type ConfigOptions } from './utils/config';
@@ -62,12 +61,7 @@ export {
 } from './agent-runtime';
 
 // Credential
-export {
-  CredentialClient,
-  Credential,
-  CredentialControlAPI,
-  CredentialConfig,
-} from './credential';
+export { CredentialClient, Credential, CredentialControlAPI, CredentialConfig } from './credential';
 export type {
   CredentialCreateInput,
   CredentialUpdateInput,
@@ -117,12 +111,7 @@ export type {
 } from './sandbox';
 
 // Model
-export {
-  ModelClient,
-  ModelService,
-  ModelProxy,
-  ModelControlAPI,
-} from './model';
+export { ModelClient, ModelService, ModelProxy, ModelControlAPI } from './model';
 export type {
   ModelServiceCreateInput,
   ModelServiceUpdateInput,

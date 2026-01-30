@@ -78,7 +78,8 @@ export function createMockControlAPI(): MockControlAPIClient {
     }),
 
     deleteAgentRuntime: jest.fn().mockImplementation(async (input: any) => {
-      const runtime = store.getAgentRuntimeByName(input.agentRuntimeName) ||
+      const runtime =
+        store.getAgentRuntimeByName(input.agentRuntimeName) ||
         store.getAgentRuntimeById(input.agentRuntimeId);
       if (!runtime) {
         const error = new Error('Resource not found');
@@ -91,7 +92,8 @@ export function createMockControlAPI(): MockControlAPIClient {
     }),
 
     updateAgentRuntime: jest.fn().mockImplementation(async (input: any) => {
-      const runtime = store.getAgentRuntimeByName(input.agentRuntimeName) ||
+      const runtime =
+        store.getAgentRuntimeByName(input.agentRuntimeName) ||
         store.getAgentRuntimeById(input.agentRuntimeId);
       if (!runtime) {
         const error = new Error('Resource not found');
@@ -105,7 +107,8 @@ export function createMockControlAPI(): MockControlAPIClient {
     }),
 
     getAgentRuntime: jest.fn().mockImplementation(async (input: any) => {
-      const runtime = store.getAgentRuntimeByName(input.agentRuntimeName) ||
+      const runtime =
+        store.getAgentRuntimeByName(input.agentRuntimeName) ||
         store.getAgentRuntimeById(input.agentRuntimeId);
       if (!runtime) {
         const error = new Error('Resource not found');
@@ -132,68 +135,79 @@ export function createMockControlAPI(): MockControlAPIClient {
     }),
 
     // Agent Runtime Endpoint
-    createAgentRuntimeEndpoint: jest.fn().mockImplementation(async (runtimeId: string, input: any) => {
-      const runtime = store.getAgentRuntimeById(runtimeId);
-      if (!runtime) {
-        const error = new Error('Runtime not found');
-        (error as any).code = 'ResourceNotExist';
-        (error as any).statusCode = 404;
-        throw error;
-      }
-      const endpoint = {
-        agentRuntimeEndpointId: store.generateId('ep'),
-        agentRuntimeEndpointName: input.agentRuntimeEndpointName,
-        agentRuntimeId: runtimeId,
-        status: Status.CREATING,
-        endpointPublicUrl: `https://ep-${Date.now()}.example.com`,
-      };
-      store.agentRuntimeEndpoints.set(endpoint.agentRuntimeEndpointId, endpoint);
-      return endpoint;
-    }),
+    createAgentRuntimeEndpoint: jest
+      .fn()
+      .mockImplementation(async (runtimeId: string, input: any) => {
+        const runtime = store.getAgentRuntimeById(runtimeId);
+        if (!runtime) {
+          const error = new Error('Runtime not found');
+          (error as any).code = 'ResourceNotExist';
+          (error as any).statusCode = 404;
+          throw error;
+        }
+        const endpoint = {
+          agentRuntimeEndpointId: store.generateId('ep'),
+          agentRuntimeEndpointName: input.agentRuntimeEndpointName,
+          agentRuntimeId: runtimeId,
+          status: Status.CREATING,
+          endpointPublicUrl: `https://ep-${Date.now()}.example.com`,
+        };
+        store.agentRuntimeEndpoints.set(endpoint.agentRuntimeEndpointId, endpoint);
+        return endpoint;
+      }),
 
-    deleteAgentRuntimeEndpoint: jest.fn().mockImplementation(async (runtimeId: string, endpointId: string) => {
-      const endpoint = store.agentRuntimeEndpoints.get(endpointId);
-      if (!endpoint) {
-        const error = new Error('Endpoint not found');
-        (error as any).code = 'ResourceNotExist';
-        (error as any).statusCode = 404;
-        throw error;
-      }
-      store.agentRuntimeEndpoints.delete(endpointId);
-      return { ...endpoint, status: Status.DELETING };
-    }),
+    deleteAgentRuntimeEndpoint: jest
+      .fn()
+      .mockImplementation(async (runtimeId: string, endpointId: string) => {
+        const endpoint = store.agentRuntimeEndpoints.get(endpointId);
+        if (!endpoint) {
+          const error = new Error('Endpoint not found');
+          (error as any).code = 'ResourceNotExist';
+          (error as any).statusCode = 404;
+          throw error;
+        }
+        store.agentRuntimeEndpoints.delete(endpointId);
+        return { ...endpoint, status: Status.DELETING };
+      }),
 
-    updateAgentRuntimeEndpoint: jest.fn().mockImplementation(async (runtimeId: string, endpointId: string, input: any) => {
-      const endpoint = store.agentRuntimeEndpoints.get(endpointId);
-      if (!endpoint) {
-        const error = new Error('Endpoint not found');
-        (error as any).code = 'ResourceNotExist';
-        (error as any).statusCode = 404;
-        throw error;
-      }
-      Object.assign(endpoint, input);
-      return { ...endpoint };
-    }),
+    updateAgentRuntimeEndpoint: jest
+      .fn()
+      .mockImplementation(async (runtimeId: string, endpointId: string, input: any) => {
+        const endpoint = store.agentRuntimeEndpoints.get(endpointId);
+        if (!endpoint) {
+          const error = new Error('Endpoint not found');
+          (error as any).code = 'ResourceNotExist';
+          (error as any).statusCode = 404;
+          throw error;
+        }
+        Object.assign(endpoint, input);
+        return { ...endpoint };
+      }),
 
-    getAgentRuntimeEndpoint: jest.fn().mockImplementation(async (runtimeId: string, endpointId: string) => {
-      const endpoint = store.agentRuntimeEndpoints.get(endpointId);
-      if (!endpoint) {
-        const error = new Error('Endpoint not found');
-        (error as any).code = 'ResourceNotExist';
-        (error as any).statusCode = 404;
-        throw error;
-      }
-      return { ...endpoint };
-    }),
+    getAgentRuntimeEndpoint: jest
+      .fn()
+      .mockImplementation(async (runtimeId: string, endpointId: string) => {
+        const endpoint = store.agentRuntimeEndpoints.get(endpointId);
+        if (!endpoint) {
+          const error = new Error('Endpoint not found');
+          (error as any).code = 'ResourceNotExist';
+          (error as any).statusCode = 404;
+          throw error;
+        }
+        return { ...endpoint };
+      }),
 
-    listAgentRuntimeEndpoints: jest.fn().mockImplementation(async (runtimeId: string, input?: any) => {
-      const items = Array.from(store.agentRuntimeEndpoints.values())
-        .filter(ep => ep.agentRuntimeId === runtimeId);
-      return {
-        items,
-        nextToken: undefined,
-      };
-    }),
+    listAgentRuntimeEndpoints: jest
+      .fn()
+      .mockImplementation(async (runtimeId: string, input?: any) => {
+        const items = Array.from(store.agentRuntimeEndpoints.values()).filter(
+          ep => ep.agentRuntimeId === runtimeId
+        );
+        return {
+          items,
+          nextToken: undefined,
+        };
+      }),
 
     // Credential
     createCredential: jest.fn().mockImplementation(async (input: any) => {
@@ -378,5 +392,3 @@ export function setupControlAPIMock(): MockControlAPIClient {
   resetMockStore();
   return createMockControlAPI();
 }
-
-

@@ -274,25 +274,17 @@ export class ToolSchema {
 
     // Parse items / 解析 items
     const itemsRaw = s.items;
-    const items = itemsRaw
-      ? ToolSchema.fromAnyOpenAPISchema(itemsRaw)
-      : undefined;
+    const items = itemsRaw ? ToolSchema.fromAnyOpenAPISchema(itemsRaw) : undefined;
 
     // Parse union types / 解析联合类型
     const anyOfRaw = s.anyOf as unknown[] | undefined;
-    const anyOf = anyOfRaw
-      ? anyOfRaw.map(ToolSchema.fromAnyOpenAPISchema)
-      : undefined;
+    const anyOf = anyOfRaw ? anyOfRaw.map(ToolSchema.fromAnyOpenAPISchema) : undefined;
 
     const oneOfRaw = s.oneOf as unknown[] | undefined;
-    const oneOf = oneOfRaw
-      ? oneOfRaw.map(ToolSchema.fromAnyOpenAPISchema)
-      : undefined;
+    const oneOf = oneOfRaw ? oneOfRaw.map(ToolSchema.fromAnyOpenAPISchema) : undefined;
 
     const allOfRaw = s.allOf as unknown[] | undefined;
-    const allOf = allOfRaw
-      ? allOfRaw.map(ToolSchema.fromAnyOpenAPISchema)
-      : undefined;
+    const allOf = allOfRaw ? allOfRaw.map(ToolSchema.fromAnyOpenAPISchema) : undefined;
 
     return new ToolSchema({
       // Basic fields
@@ -373,9 +365,9 @@ export class ToolSchema {
     }
 
     // Union types / 联合类型
-    if (this.anyOf) result.anyOf = this.anyOf.map((s) => s.toJSONSchema());
-    if (this.oneOf) result.oneOf = this.oneOf.map((s) => s.toJSONSchema());
-    if (this.allOf) result.allOf = this.allOf.map((s) => s.toJSONSchema());
+    if (this.anyOf) result.anyOf = this.anyOf.map(s => s.toJSONSchema());
+    if (this.oneOf) result.oneOf = this.oneOf.map(s => s.toJSONSchema());
+    if (this.allOf) result.allOf = this.allOf.map(s => s.toJSONSchema());
 
     // Default value / 默认值
     if (this.default !== undefined) result.default = this.default;
@@ -442,8 +434,7 @@ export class ToolInfo {
     return new ToolInfo({
       name: toolName,
       description: toolDescription,
-      parameters:
-        parameters || new ToolSchema({ type: 'object', properties: {} }),
+      parameters: parameters || new ToolSchema({ type: 'object', properties: {} }),
     });
   }
 }

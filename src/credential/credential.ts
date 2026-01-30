@@ -6,10 +6,7 @@
  */
 
 import { Config } from '../utils/config';
-import {
-  listAllResourcesFunction,
-  updateObjectProperties,
-} from '../utils/resource';
+import { listAllResourcesFunction, updateObjectProperties } from '../utils/resource';
 
 import { ResourceBase } from '../utils/resource';
 import { CredentialClient } from './client';
@@ -19,7 +16,7 @@ import {
   CredentialInterface,
   CredentialSourceType,
   CredentialUpdateInput,
-  RelatedResource
+  RelatedResource,
 } from './model';
 
 export class Credential extends ResourceBase implements CredentialInterface {
@@ -60,12 +57,8 @@ export class Credential extends ResourceBase implements CredentialInterface {
   static create = async (paramsOrInput: any) => {
     // Backwards compatibility: allow calling Credential.create(input)
     const hasInputProp = paramsOrInput && paramsOrInput.input !== undefined;
-    const input: CredentialCreateInput = hasInputProp
-      ? paramsOrInput.input
-      : paramsOrInput;
-    const config: Config | undefined = hasInputProp
-      ? paramsOrInput.config
-      : undefined;
+    const input: CredentialCreateInput = hasInputProp ? paramsOrInput.input : paramsOrInput;
+    const config: Config | undefined = hasInputProp ? paramsOrInput.config : undefined;
     return await Credential.getClient().create({ input, config });
   };
 
@@ -76,9 +69,7 @@ export class Credential extends ResourceBase implements CredentialInterface {
     // Accept either (name: string) or ({ name, config })
     const isString = typeof paramsOrName === 'string';
     const name: string = isString ? paramsOrName : paramsOrName.name;
-    const config: Config | undefined = isString
-      ? undefined
-      : paramsOrName.config;
+    const config: Config | undefined = isString ? undefined : paramsOrName.config;
     return await Credential.getClient().delete({ name, config });
   };
 
@@ -100,9 +91,7 @@ export class Credential extends ResourceBase implements CredentialInterface {
     // Accept either name string or { name, config }
     const isString = typeof paramsOrName === 'string';
     const name: string = isString ? paramsOrName : paramsOrName.name;
-    const config: Config | undefined = isString
-      ? undefined
-      : paramsOrName.config;
+    const config: Config | undefined = isString ? undefined : paramsOrName.config;
     return await Credential.getClient().get({ name, config });
   };
 

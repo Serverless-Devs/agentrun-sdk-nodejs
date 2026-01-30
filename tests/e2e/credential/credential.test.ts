@@ -1,10 +1,5 @@
-
-
 import { Credential, CredentialClient, CredentialConfig } from '@/credential';
-import {
-  ResourceAlreadyExistError,
-  ResourceNotExistError,
-} from '@/utils/exception';
+import { ResourceAlreadyExistError, ResourceNotExistError } from '@/utils/exception';
 import { logger } from '@/utils/log';
 
 describe('test credential', () => {
@@ -35,9 +30,7 @@ describe('test credential', () => {
       expect(cred.credentialAuthType).toEqual('api_key');
       expect(cred.credentialSourceType).toEqual('internal');
       expect(cred.credentialPublicConfig).toBeDefined();
-      expect(cred.credentialPublicConfig?.['headerKey']).toEqual(
-        'Authorization'
-      );
+      expect(cred.credentialPublicConfig?.['headerKey']).toEqual('Authorization');
       expect(cred.credentialPublicConfig?.['users']).toEqual([]);
       expect(cred.credentialSecret).toEqual('sk-test-e2e-123456');
       expect(typeof cred.credentialId).toEqual('string');
@@ -74,9 +67,7 @@ describe('test credential', () => {
       expect(cred.credentialAuthType).toEqual('api_key');
       expect(cred.credentialSourceType).toEqual('internal');
       expect(cred.credentialPublicConfig).toBeDefined();
-      expect(cred.credentialPublicConfig?.['headerKey']).toEqual(
-        'Authorization'
-      );
+      expect(cred.credentialPublicConfig?.['headerKey']).toEqual('Authorization');
       expect(cred.credentialPublicConfig?.['users']).toEqual([]);
       expect(cred.credentialSecret).toEqual('sk-test-654321');
       expect(typeof cred.credentialId).toEqual('string');
@@ -134,8 +125,6 @@ describe('test credential', () => {
     await expect(cred.delete()).rejects.toThrow(ResourceNotExistError);
 
     // 验证删除
-    await expect(client.get({ name: credentialName })).rejects.toThrow(
-      ResourceNotExistError
-    );
+    await expect(client.get({ name: credentialName })).rejects.toThrow(ResourceNotExistError);
   });
 });

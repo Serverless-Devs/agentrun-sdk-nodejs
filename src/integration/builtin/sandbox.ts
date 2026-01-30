@@ -16,12 +16,7 @@ import {
   CodeLanguage,
 } from '@/sandbox';
 
-import {
-  Tool,
-  CommonToolSet,
-  type ToolParametersSchema,
-  type ToolFunction,
-} from './tool';
+import { Tool, CommonToolSet, type ToolParametersSchema, type ToolFunction } from './tool';
 
 // Import Playwright types from optional dependency declaration
 import type { Browser, Page } from 'playwright';
@@ -66,8 +61,7 @@ export abstract class SandboxToolSet extends CommonToolSet {
     this.client = new SandboxClient(options.config);
     this.templateName = options.templateName;
     this.templateType = options.templateType;
-    this.sandboxIdleTimeoutSeconds =
-      options.sandboxIdleTimeoutSeconds ?? 5 * 60;
+    this.sandboxIdleTimeoutSeconds = options.sandboxIdleTimeoutSeconds ?? 5 * 60;
   }
 
   /**
@@ -235,8 +229,7 @@ export class CodeInterpreterToolSet extends SandboxToolSet {
 
       createTool({
         name: 'delete_context',
-        description:
-          'Delete a specific execution context and release related resources.',
+        description: 'Delete a specific execution context and release related resources.',
         parameters: {
           type: 'object',
           properties: {
@@ -256,8 +249,7 @@ export class CodeInterpreterToolSet extends SandboxToolSet {
       // File Operations
       createTool({
         name: 'read_file',
-        description:
-          'Read the content of a file at the specified path in the sandbox.',
+        description: 'Read the content of a file at the specified path in the sandbox.',
         parameters: {
           type: 'object',
           properties: {
@@ -273,8 +265,7 @@ export class CodeInterpreterToolSet extends SandboxToolSet {
 
       createTool({
         name: 'write_file',
-        description:
-          'Write content to a file at the specified path in the sandbox.',
+        description: 'Write content to a file at the specified path in the sandbox.',
         parameters: {
           type: 'object',
           properties: {
@@ -471,25 +462,17 @@ export class CodeInterpreterToolSet extends SandboxToolSet {
   // Tool implementations
 
   checkHealth = async () => {
-    return this.runInSandbox(async (sb) => {
+    return this.runInSandbox(async sb => {
       const ciSandbox = sb as CodeInterpreterSandbox;
 
       return ciSandbox.checkHealth();
     });
   };
 
-  runCode = async (
-    code: string,
-    language?: string,
-    timeout?: number,
-    contextId?: string,
-  ) => {
-    return this.runInSandbox(async (sb) => {
+  runCode = async (code: string, language?: string, timeout?: number, contextId?: string) => {
+    return this.runInSandbox(async sb => {
       const ciSandbox = sb as CodeInterpreterSandbox;
-      const lang =
-        language === 'javascript' ?
-          CodeLanguage.JAVASCRIPT
-        : CodeLanguage.PYTHON;
+      const lang = language === 'javascript' ? CodeLanguage.JAVASCRIPT : CodeLanguage.PYTHON;
 
       if (contextId) {
         const result = await ciSandbox.context.execute({
@@ -530,7 +513,7 @@ export class CodeInterpreterToolSet extends SandboxToolSet {
   };
 
   listContexts = async () => {
-    return this.runInSandbox(async (sb) => {
+    return this.runInSandbox(async sb => {
       const ciSandbox = sb as CodeInterpreterSandbox;
       const contexts = await ciSandbox.context.list();
       return { contexts };
@@ -538,12 +521,9 @@ export class CodeInterpreterToolSet extends SandboxToolSet {
   };
 
   createContext = async (language?: string, cwd?: string) => {
-    return this.runInSandbox(async (sb) => {
+    return this.runInSandbox(async sb => {
       const ciSandbox = sb as CodeInterpreterSandbox;
-      const lang =
-        language === 'javascript' ?
-          CodeLanguage.JAVASCRIPT
-        : CodeLanguage.PYTHON;
+      const lang = language === 'javascript' ? CodeLanguage.JAVASCRIPT : CodeLanguage.PYTHON;
       const ctx = await ciSandbox.context.create({
         language: lang,
         cwd: cwd ?? '/home/user',
@@ -557,7 +537,7 @@ export class CodeInterpreterToolSet extends SandboxToolSet {
   };
 
   deleteContext = async (contextId: string) => {
-    return this.runInSandbox(async (sb) => {
+    return this.runInSandbox(async sb => {
       const ciSandbox = sb as CodeInterpreterSandbox;
       const result = await ciSandbox.context.delete({ contextId });
       return { success: true, result };
@@ -565,20 +545,15 @@ export class CodeInterpreterToolSet extends SandboxToolSet {
   };
 
   readFile = async (path: string) => {
-    return this.runInSandbox(async (sb) => {
+    return this.runInSandbox(async sb => {
       const ciSandbox = sb as CodeInterpreterSandbox;
       const content = await ciSandbox.file.read({ path });
       return { path, content };
     });
   };
 
-  writeFile = async (
-    path: string,
-    content: string,
-    mode?: string,
-    encoding?: string,
-  ) => {
-    return this.runInSandbox(async (sb) => {
+  writeFile = async (path: string, content: string, mode?: string, encoding?: string) => {
+    return this.runInSandbox(async sb => {
       const ciSandbox = sb as CodeInterpreterSandbox;
       const result = await ciSandbox.file.write({
         path,
@@ -591,7 +566,7 @@ export class CodeInterpreterToolSet extends SandboxToolSet {
   };
 
   fileSystemList = async (path?: string, depth?: number) => {
-    return this.runInSandbox(async (sb) => {
+    return this.runInSandbox(async sb => {
       const ciSandbox = sb as CodeInterpreterSandbox;
       const entries = await ciSandbox.fileSystem.list({
         path: path ?? '/',
@@ -602,7 +577,7 @@ export class CodeInterpreterToolSet extends SandboxToolSet {
   };
 
   fileSystemStat = async (path: string) => {
-    return this.runInSandbox(async (sb) => {
+    return this.runInSandbox(async sb => {
       const ciSandbox = sb as CodeInterpreterSandbox;
       const stat = await ciSandbox.fileSystem.stat({ path });
       return { path, stat };
@@ -610,7 +585,7 @@ export class CodeInterpreterToolSet extends SandboxToolSet {
   };
 
   fileSystemMkdir = async (path: string, parents?: boolean, mode?: string) => {
-    return this.runInSandbox(async (sb) => {
+    return this.runInSandbox(async sb => {
       const ciSandbox = sb as CodeInterpreterSandbox;
       const result = await ciSandbox.fileSystem.mkdir({
         path,
@@ -622,7 +597,7 @@ export class CodeInterpreterToolSet extends SandboxToolSet {
   };
 
   fileSystemMove = async (source: string, destination: string) => {
-    return this.runInSandbox(async (sb) => {
+    return this.runInSandbox(async sb => {
       const ciSandbox = sb as CodeInterpreterSandbox;
       const result = await ciSandbox.fileSystem.move({ source, destination });
       return { source, destination, success: true, result };
@@ -630,7 +605,7 @@ export class CodeInterpreterToolSet extends SandboxToolSet {
   };
 
   fileSystemRemove = async (path: string) => {
-    return this.runInSandbox(async (sb) => {
+    return this.runInSandbox(async sb => {
       const ciSandbox = sb as CodeInterpreterSandbox;
       const result = await ciSandbox.fileSystem.remove({ path });
       return { path, success: true, result };
@@ -638,7 +613,7 @@ export class CodeInterpreterToolSet extends SandboxToolSet {
   };
 
   processExecCmd = async (command: string, cwd?: string, timeout?: number) => {
-    return this.runInSandbox(async (sb) => {
+    return this.runInSandbox(async sb => {
       const ciSandbox = sb as CodeInterpreterSandbox;
       const result = await ciSandbox.process.cmd({
         command,
@@ -656,7 +631,7 @@ export class CodeInterpreterToolSet extends SandboxToolSet {
   };
 
   processList = () => {
-    return this.runInSandbox(async (sb) => {
+    return this.runInSandbox(async sb => {
       const ciSandbox = sb as CodeInterpreterSandbox;
       const processes = await ciSandbox.process.list();
       return { processes };
@@ -664,7 +639,7 @@ export class CodeInterpreterToolSet extends SandboxToolSet {
   };
 
   processKill = async (pid: string) => {
-    return this.runInSandbox(async (sb) => {
+    return this.runInSandbox(async sb => {
       const ciSandbox = sb as CodeInterpreterSandbox;
       const result = await ciSandbox.process.kill({ pid });
       return { pid, success: true, result };
@@ -708,7 +683,7 @@ export class BrowserToolSet extends SandboxToolSet {
       return await import('playwright');
     } catch {
       throw new Error(
-        'Playwright is not installed. Please install it with: npm install playwright',
+        'Playwright is not installed. Please install it with: npm install playwright'
       );
     }
   }
@@ -761,7 +736,7 @@ export class BrowserToolSet extends SandboxToolSet {
    */
   override close() {
     if (this.playwrightBrowser) {
-      this.playwrightBrowser.close().catch((e) => {
+      this.playwrightBrowser.close().catch(e => {
         logger.debug('Failed to close Playwright browser:', e);
       });
       this.playwrightBrowser = null;
@@ -785,8 +760,7 @@ export class BrowserToolSet extends SandboxToolSet {
       // Navigation
       createTool({
         name: 'browser_navigate',
-        description:
-          'Navigate to the specified URL. This is the first step in browser automation.',
+        description: 'Navigate to the specified URL. This is the first step in browser automation.',
         parameters: {
           type: 'object',
           properties: {
@@ -819,8 +793,7 @@ export class BrowserToolSet extends SandboxToolSet {
 
       createTool({
         name: 'browser_take_screenshot',
-        description:
-          'Capture a screenshot of the current page, returns base64 encoded image data.',
+        description: 'Capture a screenshot of the current page, returns base64 encoded image data.',
         parameters: {
           type: 'object',
           properties: {
@@ -868,8 +841,7 @@ export class BrowserToolSet extends SandboxToolSet {
 
       createTool({
         name: 'browser_fill',
-        description:
-          'Fill a form input with a value. Clears existing content first.',
+        description: 'Fill a form input with a value. Clears existing content first.',
         parameters: {
           type: 'object',
           properties: {
@@ -940,8 +912,7 @@ export class BrowserToolSet extends SandboxToolSet {
       // Advanced
       createTool({
         name: 'browser_evaluate',
-        description:
-          'Execute JavaScript code in the page context and return the result.',
+        description: 'Execute JavaScript code in the page context and return the result.',
         parameters: {
           type: 'object',
           properties: {
@@ -1027,7 +998,7 @@ export class BrowserToolSet extends SandboxToolSet {
   // Tool implementations using Playwright
 
   checkHealth = async () => {
-    return this.runInSandbox(async (sb) => {
+    return this.runInSandbox(async sb => {
       const browserSandbox = sb as BrowserSandbox;
       return browserSandbox.checkHealth();
     });
@@ -1293,17 +1264,14 @@ export async function sandboxToolset(
     templateType?: TemplateType;
     config?: Config;
     sandboxIdleTimeoutSeconds?: number;
-  },
+  }
 ) {
   const client = new SandboxClient();
   const template = await client.getTemplate({ name: templateName });
 
   const templateType = template.templateType;
 
-  if (
-    templateType === TemplateType.BROWSER ||
-    templateType === TemplateType.AIO
-  )
+  if (templateType === TemplateType.BROWSER || templateType === TemplateType.AIO)
     return new BrowserToolSet({
       templateName,
       config: options?.config,

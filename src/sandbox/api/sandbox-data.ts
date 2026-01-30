@@ -5,23 +5,23 @@
  * 此模块提供用于与 AgentRun Sandbox Data API 交互的 HTTP 客户端。
  */
 
-import * as $AgentRun from "@alicloud/agentrun20250910";
-import * as $Util from "@alicloud/tea-util";
+import * as $AgentRun from '@alicloud/agentrun20250910';
+import * as $Util from '@alicloud/tea-util';
 
-import { Config } from "../../utils/config";
-import { ControlAPI } from "../../utils/control-api";
-import { ClientError } from "../../utils/exception";
-import { logger } from "../../utils/log";
+import { Config } from '../../utils/config';
+import { ControlAPI } from '../../utils/control-api';
+import { ClientError } from '../../utils/exception';
+import { logger } from '../../utils/log';
 
 /**
  * Resource type enum
  */
 export enum ResourceType {
-  Runtime = "runtime",
-  LiteLLM = "litellm",
-  Tool = "tool",
-  Template = "template",
-  Sandbox = "sandbox",
+  Runtime = 'runtime',
+  LiteLLM = 'litellm',
+  Tool = 'tool',
+  Template = 'template',
+  Sandbox = 'sandbox',
 }
 
 /**
@@ -43,9 +43,9 @@ export class SandboxDataAPI {
     config?: Config;
     namespace?: string;
   }) {
-    const { config, namespace = "sandboxes" } = params;
+    const { config, namespace = 'sandboxes' } = params;
 
-    this.resourceName = "";
+    this.resourceName = '';
     this.resourceType = ResourceType.Template;
     this.namespace = namespace;
     this.config = config || new Config();
@@ -75,7 +75,7 @@ export class SandboxDataAPI {
     } else if (templateName) {
       this.resourceName = templateName;
       this.resourceType = ResourceType.Template;
-      this.namespace = "sandboxes";
+      this.namespace = 'sandboxes';
     }
 
     if (cachedToken) {
@@ -101,25 +101,20 @@ export class SandboxDataAPI {
   /**
    * Construct full URL with path and query parameters
    */
-  protected withPath(
-    path: string,
-    query?: Record<string, any>,
-  ): string {
+  protected withPath(path: string, query?: Record<string, any>): string {
     // Remove leading slash
-    path = path.replace(/^\//, "");
+    path = path.replace(/^\//, '');
 
     // Build base URL
-    const parts = [this.getBaseUrl(), this.namespace, path].filter(
-      (p) => p && p.length > 0,
-    );
-    let url = parts.join("/").replace(/\/+/g, "/").replace(/:\//g, "://");
+    const parts = [this.getBaseUrl(), this.namespace, path].filter(p => p && p.length > 0);
+    let url = parts.join('/').replace(/\/+/g, '/').replace(/:\//g, '://');
 
     // Add query parameters
     if (query && Object.keys(query).length > 0) {
       const urlObj = new URL(url);
       Object.entries(query).forEach(([key, value]) => {
         if (Array.isArray(value)) {
-          value.forEach((v) => urlObj.searchParams.append(key, String(v)));
+          value.forEach(v => urlObj.searchParams.append(key, String(v)));
         } else if (value !== undefined && value !== null) {
           urlObj.searchParams.append(key, String(value));
         }
@@ -138,20 +133,13 @@ export class SandboxDataAPI {
 
     // If token is provided in config, use it directly
     if (cfg.token) {
-      logger.debug(
-        `Using provided access token from config: ${this.maskToken(cfg.token)}`,
-      );
+      logger.debug(`Using provided access token from config: ${this.maskToken(cfg.token)}`);
       this.accessToken = cfg.token;
       return;
     }
 
     // Fetch access token from control API if needed
-    if (
-      !this.accessToken &&
-      this.resourceName &&
-      this.resourceType &&
-      !cfg.token
-    ) {
+    if (!this.accessToken && this.resourceName && this.resourceType && !cfg.token) {
       try {
         const controlApi = new ControlAPI(cfg);
         const client = (controlApi as any).getClient(cfg);
@@ -173,11 +161,11 @@ export class SandboxDataAPI {
         this.accessToken = response.body?.data?.accessToken;
 
         logger.debug(
-          `Fetched access token for resource ${this.resourceName} of type ${this.resourceType}: ${this.maskToken(this.accessToken || "")}`,
+          `Fetched access token for resource ${this.resourceName} of type ${this.resourceType}: ${this.maskToken(this.accessToken || '')}`
         );
       } catch (error) {
         logger.warn(
-          `Failed to get access token for ${this.resourceType}(${this.resourceName}): ${error}`,
+          `Failed to get access token for ${this.resourceType}(${this.resourceName}): ${error}`
         );
       }
     }
@@ -188,7 +176,7 @@ export class SandboxDataAPI {
    */
   protected maskToken(token: string): string {
     if (!token || token.length <= 8) {
-      return "***";
+      return '***';
     }
     return `${token.substring(0, 4)}...${token.substring(token.length - 4)}`;
   }
@@ -203,9 +191,9 @@ export class SandboxDataAPI {
     const cfg = Config.withConfigs(this.config, params.config);
 
     const reqHeaders: Record<string, string> = {
-      "Content-Type": "application/json",
-      "User-Agent": "AgentRunDataClient-Node/1.0",
-      "Agentrun-Access-Token": cfg.token || this.accessToken || "",
+      'Content-Type': 'application/json',
+      'User-Agent': 'AgentRunDataClient-Node/1.0',
+      'Agentrun-Access-Token': cfg.token || this.accessToken || '',
       ...cfg.headers,
       ...(params.headers || {}),
     };
@@ -236,7 +224,7 @@ export class SandboxDataAPI {
       Object.entries(query).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
           if (Array.isArray(value)) {
-            value.forEach((v) => urlObj.searchParams.append(key, String(v)));
+            value.forEach(v => urlObj.searchParams.append(key, String(v)));
           } else {
             urlObj.searchParams.append(key, String(value));
           }
@@ -246,7 +234,7 @@ export class SandboxDataAPI {
     }
 
     logger.debug(
-      `${method} ${finalUrl} headers=${JSON.stringify(reqHeaders)} data=${JSON.stringify(data)}`,
+      `${method} ${finalUrl} headers=${JSON.stringify(reqHeaders)} data=${JSON.stringify(data)}`
     );
 
     try {
@@ -269,8 +257,8 @@ export class SandboxDataAPI {
           const errorMsg = `Failed to parse JSON response: ${error}`;
           logger.error(errorMsg);
 
-          if (response.status === 502 && responseText.includes("502 Bad Gateway")) {
-            throw new ClientError(response.status, "502 Bad Gateway");
+          if (response.status === 502 && responseText.includes('502 Bad Gateway')) {
+            throw new ClientError(response.status, '502 Bad Gateway');
           }
 
           throw new ClientError(response.status, errorMsg);
@@ -299,7 +287,7 @@ export class SandboxDataAPI {
   }): Promise<T> {
     const url = this.withPath(params.path, params.query);
     return this.makeRequest<T>({
-      method: "GET",
+      method: 'GET',
       url,
       headers: params.headers,
       config: params.config,
@@ -318,7 +306,7 @@ export class SandboxDataAPI {
   }): Promise<T> {
     const url = this.withPath(params.path, params.query);
     return this.makeRequest<T>({
-      method: "POST",
+      method: 'POST',
       url,
       data: params.data,
       headers: params.headers,
@@ -338,7 +326,7 @@ export class SandboxDataAPI {
   }): Promise<T> {
     const url = this.withPath(params.path, params.query);
     return this.makeRequest<T>({
-      method: "PUT",
+      method: 'PUT',
       url,
       data: params.data,
       headers: params.headers,
@@ -358,7 +346,7 @@ export class SandboxDataAPI {
   }): Promise<T> {
     const url = this.withPath(params.path, params.query);
     return this.makeRequest<T>({
-      method: "PATCH",
+      method: 'PATCH',
       url,
       data: params.data,
       headers: params.headers,
@@ -377,7 +365,7 @@ export class SandboxDataAPI {
   }): Promise<T> {
     const url = this.withPath(params.path, params.query);
     return this.makeRequest<T>({
-      method: "DELETE",
+      method: 'DELETE',
       url,
       headers: params.headers,
       config: params.config,
@@ -387,16 +375,16 @@ export class SandboxDataAPI {
   /**
    * Check sandbox health
    */
-  checkHealth = async (params: { 
+  checkHealth = async (params: {
     sandboxId: string;
-    config?: Config 
+    config?: Config;
   }): Promise<{ status: string; [key: string]: any }> => {
     await this.refreshAccessToken({
       sandboxId: params.sandboxId,
       config: params.config,
     });
-    
-    return this.get({ path: "/health", config: params.config });
+
+    return this.get({ path: '/health', config: params.config });
   };
 
   /**
@@ -434,7 +422,7 @@ export class SandboxDataAPI {
     }
 
     return this.post({
-      path: "/",
+      path: '/',
       data,
     });
   };
@@ -442,45 +430,36 @@ export class SandboxDataAPI {
   /**
    * Delete sandbox
    */
-  deleteSandbox = async (params: {
-    sandboxId: string;
-    config?: Config;
-  }): Promise<any> => {
+  deleteSandbox = async (params: { sandboxId: string; config?: Config }): Promise<any> => {
     await this.refreshAccessToken({
       sandboxId: params.sandboxId,
       config: params.config,
     });
 
-    return this.delete({ path: "/" });
+    return this.delete({ path: '/' });
   };
 
   /**
    * Stop sandbox
    */
-  stopSandbox = async (params: {
-    sandboxId: string;
-    config?: Config;
-  }): Promise<any> => {
+  stopSandbox = async (params: { sandboxId: string; config?: Config }): Promise<any> => {
     await this.refreshAccessToken({
       sandboxId: params.sandboxId,
       config: params.config,
     });
 
-    return this.post({ path: "/stop" });
+    return this.post({ path: '/stop' });
   };
 
   /**
    * Get sandbox info
    */
-  getSandbox = async (params: {
-    sandboxId: string;
-    config?: Config;
-  }): Promise<any> => {
+  getSandbox = async (params: { sandboxId: string; config?: Config }): Promise<any> => {
     await this.refreshAccessToken({
       sandboxId: params.sandboxId,
       config: params.config,
     });
 
-    return this.get({ path: "/" });
+    return this.get({ path: '/' });
   };
 }

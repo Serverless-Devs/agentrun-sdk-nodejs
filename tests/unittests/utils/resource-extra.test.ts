@@ -10,9 +10,7 @@ class DummyResource extends ResourceBase {
 describe('ResourceBase deleteAndWaitUntilFinished extra branches', () => {
   test('returns immediately when delete throws ResourceNotExistError', async () => {
     const resource = new DummyResource();
-    (resource.delete as jest.Mock).mockRejectedValue(
-      new ResourceNotExistError('type', 'id')
-    );
+    (resource.delete as jest.Mock).mockRejectedValue(new ResourceNotExistError('type', 'id'));
     resource.waitUntil = jest.fn();
 
     await expect(resource.deleteAndWaitUntilFinished()).resolves.toBeUndefined();
@@ -22,9 +20,7 @@ describe('ResourceBase deleteAndWaitUntilFinished extra branches', () => {
   test('treats refresh ResourceNotExistError as completion', async () => {
     const resource = new DummyResource();
     resource.status = Status.CREATING;
-    resource.refresh = jest
-      .fn()
-      .mockRejectedValue(new ResourceNotExistError('type', 'id'));
+    resource.refresh = jest.fn().mockRejectedValue(new ResourceNotExistError('type', 'id'));
 
     const waitUntil = jest.fn(async ({ checkFinishedCallback }) => {
       const finished = await checkFinishedCallback(resource);

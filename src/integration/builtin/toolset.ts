@@ -38,14 +38,9 @@ import { CommonToolSet } from './tool';
  * const mastraTools = await ts.toMastra();
  * ```
  */
-export async function toolset(
-  input: string | ToolSet,
-  config?: Config
-): Promise<CommonToolSet> {
+export async function toolset(input: string | ToolSet, config?: Config): Promise<CommonToolSet> {
   const toolsetInstance =
-    input instanceof ToolSet
-      ? input
-      : await new ToolSetClient(config).get({ name: input, config });
+    input instanceof ToolSet ? input : await new ToolSetClient(config).get({ name: input, config });
 
   return CommonToolSet.fromAgentRunToolSet(toolsetInstance, config);
 }

@@ -6,7 +6,7 @@ on:
     branches:
       - '**'
     tags-ignore:
-      - '**'  # 忽略 tag push，避免与 release 事件重复触发
+      - '**' # 忽略 tag push，避免与 release 事件重复触发
 
   # GitHub Release 触发正式发布
   release:
@@ -21,8 +21,8 @@ on:
         default: 'test'
         type: choice
         options:
-          - official  # 正式发布
-          - test      # 测试发布
+          - official # 正式发布
+          - test # 测试发布
       version:
         description: '版本号（留空则自动递增）/ Version (leave empty for auto-increment)'
         required: false
@@ -33,9 +33,9 @@ on:
         default: 'patch'
         type: choice
         options:
-          - patch   # 0.0.1 -> 0.0.2
-          - minor   # 0.0.1 -> 0.1.0
-          - major   # 0.0.1 -> 1.0.0
+          - patch # 0.0.1 -> 0.0.2
+          - minor # 0.0.1 -> 0.1.0
+          - major # 0.0.1 -> 1.0.0
 
 jobs:
   # 等待 CI 测试通过（仅 push 触发时）
@@ -104,20 +104,20 @@ jobs:
           # 获取包名
           PACKAGE_NAME=$(node -p "require('./package.json').name")
           echo "PACKAGE_NAME=${PACKAGE_NAME}" >> $GITHUB_OUTPUT
-          
+
           # 获取基础版本号
           BASE_VERSION=$(node -p "require('./package.json').version")
-          
+
           # 生成唯一标识符：优先使用 run_id，否则使用时间戳
           if [ -n "${{ github.run_id }}" ]; then
             UNIQUE_ID="${{ github.run_id }}"
           else
             UNIQUE_ID=$(date +%Y%m%d%H%M%S)
           fi
-          
+
           # 生成 prerelease 版本号
           VERSION="${BASE_VERSION}-test.${UNIQUE_ID}"
-          
+
           echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
           echo "Test version: ${VERSION}"
 
@@ -148,12 +148,12 @@ jobs:
           PACKAGE_NAME="${{ steps.version.outputs.PACKAGE_NAME }}"
           VERSION="${{ steps.version.outputs.VERSION }}"
           echo "Publishing ${PACKAGE_NAME}@${VERSION} with tag=test"
-          
+
           # Remove any .npmrc that might interfere with OIDC
           rm -f ~/.npmrc
           rm -f .npmrc
           rm -f /home/runner/work/_temp/.npmrc
-          
+
           # Publish using Trusted Publishers (OIDC)
           npm publish --tag test --access public --provenance
         env:
@@ -211,7 +211,7 @@ jobs:
         run: |
           PACKAGE_NAME=$(node -p "require('./package.json').name")
           echo "PACKAGE_NAME=${PACKAGE_NAME}" >> $GITHUB_OUTPUT
-          
+
           # 确定版本号
           if [ "${{ github.event_name }}" = "release" ]; then
             VERSION="${{ github.event.release.tag_name }}"
@@ -254,7 +254,7 @@ jobs:
               VERSION="${MAJOR}.${MINOR}.${PATCH}"
             fi
           fi
-          
+
           echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
           echo "Official version: ${VERSION}"
 
@@ -297,12 +297,12 @@ jobs:
           PACKAGE_NAME="${{ steps.config.outputs.PACKAGE_NAME }}"
           VERSION="${{ steps.config.outputs.VERSION }}"
           echo "Publishing ${PACKAGE_NAME}@${VERSION} with tag=latest"
-          
+
           # Remove any .npmrc that might interfere with OIDC
           rm -f ~/.npmrc
           rm -f .npmrc
           rm -f /home/runner/work/_temp/.npmrc
-          
+
           # Publish using Trusted Publishers (OIDC)
           npm publish --tag latest --access public --provenance
         env:
@@ -357,7 +357,7 @@ jobs:
         run: |
           PACKAGE_NAME=$(node -p "require('./package.json').name")
           echo "PACKAGE_NAME=${PACKAGE_NAME}" >> $GITHUB_OUTPUT
-          
+
           VERSION="${{ inputs.version }}"
           if [ -z "$VERSION" ]; then
             # 自动生成测试版本号
@@ -372,7 +372,7 @@ jobs:
             
             VERSION="${BASE_VERSION}-test.${UNIQUE_ID}"
           fi
-          
+
           echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
           echo "Test version: ${VERSION}"
 
@@ -401,12 +401,12 @@ jobs:
           PACKAGE_NAME="${{ steps.version.outputs.PACKAGE_NAME }}"
           VERSION="${{ steps.version.outputs.VERSION }}"
           echo "Publishing ${PACKAGE_NAME}@${VERSION} with tag=test"
-          
+
           # Remove any .npmrc that might interfere with OIDC
           rm -f ~/.npmrc
           rm -f .npmrc
           rm -f /home/runner/work/_temp/.npmrc
-          
+
           # Publish using Trusted Publishers (OIDC)
           npm publish --tag test --access public --provenance
         env:

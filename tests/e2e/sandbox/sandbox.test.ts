@@ -10,8 +10,6 @@
  * - Sandbox 生命周期测试
  */
 
-
-
 import {
   Sandbox,
   Template,
@@ -32,7 +30,7 @@ function generateUniqueName(prefix: string): string {
 }
 
 function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 describe('Sandbox E2E Tests', () => {
@@ -157,7 +155,7 @@ describe('Sandbox E2E Tests', () => {
       expect(sandboxes.length).toBeGreaterThan(0);
 
       // 验证包含我们创建的 sandbox
-      const found = sandboxes.find((s) => s.sandboxId === createdSandboxId);
+      const found = sandboxes.find(s => s.sandboxId === createdSandboxId);
       expect(found).toBeDefined();
     });
 
@@ -417,4 +415,3 @@ describe('Sandbox E2E Tests', () => {
     });
   });
 });
-

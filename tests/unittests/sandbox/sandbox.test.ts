@@ -165,9 +165,7 @@ describe('Sandbox', () => {
     });
 
     it('should throw ClientError when creation fails', async () => {
-      mockClientCreateSandbox.mockRejectedValue(
-        new ClientError(400, 'Template not found')
-      );
+      mockClientCreateSandbox.mockRejectedValue(new ClientError(400, 'Template not found'));
 
       await expect(
         Sandbox.create({ input: { templateName: 'non-existent-template' } })
@@ -192,13 +190,9 @@ describe('Sandbox', () => {
     });
 
     it('should throw ClientError when deletion fails', async () => {
-      mockClientDeleteSandbox.mockRejectedValue(
-        new ClientError(404, 'Sandbox not found')
-      );
+      mockClientDeleteSandbox.mockRejectedValue(new ClientError(404, 'Sandbox not found'));
 
-      await expect(Sandbox.delete({ id: 'non-existent' })).rejects.toThrow(
-        ClientError
-      );
+      await expect(Sandbox.delete({ id: 'non-existent' })).rejects.toThrow(ClientError);
     });
   });
 
@@ -219,13 +213,9 @@ describe('Sandbox', () => {
     });
 
     it('should throw ClientError when stop fails', async () => {
-      mockClientStopSandbox.mockRejectedValue(
-        new ClientError(404, 'Sandbox not found')
-      );
+      mockClientStopSandbox.mockRejectedValue(new ClientError(404, 'Sandbox not found'));
 
-      await expect(Sandbox.stop({ id: 'non-existent' })).rejects.toThrow(
-        ClientError
-      );
+      await expect(Sandbox.stop({ id: 'non-existent' })).rejects.toThrow(ClientError);
     });
   });
 
@@ -251,9 +241,7 @@ describe('Sandbox', () => {
         message: 'Sandbox not found',
       });
 
-      await expect(Sandbox.get({ id: 'non-existent' })).rejects.toThrow(
-        ClientError
-      );
+      await expect(Sandbox.get({ id: 'non-existent' })).rejects.toThrow(ClientError);
     });
   });
 
@@ -280,9 +268,7 @@ describe('Sandbox', () => {
     });
 
     it('should throw ClientError on API error', async () => {
-      mockClientListSandboxes.mockRejectedValue(
-        new ClientError(500, 'Server error')
-      );
+      mockClientListSandboxes.mockRejectedValue(new ClientError(500, 'Server error'));
 
       await expect(Sandbox.list({})).rejects.toThrow(ClientError);
     });
@@ -307,9 +293,7 @@ describe('Sandbox', () => {
       it('should throw error if sandboxId is not set', async () => {
         const sandbox = new Sandbox({});
 
-        await expect(sandbox.delete()).rejects.toThrow(
-          'sandboxId is required to delete a Sandbox'
-        );
+        await expect(sandbox.delete()).rejects.toThrow('sandboxId is required to delete a Sandbox');
       });
     });
 
@@ -331,9 +315,7 @@ describe('Sandbox', () => {
       it('should throw error if sandboxId is not set', async () => {
         const sandbox = new Sandbox({});
 
-        await expect(sandbox.stop()).rejects.toThrow(
-          'sandboxId is required to stop a Sandbox'
-        );
+        await expect(sandbox.stop()).rejects.toThrow('sandboxId is required to stop a Sandbox');
       });
     });
 

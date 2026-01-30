@@ -20,13 +20,7 @@ export const BackendType = {
 /**
  * Model type enum
  */
-export type ModelType =
-  | 'llm'
-  | 'text-embedding'
-  | 'speech2text'
-  | 'tts'
-  | 'rerank'
-  | 'moderation';
+export type ModelType = 'llm' | 'text-embedding' | 'speech2text' | 'tts' | 'rerank' | 'moderation';
 
 export const ModelType = {
   LLM: 'llm' as ModelType,
@@ -235,8 +229,7 @@ export interface ModelProxySystemProps extends CommonModelSystemProps {
 }
 
 export interface ModelServiceCreateInput
-  extends ModelServiceImmutableProps,
-    ModelServiceMutableProps {}
+  extends ModelServiceImmutableProps, ModelServiceMutableProps {}
 
 export interface ModelServiceUpdateInput extends ModelServiceMutableProps {}
 
@@ -249,9 +242,7 @@ export interface ModelServiceListInput extends PageableInput {
 /**
  * Model proxy create input
  */
-export interface ModelProxyCreateInput
-  extends ModelServiceImmutableProps,
-    ModelProxyMutableProps {}
+export interface ModelProxyCreateInput extends ModelServiceImmutableProps, ModelProxyMutableProps {}
 
 /**
  * Model proxy update input
@@ -271,13 +262,9 @@ export interface ModelProxyListInput extends PageableInput {
 }
 
 export interface ModelProxyInterface
-  extends ModelProxyMutableProps,
-    ModelProxyImmutableProps,
-    ModelProxySystemProps {}
+  extends ModelProxyMutableProps, ModelProxyImmutableProps, ModelProxySystemProps {}
 export interface ModelServiceInterface
-  extends ModelServiceMutableProps,
-    ModelServiceImmutableProps,
-    ModelServiceSystemProps {}
+  extends ModelServiceMutableProps, ModelServiceImmutableProps, ModelServiceSystemProps {}
 
 /**
  * Model service data type (complete data structure)
@@ -288,4 +275,3 @@ export type ModelServiceData = ModelServiceInterface;
  * Model proxy data type (complete data structure)
  */
 export type ModelProxyData = ModelProxyInterface;
-

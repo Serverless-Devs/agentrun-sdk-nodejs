@@ -183,7 +183,7 @@ export class AGUIProtocolHandler extends ProtocolHandler {
    */
   private async handleAgent(
     req: ProtocolRequest,
-    invoker: AgentInvoker,
+    invoker: AgentInvoker
   ): Promise<ProtocolResponse> {
     try {
       const { agentRequest, context } = this.parseRequest(req.body);
@@ -206,9 +206,7 @@ export class AGUIProtocolHandler extends ProtocolHandler {
           'Cache-Control': 'no-cache',
           Connection: 'keep-alive',
         },
-        body: this.errorStream(
-          error instanceof Error ? error.message : String(error),
-        ),
+        body: this.errorStream(error instanceof Error ? error.message : String(error)),
       };
     }
   }
@@ -225,12 +223,8 @@ export class AGUIProtocolHandler extends ProtocolHandler {
       runId: (body.runId as string) || uuidv4(),
     };
 
-    const messages = this.parseMessages(
-      (body.messages as Array<Record<string, unknown>>) || [],
-    );
-    const tools = this.parseTools(
-      body.tools as Array<Record<string, unknown>> | undefined,
-    );
+    const messages = this.parseMessages((body.messages as Array<Record<string, unknown>>) || []);
+    const tools = this.parseTools(body.tools as Array<Record<string, unknown>> | undefined);
 
     const agentRequest: AgentRequest = {
       protocol: 'agui',
@@ -247,9 +241,7 @@ export class AGUIProtocolHandler extends ProtocolHandler {
   /**
    * Parse messages list
    */
-  private parseMessages(
-    rawMessages: Array<Record<string, unknown>>,
-  ): Message[] {
+  private parseMessages(rawMessages: Array<Record<string, unknown>>): Message[] {
     const messages: Message[] = [];
 
     for (const msg of rawMessages) {
@@ -264,11 +256,9 @@ export class AGUIProtocolHandler extends ProtocolHandler {
       }
 
       let toolCalls: ToolCall[] | undefined;
-      const rawToolCalls = msg.toolCalls as
-        | Array<Record<string, unknown>>
-        | undefined;
+      const rawToolCalls = msg.toolCalls as Array<Record<string, unknown>> | undefined;
       if (rawToolCalls && Array.isArray(rawToolCalls)) {
-        toolCalls = rawToolCalls.map((tc) => ({
+        toolCalls = rawToolCalls.map(tc => ({
           id: (tc.id as string) || '',
           type: (tc.type as string) || 'function',
           function: (tc.function as { name: string; arguments: string }) || {
@@ -315,7 +305,7 @@ export class AGUIProtocolHandler extends ProtocolHandler {
    */
   private async *formatStream(
     events: AsyncGenerator<AgentEvent>,
-    context: { threadId: string; runId: string },
+    context: { threadId: string; runId: string }
   ): AsyncGenerator<string> {
     const state = new StreamState();
 
@@ -357,7 +347,7 @@ export class AGUIProtocolHandler extends ProtocolHandler {
   private *processEvent(
     event: AgentEvent,
     context: { threadId: string; runId: string },
-    state: StreamState,
+    state: StreamState
   ): Generator<Record<string, unknown>> {
     // RAW event: yield raw data directly (handled specially in encode)
     if (event.event === EventType.RAW) {
@@ -380,11 +370,7 @@ export class AGUIProtocolHandler extends ProtocolHandler {
       };
 
       if (event.addition) {
-        yield this.applyAddition(
-          aguiEvent,
-          event.addition,
-          event.additionMergeOptions,
-        );
+        yield this.applyAddition(aguiEvent, event.addition, event.additionMergeOptions);
       } else {
         yield aguiEvent;
       }
@@ -418,10 +404,7 @@ export class AGUIProtocolHandler extends ProtocolHandler {
       yield {
         type: AGUI_EVENT_TYPES.TOOL_CALL_ARGS,
         toolCallId: toolId,
-        delta:
-          (event.data?.args_delta as string) ||
-          (event.data?.argsDelta as string) ||
-          '',
+        delta: (event.data?.args_delta as string) || (event.data?.argsDelta as string) || '',
       };
       return;
     }
@@ -472,9 +455,7 @@ export class AGUIProtocolHandler extends ProtocolHandler {
     if (event.event === EventType.HITL) {
       const hitlId = (event.data?.id as string) || '';
       const toolCallId =
-        (event.data?.tool_call_id as string) ||
-        (event.data?.toolCallId as string) ||
-        '';
+        (event.data?.tool_call_id as string) || (event.data?.toolCallId as string) || '';
       const hitlType = (event.data?.type as string) || 'confirmation';
       const prompt = (event.data?.prompt as string) || '';
 
@@ -495,10 +476,8 @@ export class AGUIProtocolHandler extends ProtocolHandler {
       // Create independent HITL tool call
       const argsDict: Record<string, unknown> = { type: hitlType, prompt };
       if (event.data?.options) argsDict.options = event.data.options;
-      if (event.data?.default !== undefined)
-        argsDict.default = event.data.default;
-      if (event.data?.timeout !== undefined)
-        argsDict.timeout = event.data.timeout;
+      if (event.data?.default !== undefined) argsDict.default = event.data.default;
+      if (event.data?.timeout !== undefined) argsDict.timeout = event.data.timeout;
       if (event.data?.schema) argsDict.schema = event.data.schema;
 
       const actualId = toolCallId || hitlId;
@@ -554,9 +533,7 @@ export class AGUIProtocolHandler extends ProtocolHandler {
         toolState.ended = true;
       }
 
-      let finalResult =
-        ((event.data?.content as string) || (event.data?.result as string)) ??
-        '';
+      let finalResult = ((event.data?.content as string) || (event.data?.result as string)) ?? '';
       if (toolId) {
         const cachedChunks = state.popToolResultChunks(toolId);
         if (cachedChunks) {
@@ -644,7 +621,7 @@ export class AGUIProtocolHandler extends ProtocolHandler {
   private applyAddition(
     eventData: Record<string, unknown>,
     addition: Record<string, unknown>,
-    mergeOptions?: MergeOptions,
+    mergeOptions?: MergeOptions
   ): Record<string, unknown> {
     if (!addition) return eventData;
 

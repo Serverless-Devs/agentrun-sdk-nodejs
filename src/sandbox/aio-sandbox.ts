@@ -10,13 +10,7 @@ import { logger } from '../utils/log';
 import { ServerError } from '../utils/exception';
 
 import { AioDataAPI } from './api/aio-data';
-import {
-  CodeLanguage,
-  NASConfig,
-  OSSMountConfig,
-  PolarFsConfig,
-  TemplateType,
-} from './model';
+import { CodeLanguage, NASConfig, OSSMountConfig, PolarFsConfig, TemplateType } from './model';
 import { Sandbox } from './sandbox';
 
 /**
@@ -70,10 +64,7 @@ export class AioFileSystemOperations {
   /**
    * Move a file or directory
    */
-  move = async (params: {
-    source: string;
-    destination: string;
-  }): Promise<any> => {
+  move = async (params: { source: string; destination: string }): Promise<any> => {
     return this.sandbox.dataApi.moveFile(params);
   };
 
@@ -94,21 +85,14 @@ export class AioFileSystemOperations {
   /**
    * Create a directory
    */
-  mkdir = async (params: {
-    path: string;
-    parents?: boolean;
-    mode?: string;
-  }): Promise<any> => {
+  mkdir = async (params: { path: string; parents?: boolean; mode?: string }): Promise<any> => {
     return this.sandbox.dataApi.mkdir(params);
   };
 
   /**
    * Upload a file to the sandbox
    */
-  upload = async (params: {
-    localFilePath: string;
-    targetFilePath: string;
-  }): Promise<any> => {
+  upload = async (params: { localFilePath: string; targetFilePath: string }): Promise<any> => {
     return this.sandbox.dataApi.uploadFile(params);
   };
 
@@ -136,11 +120,7 @@ export class AioProcessOperations {
   /**
    * Execute a command in the sandbox
    */
-  cmd = async (params: {
-    command: string;
-    cwd: string;
-    timeout?: number;
-  }): Promise<any> => {
+  cmd = async (params: { command: string; cwd: string; timeout?: number }): Promise<any> => {
     return this.sandbox.dataApi.cmd(params);
   };
 
@@ -221,9 +201,7 @@ export class AioContextOperations {
   /**
    * Get a specific context by ID
    */
-  get = async (params?: {
-    contextId?: string;
-  }): Promise<AioContextOperations> => {
+  get = async (params?: { contextId?: string }): Promise<AioContextOperations> => {
     const id = params?.contextId || this._contextId;
     if (!id) {
       logger.error('context id is not set');
@@ -439,10 +417,7 @@ export class AioSandbox extends Sandbox {
   /**
    * Delete a recording
    */
-  deleteRecording = async (params: {
-    filename: string;
-    config?: Config;
-  }): Promise<any> => {
+  deleteRecording = async (params: { filename: string; config?: Config }): Promise<any> => {
     return this.dataApi.deleteRecording(params);
   };
 

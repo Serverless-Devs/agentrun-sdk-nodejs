@@ -19,11 +19,9 @@ It is warmly welcomed if you have interest to hack on Serverless Devs. First, we
   - [Package contribution](#package-contribution)
   - [Engage to help anything](#engage-to-help-anything)
 
-
-
 ## Reporting security issues
 
-Security issues are always treated seriously. As our usual principle, we discourage anyone to spread security issues. If you find a security issue of Serverless Devs, please do not discuss it in public and even do not open a public issue. Instead we encourage you to send us a private email to  [liuyu@xmail.tech](mailto:liuyu@xmail.tech) to report this.
+Security issues are always treated seriously. As our usual principle, we discourage anyone to spread security issues. If you find a security issue of Serverless Devs, please do not discuss it in public and even do not open a public issue. Instead we encourage you to send us a private email to [liuyu@xmail.tech](mailto:liuyu@xmail.tech) to report this.
 
 ## Reporting general issues
 
@@ -35,16 +33,16 @@ To make the issue details as standard as possible, we setup an [ISSUE TEMPLATE](
 
 There are a lot of cases when you could open an issue:
 
-* bug report
-* feature request
-* performance issues
-* feature proposal
-* feature design
-* help wanted
-* doc incomplete
-* test improvement
-* any questions on project
-* and so on
+- bug report
+- feature request
+- performance issues
+- feature proposal
+- feature design
+- help wanted
+- doc incomplete
+- test improvement
+- any questions on project
+- and so on
 
 Also we must remind that when filling a new issue, please remember to remove the sensitive data from your post. Sensitive data could be password, secret key, network locations, private business data and so on.
 
@@ -52,16 +50,16 @@ Also we must remind that when filling a new issue, please remember to remove the
 
 Every action to make project Serverless Devs better is encouraged. On GitHub, every improvement for Serverless Devs could be via a PR (short for pull request).
 
-* If you find a typo, try to fix it!
-* If you find a bug, try to fix it!
-* If you find some redundant codes, try to remove them!
-* If you find some test cases missing, try to add them!
-* If you could enhance a feature, please **DO NOT** hesitate!
-* If you find code implicit, try to add comments to make it clear!
-* If you find code ugly, try to refactor that!
-* If you can help to improve documents, it could not be better!
-* If you find document incorrect, just do it and fix that!
-* ...
+- If you find a typo, try to fix it!
+- If you find a bug, try to fix it!
+- If you find some redundant codes, try to remove them!
+- If you find some test cases missing, try to add them!
+- If you could enhance a feature, please **DO NOT** hesitate!
+- If you find code implicit, try to add comments to make it clear!
+- If you find code ugly, try to refactor that!
+- If you can help to improve documents, it could not be better!
+- If you find document incorrect, just do it and fix that!
+- ...
 
 Actually it is impossible to list them completely. Just remember one principle:
 
@@ -69,10 +67,10 @@ Actually it is impossible to list them completely. Just remember one principle:
 
 Since you are ready to improve Serverless Devs with a PR, we suggest you could take a look at the PR rules here.
 
-* [Workspace Preparation](#workspace-preparation)
-* [Branch Definition](#branch-definition)
-* [Commit Rules](#commit-rules)
-* [PR Description](#pr-description)
+- [Workspace Preparation](#workspace-preparation)
+- [Branch Definition](#branch-definition)
+- [Commit Rules](#commit-rules)
+- [PR Description](#pr-description)
 
 ### Workspace Preparation
 
@@ -107,7 +105,7 @@ Right now we assume every contribution via pull request is for [branch develop](
 
 As a contributor, keep in mind again that every contribution via pull request is for branch develop. While in project Serverless Devs, there are several other branches, we generally call them release branches(such as 0.6.0,0.6.1), feature branches, hotfix branches and master branch.
 
-When officially releasing a version, there will be a release branch and named with the version number. 
+When officially releasing a version, there will be a release branch and named with the version number.
 
 After the release, we will merge the commit of the release branch into the master branch.
 
@@ -115,30 +113,29 @@ When we find that there is a bug in a certain version, we will decide to fix it 
 
 For larger features, we will pull out the feature branch for development and verification.
 
-
 ### Commit Rules
 
 Actually in Serverless Devs, we take two rules serious when committing:
 
-* [Commit Message](#commit-message)
-* [Commit Content](#commit-content)
+- [Commit Message](#commit-message)
+- [Commit Content](#commit-content)
 
 #### Commit Message
 
 Commit message could help reviewers better understand what is the purpose of submitted PR. It could help accelerate the code review procedure as well. We encourage contributors to use **EXPLICIT** commit message rather than ambiguous message. In general, we advocate the following commit message type:
 
-* docs: xxxx. For example, "docs: add docs about agentrun-sdk-python cluster installation".
-* feature: xxxx.For example, "feature: support oracle in AT mode".
-* bugfix: xxxx. For example, "bugfix: fix panic when input nil parameter".
-* refactor: xxxx. For example, "refactor: simplify to make codes more readable".
-* test: xxx. For example, "test: add unit test case for func InsertIntoArray".
-* other readable and explicit expression ways.
+- docs: xxxx. For example, "docs: add docs about agentrun-sdk-python cluster installation".
+- feature: xxxx.For example, "feature: support oracle in AT mode".
+- bugfix: xxxx. For example, "bugfix: fix panic when input nil parameter".
+- refactor: xxxx. For example, "refactor: simplify to make codes more readable".
+- test: xxx. For example, "test: add unit test case for func InsertIntoArray".
+- other readable and explicit expression ways.
 
 On the other side, we discourage contributors from committing message like the following ways:
 
-* ~~fix bug~~
-* ~~update~~
-* ~~add doc~~
+- ~~fix bug~~
+- ~~update~~
+- ~~add doc~~
 
 If you get lost, please see [How to Write a Git Commit Message](http://chris.beams.io/posts/git-commit/) for a start.
 
@@ -146,16 +143,14 @@ If you get lost, please see [How to Write a Git Commit Message](http://chris.bea
 
 Commit content represents all content changes included in one commit. We had better include things in one single commit which could support reviewer's complete review without any other commits' help. In another word, contents in one single commit can pass the CI to avoid code mess. In brief, there are three minor rules for us to keep in mind:
 
-* avoid very large change in a commit;
-* complete and reviewable for each commit.
-* check git config(`user.name`, `user.email`) when committing to ensure that it is associated with your github ID.
-* when submitting pr, please add a brief description of the current changes to the X.X.X.md file under the 'changes/' folder
-
+- avoid very large change in a commit;
+- complete and reviewable for each commit.
+- check git config(`user.name`, `user.email`) when committing to ensure that it is associated with your github ID.
+- when submitting pr, please add a brief description of the current changes to the X.X.X.md file under the 'changes/' folder
 
 In addition, in the code change part, we suggest that all contributors should read the [code style of agentrun-sdk-python](#code-style).
 
 No matter commit message, or commit content, we do take more emphasis on code review.
-
 
 ### PR Description
 
@@ -165,21 +160,20 @@ PR is the only way to make change to Serverless Devs project files. To help revi
 
 Any test case would be welcomed. Currently, Serverless Devs function test cases are high priority.
 
-* For unit test, you need to create a test file named `xxx-xxx.test.ts` in the test directory of the same module. Recommend you to use the [Jest](https://jestjs.io/) UT framework
+- For unit test, you need to create a test file named `xxx-xxx.test.ts` in the test directory of the same module. Recommend you to use the [Jest](https://jestjs.io/) UT framework
 
-* For integration test, you can put the integration test in the test directory or the Serverless Devs-test module. It is recommended to use mock-related test frameworks.
+- For integration test, you can put the integration test in the test directory or the Serverless Devs-test module. It is recommended to use mock-related test frameworks.
 
 ## Engage to help anything
 
 We choose GitHub as the primary place for agentrun-sdk-python to collaborate. So the latest updates of agentrun-sdk-python are always here. Although contributions via PR is an explicit way to help, we still call for any other ways.
 
-* reply to other's issues if you could;
-* help solve other user's problems;
-* help review other's PR design;
-* help review other's codes in PR;
-* discuss about agentrun-sdk-python to make things clearer;
-* advocate Serverless Devs technology beyond GitHub;
-* write blogs on agentrun-sdk-python and so on.
-
+- reply to other's issues if you could;
+- help solve other user's problems;
+- help review other's PR design;
+- help review other's codes in PR;
+- discuss about agentrun-sdk-python to make things clearer;
+- advocate Serverless Devs technology beyond GitHub;
+- write blogs on agentrun-sdk-python and so on.
 
 In a word, **ANY HELP IS CONTRIBUTION.**

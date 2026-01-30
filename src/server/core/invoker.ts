@@ -17,12 +17,8 @@ import { AgentEvent, AgentRequest, EventType, InvokeOptions } from './model';
  * - AsyncIterable<string | AgentEvent>: Streaming response
  */
 export type InvokeAgentHandler = (
-  request: AgentRequest,
-) =>
-  | string
-  | AgentEvent
-  | Promise<string | AgentEvent>
-  | AsyncIterable<string | AgentEvent>;
+  request: AgentRequest
+) => string | AgentEvent | Promise<string | AgentEvent> | AsyncIterable<string | AgentEvent>;
 
 /**
  * Agent Invoker
@@ -41,10 +37,7 @@ export class AgentInvoker {
    * Invoke agent and return streaming result
    * Always returns AsyncGenerator<AgentEvent>
    */
-  async *invoke(
-    request: AgentRequest,
-    options?: InvokeOptions,
-  ): AsyncGenerator<AgentEvent> {
+  async *invoke(request: AgentRequest, options?: InvokeOptions): AsyncGenerator<AgentEvent> {
     try {
       const result = await Promise.resolve(this.handler(request));
 
@@ -56,10 +49,7 @@ export class AgentInvoker {
 
       // Normalize based on return type
       if (this.isAsyncIterable(result)) {
-        yield* this.processAsyncIterable(
-          result as AsyncIterable<string | AgentEvent>,
-          options,
-        );
+        yield* this.processAsyncIterable(result as AsyncIterable<string | AgentEvent>, options);
       } else if (typeof result === 'string') {
         yield { event: EventType.TEXT, data: { delta: result } };
       } else {
@@ -75,7 +65,7 @@ export class AgentInvoker {
    */
   private async *processAsyncIterable(
     stream: AsyncIterable<string | AgentEvent>,
-    options?: InvokeOptions,
+    options?: InvokeOptions
   ): AsyncGenerator<AgentEvent> {
     try {
       for await (const item of stream) {
@@ -136,10 +126,6 @@ export class AgentInvoker {
    * Check if value is async iterable
    */
   private isAsyncIterable(value: unknown): value is AsyncIterable<unknown> {
-    return (
-      value !== null &&
-      typeof value === 'object' &&
-      Symbol.asyncIterator in value
-    );
+    return value !== null && typeof value === 'object' && Symbol.asyncIterator in value;
   }
 }

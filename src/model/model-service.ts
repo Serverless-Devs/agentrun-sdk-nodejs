@@ -16,7 +16,7 @@ import {
   ModelServiceListInput,
   ModelServiceMutableProps,
   ModelServiceSystemProps,
-  ModelServiceUpdateInput
+  ModelServiceUpdateInput,
 } from './model';
 
 /**
@@ -24,10 +24,7 @@ import {
  */
 export class ModelService
   extends ResourceBase
-  implements
-    ModelServiceImmutableProps,
-    ModelServiceMutableProps,
-    ModelServiceSystemProps
+  implements ModelServiceImmutableProps, ModelServiceMutableProps, ModelServiceSystemProps
 {
   // ImmutableProps
   modelInfoConfigs?: ModelServiceImmutableProps['modelInfoConfigs'];
@@ -95,10 +92,7 @@ export class ModelService
    * @param params - 参数 / Parameters
    * @returns 删除的模型服务对象 / Deleted model service object
    */
-  static async delete(params: {
-    name: string;
-    config?: Config;
-  }): Promise<ModelService> {
+  static async delete(params: { name: string; config?: Config }): Promise<ModelService> {
     const { name, config } = params;
     return await this.getClient().delete({
       name,
@@ -128,10 +122,7 @@ export class ModelService
    * @param params - 参数 / Parameters
    * @returns 模型服务对象 / Model service object
    */
-  static async get(params: {
-    name: string;
-    config?: Config;
-  }): Promise<ModelService> {
+  static async get(params: { name: string; config?: Config }): Promise<ModelService> {
     const { name, config } = params;
     return await this.getClient().get({
       name,
@@ -265,8 +256,7 @@ export class ModelService
     }
 
     const defaultModel =
-      this.providerSettings.modelNames &&
-      this.providerSettings.modelNames.length > 0
+      this.providerSettings.modelNames && this.providerSettings.modelNames.length > 0
         ? this.providerSettings.modelNames[0]
         : undefined;
 

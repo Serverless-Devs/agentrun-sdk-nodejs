@@ -15,8 +15,6 @@
  * - 测试用例设计参考 Python SDK 的 tests/e2e/test_sandbox_aio.py
  */
 
-
-
 import {
   Sandbox,
   CodeInterpreterSandbox,
@@ -90,4 +88,3 @@ describe('AIO Sandbox E2E Tests', () => {
     });
   });
 });
-

@@ -758,8 +758,8 @@ describe('BaseResource', () => {
         },
       })
     ).rejects.toThrow('Timeout waiting for resource to reach desired state');
-    
-    expect(count).toBeGreaterThanOrEqual(1)
+
+    expect(count).toBeGreaterThanOrEqual(1);
   });
 
   test('deleteAndWaitUntilFinished exception', async () => {
@@ -865,7 +865,7 @@ describe('BaseResource', () => {
     const callbacks: Status[] = [];
 
     await resource.deleteAndWaitUntilFinished({
-      callback: async (r) => {
+      callback: async r => {
         callbacks.push(r.status as Status);
       },
       intervalSeconds: 0.05,
@@ -950,8 +950,7 @@ describe('custom list params', () => {
     async get() {
       this.getCount++;
 
-      if (this.deleteCount >= 57)
-        throw new ResourceNotExistError('BaseClass', this.id);
+      if (this.deleteCount >= 57) throw new ResourceNotExistError('BaseClass', this.id);
 
       return this;
     }
@@ -969,15 +968,8 @@ describe('custom list params', () => {
       return this.id;
     }
 
-    static async list(params?: {
-      input?: { skipOdd?: boolean } & PageableInput;
-      config?: Config;
-    }) {
-      const {
-        skipOdd = false,
-        pageNumber = 1,
-        pageSize = 10,
-      } = params?.input || {};
+    static async list(params?: { input?: { skipOdd?: boolean } & PageableInput; config?: Config }) {
+      const { skipOdd = false, pageNumber = 1, pageSize = 10 } = params?.input || {};
 
       const result = [];
       for (let i = 0; i < 57; i++) {
@@ -1009,9 +1001,7 @@ describe('custom list params', () => {
     // ).toHaveLength(5);
 
     expect(await NewClass.list()).toHaveLength(10);
-    expect(
-      await NewClass.list({ input: { pageSize: 5, skipOdd: true } })
-    ).toHaveLength(5);
+    expect(await NewClass.list({ input: { pageSize: 5, skipOdd: true } })).toHaveLength(5);
     expect(await NewClass.listAll({ skipOdd: true })).toHaveLength(29);
   });
 });

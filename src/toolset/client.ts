@@ -18,11 +18,7 @@ import { Config } from '../utils/config';
 import { HTTPError } from '../utils/exception';
 import { ToolControlAPI } from './api';
 
-import {
-  ToolSetCreateInput,
-  ToolSetListInput,
-  ToolSetUpdateInput,
-} from './model';
+import { ToolSetCreateInput, ToolSetListInput, ToolSetUpdateInput } from './model';
 import { ToolSet } from './toolset';
 
 /**
@@ -41,10 +37,7 @@ export class ToolSetClient {
   /**
    * Create a ToolSet
    */
-  create = async (params: {
-    input: ToolSetCreateInput;
-    config?: Config;
-  }): Promise<ToolSet> => {
+  create = async (params: { input: ToolSetCreateInput; config?: Config }): Promise<ToolSet> => {
     const { input, config } = params;
     const cfg = Config.withConfigs(this.config, config);
 
@@ -93,10 +86,7 @@ export class ToolSetClient {
   /**
    * Delete a ToolSet by name
    */
-  delete = async (params: {
-    name: string;
-    config?: Config;
-  }): Promise<ToolSet> => {
+  delete = async (params: { name: string; config?: Config }): Promise<ToolSet> => {
     const { name, config } = params;
     const cfg = Config.withConfigs(this.config, config);
 
@@ -196,10 +186,7 @@ export class ToolSetClient {
   /**
    * List ToolSets
    */
-  list = async (params?: {
-    input?: ToolSetListInput;
-    config?: Config;
-  }): Promise<ToolSet[]> => {
+  list = async (params?: { input?: ToolSetListInput; config?: Config }): Promise<ToolSet[]> => {
     const { input, config } = params ?? {};
     const cfg = Config.withConfigs(this.config, config);
 
@@ -208,6 +195,6 @@ export class ToolSetClient {
       config: cfg,
     });
 
-    return results.data?.map((result) => new ToolSet(result, cfg)) || [];
+    return results.data?.map(result => new ToolSet(result, cfg)) || [];
   };
 }

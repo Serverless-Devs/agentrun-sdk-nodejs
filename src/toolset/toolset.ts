@@ -53,10 +53,7 @@ export class ToolSet implements ToolSetData {
   /**
    * Create a new ToolSet
    */
-  static async create(params: {
-    input: ToolSetCreateInput;
-    config?: Config;
-  }): Promise<ToolSet> {
+  static async create(params: { input: ToolSetCreateInput; config?: Config }): Promise<ToolSet> {
     const { input, config } = params;
     return await ToolSet.getClient().create({ input, config });
   }
@@ -64,10 +61,7 @@ export class ToolSet implements ToolSetData {
   /**
    * Delete a ToolSet by Name
    */
-  static async delete(params: {
-    name: string;
-    config?: Config;
-  }): Promise<ToolSet> {
+  static async delete(params: { name: string; config?: Config }): Promise<ToolSet> {
     const { name, config } = params;
     return await ToolSet.getClient().delete({ name, config });
   }
@@ -75,10 +69,7 @@ export class ToolSet implements ToolSetData {
   /**
    * Get a ToolSet by Name
    */
-  static async get(params: {
-    name: string;
-    config?: Config;
-  }): Promise<ToolSet> {
+  static async get(params: { name: string; config?: Config }): Promise<ToolSet> {
     const { name, config } = params;
     return await ToolSet.getClient().get({ name, config });
   }
@@ -86,10 +77,7 @@ export class ToolSet implements ToolSetData {
   /**
    * List ToolSets
    */
-  static async list(
-    input?: ToolSetListInput,
-    config?: Config
-  ): Promise<ToolSet[]> {
+  static async list(input?: ToolSetListInput, config?: Config): Promise<ToolSet[]> {
     return await ToolSet.getClient().list({ input, config });
   }
 
@@ -123,7 +111,7 @@ export class ToolSet implements ToolSetData {
 
     // Deduplicate
     const seen = new Set<string>();
-    return toolsets.filter((t) => {
+    return toolsets.filter(t => {
       if (!t.uid || seen.has(t.uid)) {
         return false;
       }
@@ -164,10 +152,7 @@ export class ToolSet implements ToolSetData {
   /**
    * Update this toolset
    */
-  update = async (params: {
-    input: ToolSetUpdateInput;
-    config?: Config;
-  }): Promise<ToolSet> => {
+  update = async (params: { input: ToolSetUpdateInput; config?: Config }): Promise<ToolSet> => {
     const { input, config } = params;
     if (!this.name) {
       throw new Error('name is required to update a ToolSet');
@@ -278,11 +263,7 @@ export class ToolSet implements ToolSetData {
    * Call tool (sync wrapper)
    * 同步调用工具，统一使用 ApiSet 实现
    */
-  callTool = (
-    name: string,
-    args?: Record<string, unknown>,
-    config?: Config
-  ): Promise<any> => {
+  callTool = (name: string, args?: Record<string, unknown>, config?: Config): Promise<any> => {
     return this.callToolAsync(name, args, config);
   };
 
@@ -349,14 +330,7 @@ export class ToolSet implements ToolSetData {
           })
       );
 
-      return new ApiSet(
-        tools,
-        openapi,
-        undefined,
-        headers,
-        query,
-        params?.config
-      );
+      return new ApiSet(tools, openapi, undefined, headers, query, params?.config);
     }
 
     throw new Error(`Unsupported ToolSet type: ${this.type()}`);

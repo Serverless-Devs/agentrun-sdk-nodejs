@@ -10,12 +10,7 @@ import { ModelClient } from '../../../src/model/client';
 import { Config } from '../../../src/utils/config';
 import { HTTPError, ResourceNotExistError } from '../../../src/utils/exception';
 import { Status } from '../../../src/utils/model';
-import {
-  BackendType,
-  ModelType,
-  Provider,
-  ProxyMode,
-} from '../../../src/model/model';
+import { BackendType, ModelType, Provider, ProxyMode } from '../../../src/model/model';
 
 // Mock the ModelControlAPI
 jest.mock('../../../src/model/api/control', () => {
@@ -56,9 +51,7 @@ jest.mock('@ai-sdk/openai', () => ({
 
 import { ModelControlAPI } from '../../../src/model/api/control';
 
-const MockModelControlAPI = ModelControlAPI as jest.MockedClass<
-  typeof ModelControlAPI
->;
+const MockModelControlAPI = ModelControlAPI as jest.MockedClass<typeof ModelControlAPI>;
 
 describe('Model Module', () => {
   let mockControlApi: any;
@@ -175,10 +168,7 @@ describe('Model Module', () => {
           input: {
             modelProxyName: 'test-proxy',
             proxyConfig: {
-              endpoints: [
-                { baseUrl: 'http://test1.com' },
-                { baseUrl: 'http://test2.com' },
-              ],
+              endpoints: [{ baseUrl: 'http://test1.com' }, { baseUrl: 'http://test2.com' }],
             },
           },
         });
@@ -275,9 +265,7 @@ describe('Model Module', () => {
       });
 
       it('should delete ModelService if ModelProxy not found', async () => {
-        mockControlApi.deleteModelProxy.mockRejectedValue(
-          new HTTPError(404, 'Not found')
-        );
+        mockControlApi.deleteModelProxy.mockRejectedValue(new HTTPError(404, 'Not found'));
         mockControlApi.deleteModelService.mockResolvedValue({
           modelServiceId: 'service-123',
           modelServiceName: 'test-service',
@@ -325,9 +313,7 @@ describe('Model Module', () => {
 
         const client = new ModelClient();
 
-        await expect(client.delete({ name: 'test-proxy' })).rejects.toThrow(
-          'Network error'
-        );
+        await expect(client.delete({ name: 'test-proxy' })).rejects.toThrow('Network error');
       });
 
       it('should rethrow non-HTTP error during service delete', async () => {
@@ -338,9 +324,7 @@ describe('Model Module', () => {
 
         const client = new ModelClient();
 
-        await expect(client.delete({ name: 'test-service' })).rejects.toThrow(
-          'Network error'
-        );
+        await expect(client.delete({ name: 'test-service' })).rejects.toThrow('Network error');
       });
 
       it('should handle HTTP error during service delete', async () => {
@@ -468,10 +452,7 @@ describe('Model Module', () => {
           input: {
             proxyModel: '', // Empty string (falsy but not undefined)
             proxyConfig: {
-              endpoints: [
-                { baseUrl: 'http://test1.com' },
-                { baseUrl: 'http://test2.com' },
-              ],
+              endpoints: [{ baseUrl: 'http://test1.com' }, { baseUrl: 'http://test2.com' }],
             },
           } as any, // Use any to bypass type check for proxyConfig
         });
@@ -523,9 +504,7 @@ describe('Model Module', () => {
       });
 
       it('should get ModelService if ModelProxy not found', async () => {
-        mockControlApi.getModelProxy.mockRejectedValue(
-          new HTTPError(404, 'Not found')
-        );
+        mockControlApi.getModelProxy.mockRejectedValue(new HTTPError(404, 'Not found'));
         mockControlApi.getModelService.mockResolvedValue({
           modelServiceId: 'service-123',
           modelServiceName: 'test-service',
@@ -573,9 +552,7 @@ describe('Model Module', () => {
 
         const client = new ModelClient();
 
-        await expect(client.get({ name: 'test-proxy' })).rejects.toThrow(
-          'Network error'
-        );
+        await expect(client.get({ name: 'test-proxy' })).rejects.toThrow('Network error');
       });
 
       it('should rethrow non-HTTP error during service get', async () => {
@@ -586,9 +563,7 @@ describe('Model Module', () => {
 
         const client = new ModelClient();
 
-        await expect(client.get({ name: 'test-service' })).rejects.toThrow(
-          'Network error'
-        );
+        await expect(client.get({ name: 'test-service' })).rejects.toThrow('Network error');
       });
 
       it('should handle HTTP error during service get', async () => {
@@ -816,9 +791,7 @@ describe('Model Module', () => {
         it('should throw error if modelServiceName not set', async () => {
           const service = new ModelService();
 
-          await expect(
-            service.update({ input: { description: 'Updated' } })
-          ).rejects.toThrow(
+          await expect(service.update({ input: { description: 'Updated' } })).rejects.toThrow(
             'modelServiceName is required to update a ModelService'
           );
         });
@@ -895,18 +868,14 @@ describe('Model Module', () => {
         it('should throw error if providerSettings not set', async () => {
           const service = new ModelService();
 
-          await expect(service.modelInfo()).rejects.toThrow(
-            'providerSettings is required'
-          );
+          await expect(service.modelInfo()).rejects.toThrow('providerSettings is required');
         });
 
         it('should throw error if baseUrl not set', async () => {
           const service = new ModelService();
           service.providerSettings = { apiKey: 'test' };
 
-          await expect(service.modelInfo()).rejects.toThrow(
-            'providerSettings.baseUrl is required'
-          );
+          await expect(service.modelInfo()).rejects.toThrow('providerSettings.baseUrl is required');
         });
 
         it('should get apiKey from Credential if not in providerSettings', async () => {
@@ -1350,10 +1319,7 @@ describe('Model Module', () => {
           const result = await ModelProxy.listAll();
 
           expect(result).toHaveLength(2);
-          expect(result.map((p) => p.modelProxyId)).toEqual([
-            'proxy-1',
-            'proxy-2',
-          ]);
+          expect(result.map(p => p.modelProxyId)).toEqual(['proxy-1', 'proxy-2']);
         });
 
         it('should pass filter options', async () => {
@@ -1397,9 +1363,7 @@ describe('Model Module', () => {
             proxy.update({
               input: { description: 'Updated', executionRoleArn: 'arn:test' },
             })
-          ).rejects.toThrow(
-            'modelProxyName is required to update a ModelProxy'
-          );
+          ).rejects.toThrow('modelProxyName is required to update a ModelProxy');
         });
       });
 
@@ -1480,18 +1444,14 @@ describe('Model Module', () => {
           const proxy = new ModelProxy();
           proxy.endpoint = 'https://api.example.com';
 
-          await expect(proxy.modelInfo()).rejects.toThrow(
-            'modelProxyName is required'
-          );
+          await expect(proxy.modelInfo()).rejects.toThrow('modelProxyName is required');
         });
 
         it('should throw error if endpoint not set', async () => {
           const proxy = new ModelProxy();
           proxy.modelProxyName = 'test-proxy';
 
-          await expect(proxy.modelInfo()).rejects.toThrow(
-            'endpoint is required'
-          );
+          await expect(proxy.modelInfo()).rejects.toThrow('endpoint is required');
         });
 
         it('should use modelProxyName as model when proxyModel is not single', async () => {
@@ -1593,8 +1553,6 @@ describe('Model Module', () => {
 
           expect(generateText).toHaveBeenCalled();
         });
-
-        
       });
 
       describe('waitUntilReadyOrFailed', () => {

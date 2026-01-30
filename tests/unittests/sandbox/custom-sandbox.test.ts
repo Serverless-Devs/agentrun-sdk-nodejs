@@ -202,9 +202,7 @@ describe('CustomSandbox', () => {
         nasConfig: {
           groupId: 100,
           userId: 100,
-          mountPoints: [
-            { serverAddr: 'nas.example.com:/', mountDir: '/mnt/nas' },
-          ],
+          mountPoints: [{ serverAddr: 'nas.example.com:/', mountDir: '/mnt/nas' }],
         },
       });
 
@@ -234,11 +232,7 @@ describe('CustomSandbox', () => {
       (Sandbox as any).create = createMock;
       const config = new Config({ accessKeyId: 'test-key' });
 
-      const result = await CustomSandbox.createFromTemplate(
-        'test-template',
-        {},
-        config
-      );
+      const result = await CustomSandbox.createFromTemplate('test-template', {}, config);
 
       expect(createMock).toHaveBeenCalledWith({
         input: expect.any(Object),

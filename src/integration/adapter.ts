@@ -88,11 +88,11 @@ export class MastraMessageAdapter {
   toCanonical(messages: Array<Record<string, unknown>>): CanonicalMessage[] {
     if (!Array.isArray(messages)) return [];
 
-    return messages.map((msg) => {
+    return messages.map(msg => {
       const role = msg.role as CanonicalMessageRole;
       const content = (msg.content ?? null) as string | null;
       const toolCalls = this.normalizeToolCalls(
-        (msg.tool_calls ?? msg.toolCalls) as Array<Record<string, unknown>>,
+        (msg.tool_calls ?? msg.toolCalls) as Array<Record<string, unknown>>
       );
 
       return {
@@ -108,7 +108,7 @@ export class MastraMessageAdapter {
   fromCanonical(messages: CanonicalMessage[]): Array<Record<string, unknown>> {
     if (!Array.isArray(messages)) return [];
 
-    return messages.map((msg) => ({
+    return messages.map(msg => ({
       role: msg.role,
       content: msg.content ?? null,
       name: msg.name,
@@ -118,20 +118,18 @@ export class MastraMessageAdapter {
   }
 
   private normalizeToolCalls(
-    toolCalls?: Array<Record<string, unknown>>,
+    toolCalls?: Array<Record<string, unknown>>
   ): CanonicalToolCall[] | undefined {
     if (!toolCalls || !Array.isArray(toolCalls) || toolCalls.length === 0) {
       return undefined;
     }
 
-    return toolCalls.map((tc) => ({
+    return toolCalls.map(tc => ({
       id: String(tc.id ?? ''),
       type: (tc.type as string) ?? 'function',
       function: {
         name: String((tc.function as Record<string, unknown>)?.name ?? ''),
-        arguments: String(
-          (tc.function as Record<string, unknown>)?.arguments ?? '',
-        ),
+        arguments: String((tc.function as Record<string, unknown>)?.arguments ?? ''),
       },
     }));
   }
@@ -143,7 +141,7 @@ export class MastraMessageAdapter {
 export class MastraToolAdapter {
   fromCanonical(tools: CanonicalTool[]): MastraToolShape[] {
     if (!Array.isArray(tools)) return [];
-    return tools.map((tool) => ({
+    return tools.map(tool => ({
       name: tool.name,
       description: tool.description,
       inputSchema: tool.parameters,
@@ -152,16 +150,14 @@ export class MastraToolAdapter {
 
   toCanonical(tools: MastraToolShape[]): CanonicalTool[] {
     if (!Array.isArray(tools)) return [];
-    return tools.map((tool) => ({
+    return tools.map(tool => ({
       name: tool.name,
       description: tool.description ?? '',
       parameters: this.normalizeSchema(tool.inputSchema),
     }));
   }
 
-  private normalizeSchema(
-    schema?: ToolParametersSchema
-  ): ToolParametersSchema {
+  private normalizeSchema(schema?: ToolParametersSchema): ToolParametersSchema {
     if (schema && schema.type === 'object' && schema.properties) {
       return schema;
     }

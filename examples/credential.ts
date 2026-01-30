@@ -42,10 +42,9 @@ async function createOrGetCredential(): Promise<Credential> {
     cred = await Credential.create({
       input: {
         credentialName,
-        description:
-          '这是通过 Node.js SDK 创建的测试凭证 / Test credential created by Node.js SDK',
+        description: '这是通过 Node.js SDK 创建的测试凭证 / Test credential created by Node.js SDK',
         credentialConfig: CredentialConfig.inboundApiKey({
-          apiKey: `sk-test-${Date.now()}`
+          apiKey: `sk-test-${Date.now()}`,
         }),
       },
     });
@@ -86,7 +85,7 @@ async function listCredentials(): Promise<void> {
   const credentials = await Credential.listAll();
   log(
     `共有 ${credentials.length} 个资源 / Total ${credentials.length} resources:`,
-    credentials.map((c) => c.credentialName)
+    credentials.map(c => c.credentialName)
   );
 }
 
@@ -105,9 +104,7 @@ async function deleteCredential(cred: Credential): Promise<void> {
     log('资源仍然存在 / Resource still exists');
   } catch (error) {
     if (error instanceof ResourceNotExistError) {
-      log(
-        '得到资源不存在报错，删除成功 / Resource not found, deletion successful'
-      );
+      log('得到资源不存在报错，删除成功 / Resource not found, deletion successful');
     } else {
       throw error;
     }

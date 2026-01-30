@@ -88,7 +88,9 @@ const template = await client.createTemplate({
 await template.waitUntilReady();
 
 // 创建沙箱
-const sandbox = await client.createCodeInterpreterSandbox(template.templateName!);
+const sandbox = await client.createCodeInterpreterSandbox(
+  template.templateName!
+);
 await sandbox.waitUntilRunning();
 
 // 执行代码 (需要数据 API 支持)
@@ -101,12 +103,12 @@ await template.delete();
 
 ## 模块
 
-| 模块 | 描述 |
-|------|------|
-| **AgentRuntime** | Agent 运行时管理 |
-| **Credential** | 凭证管理 |
-| **Model** | 模型服务和代理管理 |
-| **Sandbox** | 沙箱环境管理 (代码解释器、浏览器) |
+| 模块             | 描述                              |
+| ---------------- | --------------------------------- |
+| **AgentRuntime** | Agent 运行时管理                  |
+| **Credential**   | 凭证管理                          |
+| **Model**        | 模型服务和代理管理                |
+| **Sandbox**      | 沙箱环境管理 (代码解释器、浏览器) |
 
 ## 示例
 
@@ -144,20 +146,23 @@ npm run build
 # 类型检查
 npm run typecheck
 
-# 代码检查
+# 代码检查和格式化
 npm run lint
 npm run lint:fix
+npm run format
+npm run format:check
+npm run format:fix  # 同时运行格式化和lint修复
 ```
 
 ## 环境变量
 
-| 变量 | 描述 | 默认值 |
-|------|------|--------|
-| `AGENTRUN_ACCESS_KEY_ID` | 阿里云 Access Key ID | - |
-| `AGENTRUN_ACCESS_KEY_SECRET` | 阿里云 Access Key Secret | - |
-| `AGENTRUN_ACCOUNT_ID` | 阿里云账号 ID | - |
-| `AGENTRUN_REGION` | 区域 ID | `cn-hangzhou` |
-| `AGENTRUN_TIMEOUT` | API 超时时间 (毫秒) | `600000` |
+| 变量                         | 描述                     | 默认值        |
+| ---------------------------- | ------------------------ | ------------- |
+| `AGENTRUN_ACCESS_KEY_ID`     | 阿里云 Access Key ID     | -             |
+| `AGENTRUN_ACCESS_KEY_SECRET` | 阿里云 Access Key Secret | -             |
+| `AGENTRUN_ACCOUNT_ID`        | 阿里云账号 ID            | -             |
+| `AGENTRUN_REGION`            | 区域 ID                  | `cn-hangzhou` |
+| `AGENTRUN_TIMEOUT`           | API 超时时间 (毫秒)      | `600000`      |
 
 ## 兼容性
 

@@ -61,7 +61,7 @@ describe('Legacy API Tests', () => {
       // Call legacy API
       const result = await Sandbox.create(
         { templateName: 'test-template' },
-        new Config({ accessKeyId: 'test' }),
+        new Config({ accessKeyId: 'test' })
       );
 
       expect(result).toBe(mockSandbox);
@@ -78,9 +78,7 @@ describe('Legacy API Tests', () => {
       await Sandbox.create({ templateName: 'test' }, undefined);
 
       expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining(
-          'Deprecated: Sandbox.create(input, config) is deprecated',
-        ),
+        expect.stringContaining('Deprecated: Sandbox.create(input, config) is deprecated')
       );
     });
 
@@ -106,10 +104,7 @@ describe('Legacy API Tests', () => {
       mockClientDeleteSandbox.mockResolvedValue(mockSandbox);
 
       // Call legacy API
-      const result = await Sandbox.delete(
-        'test-sandbox',
-        new Config({ accessKeyId: 'test' }),
-      );
+      const result = await Sandbox.delete('test-sandbox', new Config({ accessKeyId: 'test' }));
 
       expect(result).toBe(mockSandbox);
       expect(mockClientDeleteSandbox).toHaveBeenCalled();
@@ -122,7 +117,7 @@ describe('Legacy API Tests', () => {
       await Sandbox.delete('test-sandbox', undefined);
 
       expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Sandbox.delete(id, config) is deprecated'),
+        expect.stringContaining('Sandbox.delete(id, config) is deprecated')
       );
     });
 
@@ -147,10 +142,7 @@ describe('Legacy API Tests', () => {
       mockClientStopSandbox.mockResolvedValue(mockSandbox);
 
       // Call legacy API
-      const result = await Sandbox.stop(
-        'test-sandbox',
-        new Config({ accessKeyId: 'test' }),
-      );
+      const result = await Sandbox.stop('test-sandbox', new Config({ accessKeyId: 'test' }));
 
       expect(result).toBe(mockSandbox);
       expect(mockClientStopSandbox).toHaveBeenCalled();
@@ -163,7 +155,7 @@ describe('Legacy API Tests', () => {
       await Sandbox.stop('test-sandbox', undefined);
 
       expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Sandbox.stop(id, config) is deprecated'),
+        expect.stringContaining('Sandbox.stop(id, config) is deprecated')
       );
     });
 
@@ -188,10 +180,7 @@ describe('Legacy API Tests', () => {
       mockClientListSandboxes.mockResolvedValue(mockSandboxes);
 
       // Call legacy API
-      const result = await Sandbox.list(
-        { maxResults: 10 },
-        new Config({ accessKeyId: 'test' }),
-      );
+      const result = await Sandbox.list({ maxResults: 10 }, new Config({ accessKeyId: 'test' }));
 
       expect(result).toEqual(mockSandboxes);
       expect(mockClientListSandboxes).toHaveBeenCalled();
@@ -203,7 +192,7 @@ describe('Legacy API Tests', () => {
       await Sandbox.list({ maxResults: 10 }, undefined);
 
       expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Sandbox.list(input, config) is deprecated'),
+        expect.stringContaining('Sandbox.list(input, config) is deprecated')
       );
     });
 

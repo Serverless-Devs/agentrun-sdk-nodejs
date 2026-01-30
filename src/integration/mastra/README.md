@@ -50,10 +50,10 @@ const mastraAgent = new Agent({
 async function* invokeAgent(request: AgentRequest) {
   const converter = new MastraConverter();
   const userMessage = request.messages[request.messages.length - 1]?.content;
-  
+
   // 获取 Mastra stream
   const mastraStream = await mastraAgent.stream(userMessage);
-  
+
   // 转换并输出事件
   for await (const chunk of mastraStream.fullStream) {
     const events = converter.convert(chunk);
@@ -73,7 +73,10 @@ server.start({ port: 9000 });
 ```typescript
 import { Agent } from '@mastra/core/agent';
 import { openai } from '@ai-sdk/openai';
-import { MastraConverter, toolset } from '@alicloud/agentrun-sdk/integration/mastra';
+import {
+  MastraConverter,
+  toolset,
+} from '@alicloud/agentrun-sdk/integration/mastra';
 import { AgentRunServer } from '@alicloud/agentrun-sdk';
 
 // 从 AgentRun 获取 Mastra 兼容的工具
@@ -92,7 +95,7 @@ const agent = new Agent({
 async function* invokeAgent(request) {
   const converter = new MastraConverter();
   const stream = await agent.stream(request.messages);
-  
+
   for await (const chunk of stream.fullStream) {
     for (const event of converter.convert(chunk)) {
       yield event;
@@ -103,15 +106,15 @@ async function* invokeAgent(request) {
 
 ## 事件映射 Event Mapping
 
-| Mastra Event | AgentRun Event | 说明 Description |
-|-------------|----------------|------------------|
-| `text-delta` | 字符串 string | 文本增量输出 Text delta output |
-| `tool-call` | `TOOL_CALL_CHUNK` | 工具调用 Tool call with id, name, args |
-| `tool-result` | `TOOL_RESULT` | 工具结果 Tool execution result |
-| `error` | `ERROR` | 错误信息 Error message |
+| Mastra Event      | AgentRun Event       | 说明 Description                              |
+| ----------------- | -------------------- | --------------------------------------------- |
+| `text-delta`      | 字符串 string        | 文本增量输出 Text delta output                |
+| `tool-call`       | `TOOL_CALL_CHUNK`    | 工具调用 Tool call with id, name, args        |
+| `tool-result`     | `TOOL_RESULT`        | 工具结果 Tool execution result                |
+| `error`           | `ERROR`              | 错误信息 Error message                        |
 | `reasoning-delta` | 标记文本 Marked text | 推理过程（可选） Reasoning process (optional) |
-| `finish` | - | 日志记录 Logged for debugging |
-| `step-*` | - | 日志记录 Logged for debugging |
+| `finish`          | -                    | 日志记录 Logged for debugging                 |
+| `step-*`          | -                    | 日志记录 Logged for debugging                 |
 
 ## API 参考 API Reference
 
@@ -127,9 +130,11 @@ async function* invokeAgent(request) {
 Convert a single Mastra chunk to AgentRun events
 
 **参数 Parameters:**
+
 - `chunk`: Mastra stream chunk (包含 type, runId, from, payload)
 
 **返回 Returns:**
+
 - Generator of `AgentEventItem` (strings or `AgentEvent` objects)
 
 **示例 Example:**
@@ -148,12 +153,12 @@ for await (const chunk of mastraStream.fullStream) {
 
 ## 与 Python 版本的对比 Comparison with Python Version
 
-| Feature | Python LangChain Converter | Node.js Mastra Converter |
-|---------|---------------------------|-------------------------|
-| 状态管理 State | 需要维护 tool_call_id 映射 | 不需要（Mastra events 更完整） |
-| 事件源 Source | LangChain/LangGraph | Mastra |
-| 复杂度 Complexity | 较高（需要处理流式工具调用的 ID 分配） | 较低（事件已包含完整信息） |
-| 类型安全 Type Safety | 基于 Python typing | 基于 TypeScript |
+| Feature              | Python LangChain Converter             | Node.js Mastra Converter       |
+| -------------------- | -------------------------------------- | ------------------------------ |
+| 状态管理 State       | 需要维护 tool_call_id 映射             | 不需要（Mastra events 更完整） |
+| 事件源 Source        | LangChain/LangGraph                    | Mastra                         |
+| 复杂度 Complexity    | 较高（需要处理流式工具调用的 ID 分配） | 较低（事件已包含完整信息）     |
+| 类型安全 Type Safety | 基于 Python typing                     | 基于 TypeScript                |
 
 ## 高级用法 Advanced Usage
 
@@ -167,10 +172,10 @@ class CustomMastraConverter extends MastraConverter {
   *convert(chunk) {
     // 添加自定义日志
     console.log(`Processing: ${chunk.type}`);
-    
+
     // 调用父类转换
     yield* super.convert(chunk);
-    
+
     // 添加自定义事件
     if (chunk.type === 'finish') {
       yield {

@@ -42,28 +42,28 @@ describe('Logger', () => {
     it('should set debug level and log debug messages', () => {
       logger.setLevel('debug');
       logger.debug('debug message');
-      
+
       expect(consoleDebugSpy).toHaveBeenCalled();
     });
 
     it('should set info level and not log debug messages', () => {
       logger.setLevel('info');
       logger.debug('debug message');
-      
+
       expect(consoleDebugSpy).not.toHaveBeenCalled();
     });
 
     it('should set warn level and not log info messages', () => {
       logger.setLevel('warn');
       logger.info('info message');
-      
+
       expect(consoleInfoSpy).not.toHaveBeenCalled();
     });
 
     it('should set error level and not log warn messages', () => {
       logger.setLevel('error');
       logger.warn('warn message');
-      
+
       expect(consoleWarnSpy).not.toHaveBeenCalled();
     });
   });
@@ -72,7 +72,7 @@ describe('Logger', () => {
     it('should log debug messages when level is debug', () => {
       logger.setLevel('debug');
       logger.debug('test debug message');
-      
+
       expect(consoleDebugSpy).toHaveBeenCalled();
       const logOutput = consoleDebugSpy.mock.calls[0][0];
       expect(logOutput).toContain('test debug message');
@@ -81,14 +81,14 @@ describe('Logger', () => {
     it('should not log debug messages when level is info', () => {
       logger.setLevel('info');
       logger.debug('test debug message');
-      
+
       expect(consoleDebugSpy).not.toHaveBeenCalled();
     });
 
     it('should pass additional arguments', () => {
       logger.setLevel('debug');
       logger.debug('message with args', { key: 'value' }, 123);
-      
+
       expect(consoleDebugSpy).toHaveBeenCalled();
       expect(consoleDebugSpy.mock.calls[0]).toHaveLength(3);
       expect(consoleDebugSpy.mock.calls[0][1]).toEqual({ key: 'value' });
@@ -100,7 +100,7 @@ describe('Logger', () => {
     it('should log info messages when level is info', () => {
       logger.setLevel('info');
       logger.info('test info message');
-      
+
       expect(consoleInfoSpy).toHaveBeenCalled();
       const logOutput = consoleInfoSpy.mock.calls[0][0];
       expect(logOutput).toContain('test info message');
@@ -109,14 +109,14 @@ describe('Logger', () => {
     it('should log info messages when level is debug', () => {
       logger.setLevel('debug');
       logger.info('test info message');
-      
+
       expect(consoleInfoSpy).toHaveBeenCalled();
     });
 
     it('should not log info messages when level is warn', () => {
       logger.setLevel('warn');
       logger.info('test info message');
-      
+
       expect(consoleInfoSpy).not.toHaveBeenCalled();
     });
   });
@@ -125,7 +125,7 @@ describe('Logger', () => {
     it('should log warn messages when level is warn', () => {
       logger.setLevel('warn');
       logger.warn('test warn message');
-      
+
       expect(consoleWarnSpy).toHaveBeenCalled();
       const logOutput = consoleWarnSpy.mock.calls[0][0];
       expect(logOutput).toContain('test warn message');
@@ -135,14 +135,14 @@ describe('Logger', () => {
     it('should log warn messages when level is info', () => {
       logger.setLevel('info');
       logger.warn('test warn message');
-      
+
       expect(consoleWarnSpy).toHaveBeenCalled();
     });
 
     it('should not log warn messages when level is error', () => {
       logger.setLevel('error');
       logger.warn('test warn message');
-      
+
       expect(consoleWarnSpy).not.toHaveBeenCalled();
     });
   });
@@ -151,7 +151,7 @@ describe('Logger', () => {
     it('should log error messages when level is error', () => {
       logger.setLevel('error');
       logger.error('test error message');
-      
+
       expect(consoleErrorSpy).toHaveBeenCalled();
       const logOutput = consoleErrorSpy.mock.calls[0][0];
       expect(logOutput).toContain('test error message');
@@ -161,7 +161,7 @@ describe('Logger', () => {
     it('should always log error messages', () => {
       logger.setLevel('error');
       logger.error('test error message');
-      
+
       expect(consoleErrorSpy).toHaveBeenCalled();
     });
   });
@@ -170,7 +170,7 @@ describe('Logger', () => {
     it('should include timestamp in log output', () => {
       logger.setLevel('info');
       logger.info('test message');
-      
+
       const logOutput = consoleInfoSpy.mock.calls[0][0];
       // Check for timestamp format: YYYY-MM-DD HH:mm:ss,SSS
       expect(logOutput).toMatch(/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}/);
@@ -179,7 +179,7 @@ describe('Logger', () => {
     it('should include logger prefix in log output', () => {
       logger.setLevel('info');
       logger.info('test message');
-      
+
       const logOutput = consoleInfoSpy.mock.calls[0][0];
       expect(logOutput).toContain('agentrun-logger');
     });
@@ -187,7 +187,7 @@ describe('Logger', () => {
     it('should include level name in log output', () => {
       logger.setLevel('info');
       logger.info('test message');
-      
+
       const logOutput = consoleInfoSpy.mock.calls[0][0];
       expect(logOutput).toContain('INFO');
     });
@@ -196,43 +196,43 @@ describe('Logger', () => {
   describe('log levels hierarchy', () => {
     it('should respect log level hierarchy', () => {
       const levels: LogLevel[] = ['debug', 'info', 'warn', 'error'];
-      
+
       levels.forEach((currentLevel, index) => {
         logger.setLevel(currentLevel);
-        
+
         // Clear mocks
         consoleDebugSpy.mockClear();
         consoleInfoSpy.mockClear();
         consoleWarnSpy.mockClear();
         consoleErrorSpy.mockClear();
-        
+
         // Try logging at each level
         logger.debug('debug');
         logger.info('info');
         logger.warn('warn');
         logger.error('error');
-        
+
         // Debug should only log when level is debug
         if (index === 0) {
           expect(consoleDebugSpy).toHaveBeenCalled();
         } else {
           expect(consoleDebugSpy).not.toHaveBeenCalled();
         }
-        
+
         // Info should log when level is debug or info
         if (index <= 1) {
           expect(consoleInfoSpy).toHaveBeenCalled();
         } else {
           expect(consoleInfoSpy).not.toHaveBeenCalled();
         }
-        
+
         // Warn should log when level is debug, info, or warn
         if (index <= 2) {
           expect(consoleWarnSpy).toHaveBeenCalled();
         } else {
           expect(consoleWarnSpy).not.toHaveBeenCalled();
         }
-        
+
         // Error should always log
         expect(consoleErrorSpy).toHaveBeenCalled();
       });
@@ -388,4 +388,3 @@ describe('Logger', () => {
     });
   });
 });
-

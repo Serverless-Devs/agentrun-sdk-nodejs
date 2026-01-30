@@ -8,12 +8,7 @@
 import { Config } from '../utils/config';
 
 import { BrowserDataAPI } from './api/browser-data';
-import {
-  NASConfig,
-  OSSMountConfig,
-  PolarFsConfig,
-  TemplateType,
-} from './model';
+import { NASConfig, OSSMountConfig, PolarFsConfig, TemplateType } from './model';
 import { Sandbox } from './sandbox';
 
 /**
@@ -122,10 +117,7 @@ export class BrowserSandbox extends Sandbox {
   /**
    * Delete a recording
    */
-  deleteRecording = async (params: {
-    filename: string;
-    config?: Config;
-  }): Promise<any> => {
+  deleteRecording = async (params: { filename: string; config?: Config }): Promise<any> => {
     return this.dataApi.deleteRecording(params);
   };
 }

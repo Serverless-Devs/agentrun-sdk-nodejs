@@ -1,15 +1,12 @@
 import { CredentialClient } from '../../../src/credential/client';
 import { Config } from '../../../src/utils/config';
-import {
-  HTTPError,
-  ResourceNotExistError,
-} from '../../../src/utils/exception';
+import { HTTPError, ResourceNotExistError } from '../../../src/utils/exception';
 import { CredentialControlAPI } from '../../../src/credential/api/control';
 
 jest.mock('@alicloud/agentrun20250910', () => ({
-  CreateCredentialInput: jest.fn().mockImplementation((input) => input),
-  UpdateCredentialInput: jest.fn().mockImplementation((input) => input),
-  ListCredentialsRequest: jest.fn().mockImplementation((input) => input),
+  CreateCredentialInput: jest.fn().mockImplementation(input => input),
+  UpdateCredentialInput: jest.fn().mockImplementation(input => input),
+  ListCredentialsRequest: jest.fn().mockImplementation(input => input),
 }));
 
 jest.mock('../../../src/credential/api/control', () => ({
@@ -23,9 +20,7 @@ jest.mock('../../../src/credential/api/control', () => ({
 }));
 
 describe('CredentialClient', () => {
-  const MockControlAPI = CredentialControlAPI as jest.MockedClass<
-    typeof CredentialControlAPI
-  >;
+  const MockControlAPI = CredentialControlAPI as jest.MockedClass<typeof CredentialControlAPI>;
 
   beforeEach(() => {
     MockControlAPI.mockClear();
@@ -293,9 +288,7 @@ describe('CredentialClient', () => {
     const client = new CredentialClient(new Config());
     const controlApi = MockControlAPI.mock.results[0].value as any;
 
-    controlApi.createCredential.mockRejectedValue(
-      new HTTPError(404, 'not found')
-    );
+    controlApi.createCredential.mockRejectedValue(new HTTPError(404, 'not found'));
 
     await expect(
       client.create({
@@ -372,13 +365,9 @@ describe('CredentialClient', () => {
     const client = new CredentialClient(new Config());
     const controlApi = MockControlAPI.mock.results[0].value as any;
 
-    controlApi.deleteCredential.mockRejectedValue(
-      new HTTPError(404, 'not found')
-    );
+    controlApi.deleteCredential.mockRejectedValue(new HTTPError(404, 'not found'));
 
-    await expect(client.delete({ name: 'missing' })).rejects.toBeInstanceOf(
-      ResourceNotExistError
-    );
+    await expect(client.delete({ name: 'missing' })).rejects.toBeInstanceOf(ResourceNotExistError);
   });
 
   it('should rethrow non-HTTPError for update', async () => {
@@ -403,9 +392,7 @@ describe('CredentialClient', () => {
     const client = new CredentialClient(new Config());
     const controlApi = MockControlAPI.mock.results[0].value as any;
 
-    controlApi.updateCredential.mockRejectedValue(
-      new HTTPError(404, 'not found')
-    );
+    controlApi.updateCredential.mockRejectedValue(new HTTPError(404, 'not found'));
 
     await expect(
       client.update({
@@ -432,13 +419,9 @@ describe('CredentialClient', () => {
     const client = new CredentialClient(new Config());
     const controlApi = MockControlAPI.mock.results[0].value as any;
 
-    controlApi.getCredential.mockRejectedValue(
-      new HTTPError(404, 'not found')
-    );
+    controlApi.getCredential.mockRejectedValue(new HTTPError(404, 'not found'));
 
-    await expect(client.get({ name: 'missing' })).rejects.toBeInstanceOf(
-      ResourceNotExistError
-    );
+    await expect(client.get({ name: 'missing' })).rejects.toBeInstanceOf(ResourceNotExistError);
   });
 
   it('should rethrow non-HTTPError for list', async () => {
@@ -454,9 +437,7 @@ describe('CredentialClient', () => {
     const client = new CredentialClient(new Config());
     const controlApi = MockControlAPI.mock.results[0].value as any;
 
-    controlApi.listCredentials.mockRejectedValue(
-      new HTTPError(404, 'not found')
-    );
+    controlApi.listCredentials.mockRejectedValue(new HTTPError(404, 'not found'));
 
     await expect(client.list()).rejects.toBeInstanceOf(ResourceNotExistError);
   });

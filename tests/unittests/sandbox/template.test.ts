@@ -6,11 +6,7 @@
  */
 
 import { TemplateNetworkMode, TemplateType } from '../../../src/sandbox/model';
-import {
-  ClientError,
-  HTTPError,
-  ServerError,
-} from '../../../src/utils/exception';
+import { ClientError, HTTPError, ServerError } from '../../../src/utils/exception';
 import { Status } from '../../../src/utils/model';
 
 // Mock ControlAPI
@@ -25,16 +21,12 @@ jest.mock('../../../src/utils/control-api', () => {
 
 // Mock @alicloud/agentrun20250910
 jest.mock('@alicloud/agentrun20250910', () => {
-  const CreateTemplateRequest = jest
-    .fn()
-    .mockImplementation((params) => params);
-  const CreateTemplateInput = jest.fn().mockImplementation((params) => params);
-  const UpdateTemplateRequest = jest
-    .fn()
-    .mockImplementation((params) => params);
-  const UpdateTemplateInput = jest.fn().mockImplementation((params) => params);
-  const ListTemplatesRequest = jest.fn().mockImplementation((params) => params);
-  const NetworkConfiguration = jest.fn().mockImplementation((params) => params);
+  const CreateTemplateRequest = jest.fn().mockImplementation(params => params);
+  const CreateTemplateInput = jest.fn().mockImplementation(params => params);
+  const UpdateTemplateRequest = jest.fn().mockImplementation(params => params);
+  const UpdateTemplateInput = jest.fn().mockImplementation(params => params);
+  const ListTemplatesRequest = jest.fn().mockImplementation(params => params);
+  const NetworkConfiguration = jest.fn().mockImplementation(params => params);
   const Template = jest.fn();
   const MockClient = jest.fn().mockImplementation(() => ({
     createTemplateWithOptions: jest.fn(),
@@ -279,9 +271,7 @@ describe('Template', () => {
 
     it('should throw error when BROWSER diskSize is not 10240', async () => {
       mockClientCreateTemplate.mockRejectedValue(
-        new Error(
-          'When templateType is BROWSER or AIO, diskSize must be 10240, got 512',
-        ),
+        new Error('When templateType is BROWSER or AIO, diskSize must be 10240, got 512')
       );
 
       await expect(
@@ -291,17 +281,13 @@ describe('Template', () => {
             templateType: TemplateType.BROWSER,
             diskSize: 512,
           },
-        }),
-      ).rejects.toThrow(
-        'When templateType is BROWSER or AIO, diskSize must be 10240',
-      );
+        })
+      ).rejects.toThrow('When templateType is BROWSER or AIO, diskSize must be 10240');
     });
 
     it('should throw error when CODE_INTERPRETER uses PRIVATE network', async () => {
       mockClientCreateTemplate.mockRejectedValue(
-        new Error(
-          'When templateType is CODE_INTERPRETER or AIO, networkMode cannot be PRIVATE',
-        ),
+        new Error('When templateType is CODE_INTERPRETER or AIO, networkMode cannot be PRIVATE')
       );
 
       await expect(
@@ -313,9 +299,9 @@ describe('Template', () => {
               networkMode: TemplateNetworkMode.PRIVATE,
             },
           },
-        }),
+        })
       ).rejects.toThrow(
-        'When templateType is CODE_INTERPRETER or AIO, networkMode cannot be PRIVATE',
+        'When templateType is CODE_INTERPRETER or AIO, networkMode cannot be PRIVATE'
       );
     });
 
@@ -405,13 +391,9 @@ describe('Template', () => {
     });
 
     it('should handle HTTPError on delete', async () => {
-      mockClientDeleteTemplate.mockRejectedValue(
-        new HTTPError(404, 'Not Found')
-      );
+      mockClientDeleteTemplate.mockRejectedValue(new HTTPError(404, 'Not Found'));
 
-      await expect(
-        Template.delete({ name: 'test-template' })
-      ).rejects.toThrow();
+      await expect(Template.delete({ name: 'test-template' })).rejects.toThrow();
     });
 
     it('should handle error with empty message (Unknown error fallback)', async () => {
@@ -419,21 +401,15 @@ describe('Template', () => {
         new ClientError(404, '', { requestId: 'req-123' })
       );
 
-      await expect(Template.delete({ name: 'test-template' })).rejects.toThrow(
-        ClientError
-      );
+      await expect(Template.delete({ name: 'test-template' })).rejects.toThrow(ClientError);
     });
   });
 
   describe('update error handling', () => {
     it('should handle HTTPError on update', async () => {
-      mockClientUpdateTemplate.mockRejectedValue(
-        new HTTPError(404, 'Not Found')
-      );
+      mockClientUpdateTemplate.mockRejectedValue(new HTTPError(404, 'Not Found'));
 
-      await expect(
-        Template.update({ name: 'test-template', input: { cpu: 4 } })
-      ).rejects.toThrow();
+      await expect(Template.update({ name: 'test-template', input: { cpu: 4 } })).rejects.toThrow();
     });
 
     it('should call handleError for non-HTTPError on update', async () => {
@@ -441,17 +417,15 @@ describe('Template', () => {
         new ServerError(500, 'Internal Server Error', { requestId: 'req-123' })
       );
 
-      await expect(
-        Template.update({ name: 'test-template', input: { cpu: 4 } })
-      ).rejects.toThrow(ServerError);
+      await expect(Template.update({ name: 'test-template', input: { cpu: 4 } })).rejects.toThrow(
+        ServerError
+      );
     });
   });
 
   describe('get error handling', () => {
     it('should handle HTTPError on get', async () => {
-      mockClientGetTemplate.mockRejectedValue(
-        new HTTPError(404, 'Not Found')
-      );
+      mockClientGetTemplate.mockRejectedValue(new HTTPError(404, 'Not Found'));
 
       await expect(Template.get({ name: 'test-template' })).rejects.toThrow();
     });
@@ -461,17 +435,13 @@ describe('Template', () => {
         new ClientError(400, 'Bad Request', { requestId: 'req-123' })
       );
 
-      await expect(Template.get({ name: 'test-template' })).rejects.toThrow(
-        ClientError
-      );
+      await expect(Template.get({ name: 'test-template' })).rejects.toThrow(ClientError);
     });
   });
 
   describe('create error handling', () => {
     it('should handle HTTPError on create', async () => {
-      mockClientCreateTemplate.mockRejectedValue(
-        new HTTPError(400, 'Bad Request')
-      );
+      mockClientCreateTemplate.mockRejectedValue(new HTTPError(400, 'Bad Request'));
 
       await expect(
         Template.create({
@@ -505,9 +475,7 @@ describe('Template', () => {
         new ClientError(404, 'Not Found', { requestId: 'req-123' })
       );
 
-      await expect(Template.delete({ name: 'test-template' })).rejects.toThrow(
-        ClientError
-      );
+      await expect(Template.delete({ name: 'test-template' })).rejects.toThrow(ClientError);
     });
   });
 
@@ -637,8 +605,8 @@ describe('Template', () => {
               new Template({
                 templateId: `template-${i}`,
                 templateName: `template-${i}`,
-              }),
-          ),
+              })
+          )
         )
         .mockResolvedValueOnce(
           Array.from(
@@ -647,8 +615,8 @@ describe('Template', () => {
               new Template({
                 templateId: `template-${50 + i}`,
                 templateName: `template-${50 + i}`,
-              }),
-          ),
+              })
+          )
         );
 
       const result = await Template.listAll();

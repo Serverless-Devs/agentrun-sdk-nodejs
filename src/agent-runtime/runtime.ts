@@ -7,11 +7,7 @@
 
 import { Config } from '../utils/config';
 import { Status } from '../utils/model';
-import {
-  listAllResourcesFunction,
-  ResourceBase,
-  updateObjectProperties,
-} from '../utils/resource';
+import { listAllResourcesFunction, ResourceBase, updateObjectProperties } from '../utils/resource';
 import type { NetworkConfig } from '../utils/model';
 
 import { AgentRuntimeDataAPI, InvokeArgs } from './api/data';
@@ -98,10 +94,7 @@ export class AgentRuntime extends ResourceBase implements AgentRuntimeData {
   /**
    * Delete an Agent Runtime by ID
    */
-  static async delete(params: {
-    id: string;
-    config?: Config;
-  }): Promise<AgentRuntime> {
+  static async delete(params: { id: string; config?: Config }): Promise<AgentRuntime> {
     const { id, config } = params;
     return await AgentRuntime.getClient().delete({ id, config });
   }
@@ -121,10 +114,7 @@ export class AgentRuntime extends ResourceBase implements AgentRuntimeData {
   /**
    * Get an Agent Runtime by ID
    */
-  static async get(params: {
-    id: string;
-    config?: Config;
-  }): Promise<AgentRuntime> {
+  static async get(params: { id: string; config?: Config }): Promise<AgentRuntime> {
     const { id, config } = params;
     return await AgentRuntime.getClient().get({ id, config });
   }
@@ -291,9 +281,7 @@ export class AgentRuntime extends ResourceBase implements AgentRuntimeData {
   /**
    * List endpoints of this runtime
    */
-  listEndpoints = async (params?: {
-    config?: Config;
-  }): Promise<AgentRuntimeEndpoint[]> => {
+  listEndpoints = async (params?: { config?: Config }): Promise<AgentRuntimeEndpoint[]> => {
     const config = params?.config;
     if (!this.agentRuntimeId) {
       throw new Error('agentRuntimeId is required to list endpoints');
@@ -308,9 +296,7 @@ export class AgentRuntime extends ResourceBase implements AgentRuntimeData {
   /**
    * List versions of this runtime
    */
-  listVersions = async (params?: {
-    config?: Config;
-  }): Promise<AgentRuntimeVersion[]> => {
+  listVersions = async (params?: { config?: Config }): Promise<AgentRuntimeVersion[]> => {
     const config = params?.config;
     if (!this.agentRuntimeId) {
       throw new Error('agentRuntimeId is required to list versions');
@@ -321,7 +307,6 @@ export class AgentRuntime extends ResourceBase implements AgentRuntimeData {
       config: config ?? this._config,
     });
   };
-
 
   /**
    * Invoke agent runtime using OpenAI-compatible API
@@ -342,15 +327,8 @@ export class AgentRuntime extends ResourceBase implements AgentRuntimeData {
    * });
    * ```
    */
-  invokeOpenai = async (
-    args: InvokeArgs & { agentRuntimeEndpointName?: string }
-  ) => {
-    const {
-      agentRuntimeEndpointName = 'Default',
-      messages,
-      stream,
-      config,
-    } = args;
+  invokeOpenai = async (args: InvokeArgs & { agentRuntimeEndpointName?: string }) => {
+    const { agentRuntimeEndpointName = 'Default', messages, stream, config } = args;
 
     if (!this.agentRuntimeName) {
       throw new Error('agentRuntimeName is required to invoke OpenAI');

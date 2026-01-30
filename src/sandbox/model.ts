@@ -5,56 +5,56 @@
  * This module defines all data models related to Sandbox.
  */
 
-import { Status, PageableInput } from "../utils/model";
+import { Status, PageableInput } from '../utils/model';
 
 /**
  * Template type enum
  */
 export enum TemplateType {
-  CODE_INTERPRETER = "CodeInterpreter",
-  BROWSER = "Browser",
-  AIO = "AllInOne",
+  CODE_INTERPRETER = 'CodeInterpreter',
+  BROWSER = 'Browser',
+  AIO = 'AllInOne',
   /**
    * 自定义镜像 / Custom Image
    */
-  CUSTOM = "CustomImage",
+  CUSTOM = 'CustomImage',
 }
 
 /**
  * Sandbox state enum
  */
 export enum SandboxState {
-  CREATING = "Creating",
-  RUNNING = "Running",
-  READY = "READY",  // API返回的就绪状态，等同于Running
-  STOPPED = "Stopped",
-  FAILED = "Failed",
-  DELETING = "Deleting",
+  CREATING = 'Creating',
+  RUNNING = 'Running',
+  READY = 'READY', // API返回的就绪状态，等同于Running
+  STOPPED = 'Stopped',
+  FAILED = 'Failed',
+  DELETING = 'Deleting',
 }
 
 /**
  * Template network mode enum
  */
 export enum TemplateNetworkMode {
-  PUBLIC = "PUBLIC",
-  PRIVATE = "PRIVATE",
-  PUBLIC_AND_PRIVATE = "PUBLIC_AND_PRIVATE",
+  PUBLIC = 'PUBLIC',
+  PRIVATE = 'PRIVATE',
+  PUBLIC_AND_PRIVATE = 'PUBLIC_AND_PRIVATE',
 }
 
 /**
  * OSS permission enum
  */
 export enum TemplateOSSPermission {
-  READ_WRITE = "READ_WRITE",
-  READ_ONLY = "READ_ONLY",
+  READ_WRITE = 'READ_WRITE',
+  READ_ONLY = 'READ_ONLY',
 }
 
 /**
  * Code language enum
  */
 export enum CodeLanguage {
-  PYTHON = "python",
-  JAVASCRIPT = "javascript",
+  PYTHON = 'python',
+  JAVASCRIPT = 'javascript',
 }
 
 // ==================== NAS 配置相关 ====================

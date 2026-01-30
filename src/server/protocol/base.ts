@@ -14,10 +14,7 @@ import type { ProtocolRequest, ProtocolResponse } from '../core/model';
 export interface RouteDefinition {
   method: 'GET' | 'POST' | 'PUT' | 'DELETE';
   path: string;
-  handler: (
-    req: ProtocolRequest,
-    invoker: AgentInvoker,
-  ) => Promise<ProtocolResponse>;
+  handler: (req: ProtocolRequest, invoker: AgentInvoker) => Promise<ProtocolResponse>;
 }
 
 /**
@@ -50,21 +47,17 @@ export abstract class ProtocolHandler {
   matches(req: ProtocolRequest): boolean {
     const prefix = this.getPrefix();
     return this.getRoutes().some(
-      (route) =>
-        route.method === req.method && this.matchPath(prefix + route.path, req.url),
+      route => route.method === req.method && this.matchPath(prefix + route.path, req.url)
     );
   }
 
   /**
    * Handle a request
    */
-  async handle(
-    req: ProtocolRequest,
-    invoker: AgentInvoker,
-  ): Promise<ProtocolResponse> {
+  async handle(req: ProtocolRequest, invoker: AgentInvoker): Promise<ProtocolResponse> {
     const prefix = this.getPrefix();
     const route = this.getRoutes().find(
-      (r) => r.method === req.method && this.matchPath(prefix + r.path, req.url),
+      r => r.method === req.method && this.matchPath(prefix + r.path, req.url)
     );
 
     if (!route) {
@@ -85,10 +78,7 @@ export abstract class ProtocolHandler {
   /**
    * Create error response
    */
-  protected createErrorResponse(
-    error: unknown,
-    status: number = 500,
-  ): ProtocolResponse {
+  protected createErrorResponse(error: unknown, status: number = 500): ProtocolResponse {
     const message = error instanceof Error ? error.message : String(error);
     return {
       status,

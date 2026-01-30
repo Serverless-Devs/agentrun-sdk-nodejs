@@ -71,7 +71,7 @@ describe('Agent Runtime Model', () => {
         AgentRuntimeLanguage.PYTHON310,
         ['python', 'main.py'],
         'my-bucket',
-        'code/agent.zip',
+        'code/agent.zip'
       );
 
       expect(code.language).toBe('python3.10');
@@ -120,7 +120,7 @@ describe('Agent Runtime Model', () => {
       const code = await codeFromZipFile(
         AgentRuntimeLanguage.PYTHON310,
         ['python', 'main.py'],
-        zipFilePath,
+        zipFilePath
       );
 
       expect(code.language).toBe('python3.10');
@@ -176,7 +176,7 @@ describe('Agent Runtime Model', () => {
       const code = await codeFromFile(
         AgentRuntimeLanguage.PYTHON310,
         ['python', 'main.py'],
-        testFilePath,
+        testFilePath
       );
 
       expect(code.language).toBe('python3.10');
@@ -189,7 +189,7 @@ describe('Agent Runtime Model', () => {
       const code = await codeFromFile(
         AgentRuntimeLanguage.PYTHON310,
         ['python', 'app.py'],
-        testDirPath,
+        testDirPath
       );
 
       expect(code.language).toBe('python3.10');

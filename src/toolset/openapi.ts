@@ -5,9 +5,9 @@
  * Handles tool parsing and invocation for OpenAPI specification.
  */
 
-import { Config } from "../utils/config";
-import { logger } from "../utils/log";
-import YAML from "js-yaml";
+import { Config } from '../utils/config';
+import { logger } from '../utils/log';
+import YAML from 'js-yaml';
 
 /**
  * Tool parameter schema
@@ -81,7 +81,7 @@ export class OpenAPI {
 
   constructor(options: OpenAPIOptions) {
     // Parse schema if it's a string
-    if (typeof options.schema === "string") {
+    if (typeof options.schema === 'string') {
       // Try to parse as YAML first (since OpenAPI specs are often in YAML)
       try {
         this._schema = YAML.load(options.schema) as Record<string, unknown>;
@@ -100,9 +100,7 @@ export class OpenAPI {
     this._baseUrl = options.baseUrl || this._extractBaseUrl();
 
     this._defaultHeaders = options.headers ? { ...options.headers } : {};
-    this._defaultQueryParams = options.queryParams
-      ? { ...options.queryParams }
-      : {};
+    this._defaultQueryParams = options.queryParams ? { ...options.queryParams } : {};
     this._config = options.config;
 
     // Parse tools from schema
@@ -136,15 +134,15 @@ export class OpenAPI {
   invokeToolAsync = async (
     name: string,
     args: Record<string, unknown> = {},
-    _config?: Config,
+    _config?: Config
   ): Promise<InvokeResult> => {
     const tool = this._tools.get(name);
     if (!tool) {
       throw new Error(`Tool '${name}' not found.`);
     }
 
-    const method = (tool.method || "get").toUpperCase();
-    let path = tool.path || "/";
+    const method = (tool.method || 'get').toUpperCase();
+    let path = tool.path || '/';
 
     // Build URL with path parameters
     const queryParams: Record<string, unknown> = {
@@ -155,11 +153,11 @@ export class OpenAPI {
 
     // Parse arguments into path, query, header, and body
     for (const [key, value] of Object.entries(args)) {
-      if (key === "body") {
+      if (key === 'body') {
         bodyContent = value;
       } else if (path.includes(`{${key}}`)) {
         path = path.replace(`{${key}}`, String(value));
-      } else if (typeof value === "string" && key.startsWith("X-")) {
+      } else if (typeof value === 'string' && key.startsWith('X-')) {
         // Assume header parameter
         headerParams[key] = value;
       } else {
@@ -181,21 +179,21 @@ export class OpenAPI {
       const fetchOptions: RequestInit = {
         method,
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           ...headerParams,
         },
       };
 
-      if (bodyContent && ["POST", "PUT", "PATCH"].includes(method)) {
+      if (bodyContent && ['POST', 'PUT', 'PATCH'].includes(method)) {
         fetchOptions.body = JSON.stringify(bodyContent);
       }
 
       const response = await fetch(url.toString(), fetchOptions);
-      
+
       // Clone response to avoid "Body already used" error
       const responseClone = response.clone();
       let responseBody: unknown;
-      
+
       try {
         responseBody = await response.json();
       } catch {
@@ -219,14 +217,11 @@ export class OpenAPI {
   /**
    * Synchronous invoke (wrapper for async)
    */
-  invokeToolSync(
-    _name: string,
-    _args: Record<string, unknown> = {},
-  ): InvokeResult {
+  invokeToolSync(_name: string, _args: Record<string, unknown> = {}): InvokeResult {
     // Note: This is a simplified sync version that doesn't actually work in Node.js
     // It's mainly for testing purposes
     throw new Error(
-      "Synchronous invocation is not supported in Node.js. Use invokeToolAsync instead.",
+      'Synchronous invocation is not supported in Node.js. Use invokeToolAsync instead.'
     );
   }
 
@@ -234,7 +229,7 @@ export class OpenAPI {
   invoke_tool = (
     name: string,
     args: Record<string, unknown> = {},
-    _config?: Config,
+    _config?: Config
   ): Promise<InvokeResult> => {
     return this.invokeToolAsync(name, args);
   };
@@ -247,17 +242,14 @@ export class OpenAPI {
     if (servers && servers.length > 0) {
       return servers[0].url;
     }
-    return "";
+    return '';
   }
 
   /**
    * Resolve all $ref references in the schema
    */
   private _resolveAllRefs(): void {
-    this._schema = this._resolveRefs(this._schema, this._schema) as Record<
-      string,
-      unknown
-    >;
+    this._schema = this._resolveRefs(this._schema, this._schema) as Record<string, unknown>;
   }
 
   /**
@@ -269,15 +261,15 @@ export class OpenAPI {
     }
 
     if (Array.isArray(obj)) {
-      return obj.map((item) => this._resolveRefs(item, root));
+      return obj.map(item => this._resolveRefs(item, root));
     }
 
-    if (typeof obj === "object") {
+    if (typeof obj === 'object') {
       const result: Record<string, unknown> = {};
       const objRecord = obj as Record<string, unknown>;
 
       // Check for $ref
-      if ("$ref" in objRecord && typeof objRecord.$ref === "string") {
+      if ('$ref' in objRecord && typeof objRecord.$ref === 'string') {
         const refPath = objRecord.$ref;
         const resolved = this._resolveRef(refPath, root);
 
@@ -285,13 +277,13 @@ export class OpenAPI {
         const resolvedDeep = this._resolveRefs(resolved, root);
 
         // Merge resolved reference with sibling properties
-        if (typeof resolvedDeep === "object" && resolvedDeep !== null) {
+        if (typeof resolvedDeep === 'object' && resolvedDeep !== null) {
           Object.assign(result, resolvedDeep);
         }
 
         // Add other properties (sibling to $ref)
         for (const [key, value] of Object.entries(objRecord)) {
-          if (key !== "$ref") {
+          if (key !== '$ref') {
             result[key] = this._resolveRefs(value, root);
           }
         }
@@ -314,20 +306,20 @@ export class OpenAPI {
    * Resolve a single $ref path
    */
   private _resolveRef(refPath: string, root: Record<string, unknown>): unknown {
-    if (!refPath.startsWith("#/")) {
+    if (!refPath.startsWith('#/')) {
       // External reference - not supported yet
       logger.warn(`External $ref not supported: ${refPath}`);
       return {};
     }
 
-    const path = refPath.substring(2).split("/");
+    const path = refPath.substring(2).split('/');
     let current: unknown = root;
 
     for (const part of path) {
       if (current === null || current === undefined) {
         return {};
       }
-      if (typeof current === "object" && !Array.isArray(current)) {
+      if (typeof current === 'object' && !Array.isArray(current)) {
         current = (current as Record<string, unknown>)[part];
       } else {
         return {};
@@ -341,34 +333,22 @@ export class OpenAPI {
    * Parse tools from OpenAPI paths
    */
   private _parseTools(): void {
-    const paths = this._schema.paths as
-      | Record<string, Record<string, unknown>>
-      | undefined;
+    const paths = this._schema.paths as Record<string, Record<string, unknown>> | undefined;
     if (!paths) {
       return;
     }
 
     for (const [path, pathItem] of Object.entries(paths)) {
-      if (typeof pathItem !== "object" || pathItem === null) {
+      if (typeof pathItem !== 'object' || pathItem === null) {
         continue;
       }
 
       for (const [method, operation] of Object.entries(pathItem)) {
-        if (
-          ![
-            "get",
-            "post",
-            "put",
-            "patch",
-            "delete",
-            "options",
-            "head",
-          ].includes(method)
-        ) {
+        if (!['get', 'post', 'put', 'patch', 'delete', 'options', 'head'].includes(method)) {
           continue;
         }
 
-        if (typeof operation !== "object" || operation === null) {
+        if (typeof operation !== 'object' || operation === null) {
           continue;
         }
 
@@ -398,20 +378,15 @@ export class OpenAPI {
   /**
    * Parse operation parameters into a schema
    */
-  private _parseParameters(
-    operation: Record<string, unknown>,
-    _path: string,
-  ): ToolParameterSchema {
+  private _parseParameters(operation: Record<string, unknown>, _path: string): ToolParameterSchema {
     const result: ToolParameterSchema = {
-      type: "object",
+      type: 'object',
       properties: {},
       required: [],
     };
 
     // Parse path/query/header parameters
-    const params = operation.parameters as
-      | Array<Record<string, unknown>>
-      | undefined;
+    const params = operation.parameters as Array<Record<string, unknown>> | undefined;
     if (params && Array.isArray(params)) {
       for (const param of params) {
         const name = param.name as string;
@@ -421,7 +396,7 @@ export class OpenAPI {
         if (!name) continue;
 
         result.properties![name] = {
-          type: schema?.type || "string",
+          type: schema?.type || 'string',
           description: (param.description as string) || undefined,
           ...schema,
         };
@@ -433,20 +408,15 @@ export class OpenAPI {
     }
 
     // Parse request body
-    const requestBody = operation.requestBody as
-      | Record<string, unknown>
-      | undefined;
+    const requestBody = operation.requestBody as Record<string, unknown> | undefined;
     if (requestBody) {
-      const content = requestBody.content as
-        | Record<string, Record<string, unknown>>
-        | undefined;
+      const content = requestBody.content as Record<string, Record<string, unknown>> | undefined;
       if (content) {
-        const jsonContent = content["application/json"];
+        const jsonContent = content['application/json'];
         if (jsonContent && jsonContent.schema) {
-          result.properties!["body"] =
-            jsonContent.schema as ToolParameterSchema;
+          result.properties!['body'] = jsonContent.schema as ToolParameterSchema;
           if (requestBody.required) {
-            result.required!.push("body");
+            result.required!.push('body');
           }
         }
       }
@@ -474,9 +444,9 @@ export class ApiSet {
     baseUrl?: string,
     headers?: Record<string, string>,
     queryParams?: Record<string, unknown>,
-    config?: Config,
+    config?: Config
   ) {
-    this._tools = new Map(tools.filter((t) => t.name).map((t) => [t.name, t]));
+    this._tools = new Map(tools.filter(t => t.name).map(t => [t.name, t]));
     this._invoker = invoker;
     this._baseUrl = baseUrl;
     this._defaultHeaders = headers ? { ...headers } : {};
@@ -491,7 +461,7 @@ export class ApiSet {
   invoke = async (
     name: string,
     args: Record<string, unknown> = {},
-    config?: Config,
+    config?: Config
   ): Promise<Record<string, unknown>> => {
     if (!this._tools.has(name)) {
       throw new Error(`Tool '${name}' not found.`);
@@ -504,18 +474,14 @@ export class ApiSet {
     const effectiveConfig = Config.withConfigs(this._baseConfig, config);
 
     // Call the actual invoker
-    if (typeof this._invoker.invokeToolAsync === "function") {
-      return await this._invoker.invokeToolAsync(
-        name,
-        convertedArgs,
-        effectiveConfig
-      );
-    } else if (typeof this._invoker.invoke_tool === "function") {
+    if (typeof this._invoker.invokeToolAsync === 'function') {
+      return await this._invoker.invokeToolAsync(name, convertedArgs, effectiveConfig);
+    } else if (typeof this._invoker.invoke_tool === 'function') {
       return await this._invoker.invoke_tool(name, convertedArgs, effectiveConfig);
-    } else if (typeof this._invoker === "function") {
+    } else if (typeof this._invoker === 'function') {
       return await this._invoker(name, convertedArgs);
     } else {
-      throw new Error("Invalid invoker provided.");
+      throw new Error('Invalid invoker provided.');
     }
   };
 
@@ -538,7 +504,7 @@ export class ApiSet {
   /**
    * Convert arguments from framework-specific types to native JavaScript types
    * 将常见框架类型转换为 JavaScript 原生类型
-   * 
+   *
    * Purpose: Ensure we send JSON-serializable data to OpenAPI
    * 目的：确保我们发送到 OpenAPI 的 JSON body 是可以被序列化的
    */
@@ -547,24 +513,24 @@ export class ApiSet {
     if (
       value === null ||
       value === undefined ||
-      typeof value === "string" ||
-      typeof value === "number" ||
-      typeof value === "boolean"
+      typeof value === 'string' ||
+      typeof value === 'number' ||
+      typeof value === 'boolean'
     ) {
       return value;
     }
 
     // Arrays
     if (Array.isArray(value)) {
-      return value.map((item) => this._convertToNative(item));
+      return value.map(item => this._convertToNative(item));
     }
 
     // Plain objects
-    if (typeof value === "object") {
+    if (typeof value === 'object') {
       const obj = value as Record<string, unknown>;
 
       // Handle objects with toJSON method
-      if (typeof obj.toJSON === "function") {
+      if (typeof obj.toJSON === 'function') {
         try {
           return this._convertToNative(obj.toJSON());
         } catch {
@@ -588,10 +554,8 @@ export class ApiSet {
    * Convert arguments dictionary
    * 转换参数字典
    */
-  private _convertArguments(
-    args?: Record<string, unknown>
-  ): Record<string, unknown> | undefined {
-    if (!args || typeof args !== "object") {
+  private _convertArguments(args?: Record<string, unknown>): Record<string, unknown> | undefined {
+    if (!args || typeof args !== 'object') {
       return args;
     }
 
@@ -605,16 +569,12 @@ export class ApiSet {
   /**
    * Create ApiSet from MCP tools
    * 从 MCP tools 创建 ApiSet
-   * 
+   *
    * @param tools - MCP tools list or single tool / MCP tools 列表或单个工具
    * @param mcpClient - MCP client (MCPToolSet instance) / MCP 客户端（MCPToolSet 实例）
    * @param config - Configuration object / 配置对象
    */
-  static fromMCPTools(params: {
-    tools: unknown;
-    mcpClient: any;
-    config?: Config;
-  }): ApiSet {
+  static fromMCPTools(params: { tools: unknown; mcpClient: any; config?: Config }): ApiSet {
     const { tools, mcpClient, config } = params;
 
     // Get tools list / 获取工具列表
@@ -640,7 +600,7 @@ export class ApiSet {
         // Use ToolInfo.fromMCPTool to parse the tool
         // 使用 ToolInfo.fromMCPTool 解析工具
         // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const { ToolInfo } = require("./model");
+        const { ToolInfo } = require('./model');
         const toolInfo = ToolInfo.fromMCPTool(tool);
         toolInfos.push(toolInfo);
       } catch (error) {
@@ -651,7 +611,10 @@ export class ApiSet {
 
     // Create invoker wrapper / 创建调用器包装
     class MCPInvoker {
-      constructor(private mcpClient: any, private config?: Config) {}
+      constructor(
+        private mcpClient: any,
+        private config?: Config
+      ) {}
 
       invokeToolAsync = async (
         name: string,

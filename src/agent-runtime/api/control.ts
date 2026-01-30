@@ -9,13 +9,13 @@
 
 // Source: agent_runtime_control_api.yaml
 
-import * as $AgentRun from "@alicloud/agentrun20250910";
-import * as $Util from "@alicloud/tea-util";
+import * as $AgentRun from '@alicloud/agentrun20250910';
+import * as $Util from '@alicloud/tea-util';
 
-import { Config } from "../../utils/config";
-import { ControlAPI } from "../../utils/control-api";
-import { ClientError, ServerError } from "../../utils/exception";
-import { logger } from "../../utils/log";
+import { Config } from '../../utils/config';
+import { ControlAPI } from '../../utils/control-api';
+import { ClientError, ServerError } from '../../utils/exception';
+import { logger } from '../../utils/log';
 
 /**
  * Agent Runtime Control API
@@ -34,7 +34,11 @@ export class AgentRuntimeControlAPI extends ControlAPI {
    * @param params.config - Optional config override
    * @returns Created Runtime object
    */
-  createAgentRuntime = async (params: { input: $AgentRun.CreateAgentRuntimeInput; headers?: Record<string, string>; config?: Config }): Promise<$AgentRun.AgentRuntime> => {
+  createAgentRuntime = async (params: {
+    input: $AgentRun.CreateAgentRuntimeInput;
+    headers?: Record<string, string>;
+    config?: Config;
+  }): Promise<$AgentRun.AgentRuntime> => {
     const { input, headers, config } = params;
 
     try {
@@ -48,15 +52,15 @@ export class AgentRuntimeControlAPI extends ControlAPI {
       );
 
       logger.debug(
-        `request api createAgentRuntime, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([input])}\n  response: ${JSON.stringify(response.body?.data)}`,
+        `request api createAgentRuntime, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([input])}\n  response: ${JSON.stringify(response.body?.data)}`
       );
 
       return response.body?.data as $AgentRun.AgentRuntime;
     } catch (error: unknown) {
-      if (error && typeof error === "object" && "statusCode" in error) {
+      if (error && typeof error === 'object' && 'statusCode' in error) {
         const e = error as { statusCode: number; message: string; data?: { requestId?: string } };
         const statusCode = e.statusCode;
-        const message = e.message || "Unknown error";
+        const message = e.message || 'Unknown error';
         const requestId = e.data?.requestId;
 
         if (statusCode >= 400 && statusCode < 500) {
@@ -78,29 +82,29 @@ export class AgentRuntimeControlAPI extends ControlAPI {
    * @param params.config - Optional config override
    * @returns Deleted Runtime object
    */
-  deleteAgentRuntime = async (params: { agentId: string; headers?: Record<string, string>; config?: Config }): Promise<$AgentRun.AgentRuntime> => {
+  deleteAgentRuntime = async (params: {
+    agentId: string;
+    headers?: Record<string, string>;
+    config?: Config;
+  }): Promise<$AgentRun.AgentRuntime> => {
     const { agentId, headers, config } = params;
 
     try {
       const client = this.getClient(config);
       const runtime = new $Util.RuntimeOptions({});
 
-      const response = await client.deleteAgentRuntimeWithOptions(
-        agentId,
-        headers ?? {},
-        runtime
-      );
+      const response = await client.deleteAgentRuntimeWithOptions(agentId, headers ?? {}, runtime);
 
       logger.debug(
-        `request api deleteAgentRuntime, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([agentId])}\n  response: ${JSON.stringify(response.body?.data)}`,
+        `request api deleteAgentRuntime, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([agentId])}\n  response: ${JSON.stringify(response.body?.data)}`
       );
 
       return response.body?.data as $AgentRun.AgentRuntime;
     } catch (error: unknown) {
-      if (error && typeof error === "object" && "statusCode" in error) {
+      if (error && typeof error === 'object' && 'statusCode' in error) {
         const e = error as { statusCode: number; message: string; data?: { requestId?: string } };
         const statusCode = e.statusCode;
-        const message = e.message || "Unknown error";
+        const message = e.message || 'Unknown error';
         const requestId = e.data?.requestId;
 
         if (statusCode >= 400 && statusCode < 500) {
@@ -123,7 +127,12 @@ export class AgentRuntimeControlAPI extends ControlAPI {
    * @param params.config - Optional config override
    * @returns Updated Runtime object
    */
-  updateAgentRuntime = async (params: { agentId: string; input: $AgentRun.UpdateAgentRuntimeInput; headers?: Record<string, string>; config?: Config }): Promise<$AgentRun.AgentRuntime> => {
+  updateAgentRuntime = async (params: {
+    agentId: string;
+    input: $AgentRun.UpdateAgentRuntimeInput;
+    headers?: Record<string, string>;
+    config?: Config;
+  }): Promise<$AgentRun.AgentRuntime> => {
     const { agentId, input, headers, config } = params;
 
     try {
@@ -138,15 +147,15 @@ export class AgentRuntimeControlAPI extends ControlAPI {
       );
 
       logger.debug(
-        `request api updateAgentRuntime, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([agentId, input])}\n  response: ${JSON.stringify(response.body?.data)}`,
+        `request api updateAgentRuntime, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([agentId, input])}\n  response: ${JSON.stringify(response.body?.data)}`
       );
 
       return response.body?.data as $AgentRun.AgentRuntime;
     } catch (error: unknown) {
-      if (error && typeof error === "object" && "statusCode" in error) {
+      if (error && typeof error === 'object' && 'statusCode' in error) {
         const e = error as { statusCode: number; message: string; data?: { requestId?: string } };
         const statusCode = e.statusCode;
-        const message = e.message || "Unknown error";
+        const message = e.message || 'Unknown error';
         const requestId = e.data?.requestId;
 
         if (statusCode >= 400 && statusCode < 500) {
@@ -169,7 +178,12 @@ export class AgentRuntimeControlAPI extends ControlAPI {
    * @param params.config - Optional config override
    * @returns Runtime object
    */
-  getAgentRuntime = async (params: { agentId: string; request?: $AgentRun.GetAgentRuntimeRequest; headers?: Record<string, string>; config?: Config }): Promise<$AgentRun.AgentRuntime> => {
+  getAgentRuntime = async (params: {
+    agentId: string;
+    request?: $AgentRun.GetAgentRuntimeRequest;
+    headers?: Record<string, string>;
+    config?: Config;
+  }): Promise<$AgentRun.AgentRuntime> => {
     const { agentId, request, headers, config } = params;
 
     try {
@@ -184,15 +198,15 @@ export class AgentRuntimeControlAPI extends ControlAPI {
       );
 
       logger.debug(
-        `request api getAgentRuntime, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([agentId, request])}\n  response: ${JSON.stringify(response.body?.data)}`,
+        `request api getAgentRuntime, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([agentId, request])}\n  response: ${JSON.stringify(response.body?.data)}`
       );
 
       return response.body?.data as $AgentRun.AgentRuntime;
     } catch (error: unknown) {
-      if (error && typeof error === "object" && "statusCode" in error) {
+      if (error && typeof error === 'object' && 'statusCode' in error) {
         const e = error as { statusCode: number; message: string; data?: { requestId?: string } };
         const statusCode = e.statusCode;
-        const message = e.message || "Unknown error";
+        const message = e.message || 'Unknown error';
         const requestId = e.data?.requestId;
 
         if (statusCode >= 400 && statusCode < 500) {
@@ -214,29 +228,29 @@ export class AgentRuntimeControlAPI extends ControlAPI {
    * @param params.config - Optional config override
    * @returns List of Runtime objects
    */
-  listAgentRuntimes = async (params: { input: $AgentRun.ListAgentRuntimesRequest; headers?: Record<string, string>; config?: Config }): Promise<$AgentRun.ListAgentRuntimesOutput> => {
+  listAgentRuntimes = async (params: {
+    input: $AgentRun.ListAgentRuntimesRequest;
+    headers?: Record<string, string>;
+    config?: Config;
+  }): Promise<$AgentRun.ListAgentRuntimesOutput> => {
     const { input, headers, config } = params;
 
     try {
       const client = this.getClient(config);
       const runtime = new $Util.RuntimeOptions({});
 
-      const response = await client.listAgentRuntimesWithOptions(
-        input,
-        headers ?? {},
-        runtime
-      );
+      const response = await client.listAgentRuntimesWithOptions(input, headers ?? {}, runtime);
 
       logger.debug(
-        `request api listAgentRuntimes, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([input])}\n  response: ${JSON.stringify(response.body?.data)}`,
+        `request api listAgentRuntimes, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([input])}\n  response: ${JSON.stringify(response.body?.data)}`
       );
 
       return response.body?.data as $AgentRun.ListAgentRuntimesOutput;
     } catch (error: unknown) {
-      if (error && typeof error === "object" && "statusCode" in error) {
+      if (error && typeof error === 'object' && 'statusCode' in error) {
         const e = error as { statusCode: number; message: string; data?: { requestId?: string } };
         const statusCode = e.statusCode;
-        const message = e.message || "Unknown error";
+        const message = e.message || 'Unknown error';
         const requestId = e.data?.requestId;
 
         if (statusCode >= 400 && statusCode < 500) {
@@ -259,7 +273,12 @@ export class AgentRuntimeControlAPI extends ControlAPI {
    * @param params.config - Optional config override
    * @returns Created Endpoint object
    */
-  createAgentRuntimeEndpoint = async (params: { agentId: string; input: $AgentRun.CreateAgentRuntimeEndpointInput; headers?: Record<string, string>; config?: Config }): Promise<$AgentRun.AgentRuntimeEndpoint> => {
+  createAgentRuntimeEndpoint = async (params: {
+    agentId: string;
+    input: $AgentRun.CreateAgentRuntimeEndpointInput;
+    headers?: Record<string, string>;
+    config?: Config;
+  }): Promise<$AgentRun.AgentRuntimeEndpoint> => {
     const { agentId, input, headers, config } = params;
 
     try {
@@ -274,15 +293,15 @@ export class AgentRuntimeControlAPI extends ControlAPI {
       );
 
       logger.debug(
-        `request api createAgentRuntimeEndpoint, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([agentId, input])}\n  response: ${JSON.stringify(response.body?.data)}`,
+        `request api createAgentRuntimeEndpoint, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([agentId, input])}\n  response: ${JSON.stringify(response.body?.data)}`
       );
 
       return response.body?.data as $AgentRun.AgentRuntimeEndpoint;
     } catch (error: unknown) {
-      if (error && typeof error === "object" && "statusCode" in error) {
+      if (error && typeof error === 'object' && 'statusCode' in error) {
         const e = error as { statusCode: number; message: string; data?: { requestId?: string } };
         const statusCode = e.statusCode;
-        const message = e.message || "Unknown error";
+        const message = e.message || 'Unknown error';
         const requestId = e.data?.requestId;
 
         if (statusCode >= 400 && statusCode < 500) {
@@ -305,7 +324,12 @@ export class AgentRuntimeControlAPI extends ControlAPI {
    * @param params.config - Optional config override
    * @returns Deleted Endpoint object
    */
-  deleteAgentRuntimeEndpoint = async (params: { agentId: string; endpointId: string; headers?: Record<string, string>; config?: Config }): Promise<$AgentRun.AgentRuntimeEndpoint> => {
+  deleteAgentRuntimeEndpoint = async (params: {
+    agentId: string;
+    endpointId: string;
+    headers?: Record<string, string>;
+    config?: Config;
+  }): Promise<$AgentRun.AgentRuntimeEndpoint> => {
     const { agentId, endpointId, headers, config } = params;
 
     try {
@@ -320,15 +344,15 @@ export class AgentRuntimeControlAPI extends ControlAPI {
       );
 
       logger.debug(
-        `request api deleteAgentRuntimeEndpoint, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([agentId, endpointId])}\n  response: ${JSON.stringify(response.body?.data)}`,
+        `request api deleteAgentRuntimeEndpoint, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([agentId, endpointId])}\n  response: ${JSON.stringify(response.body?.data)}`
       );
 
       return response.body?.data as $AgentRun.AgentRuntimeEndpoint;
     } catch (error: unknown) {
-      if (error && typeof error === "object" && "statusCode" in error) {
+      if (error && typeof error === 'object' && 'statusCode' in error) {
         const e = error as { statusCode: number; message: string; data?: { requestId?: string } };
         const statusCode = e.statusCode;
-        const message = e.message || "Unknown error";
+        const message = e.message || 'Unknown error';
         const requestId = e.data?.requestId;
 
         if (statusCode >= 400 && statusCode < 500) {
@@ -352,7 +376,13 @@ export class AgentRuntimeControlAPI extends ControlAPI {
    * @param params.config - Optional config override
    * @returns Updated Endpoint object
    */
-  updateAgentRuntimeEndpoint = async (params: { agentId: string; endpointId: string; input: $AgentRun.UpdateAgentRuntimeEndpointInput; headers?: Record<string, string>; config?: Config }): Promise<$AgentRun.AgentRuntimeEndpoint> => {
+  updateAgentRuntimeEndpoint = async (params: {
+    agentId: string;
+    endpointId: string;
+    input: $AgentRun.UpdateAgentRuntimeEndpointInput;
+    headers?: Record<string, string>;
+    config?: Config;
+  }): Promise<$AgentRun.AgentRuntimeEndpoint> => {
     const { agentId, endpointId, input, headers, config } = params;
 
     try {
@@ -368,15 +398,15 @@ export class AgentRuntimeControlAPI extends ControlAPI {
       );
 
       logger.debug(
-        `request api updateAgentRuntimeEndpoint, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([agentId, endpointId, input])}\n  response: ${JSON.stringify(response.body?.data)}`,
+        `request api updateAgentRuntimeEndpoint, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([agentId, endpointId, input])}\n  response: ${JSON.stringify(response.body?.data)}`
       );
 
       return response.body?.data as $AgentRun.AgentRuntimeEndpoint;
     } catch (error: unknown) {
-      if (error && typeof error === "object" && "statusCode" in error) {
+      if (error && typeof error === 'object' && 'statusCode' in error) {
         const e = error as { statusCode: number; message: string; data?: { requestId?: string } };
         const statusCode = e.statusCode;
-        const message = e.message || "Unknown error";
+        const message = e.message || 'Unknown error';
         const requestId = e.data?.requestId;
 
         if (statusCode >= 400 && statusCode < 500) {
@@ -399,7 +429,12 @@ export class AgentRuntimeControlAPI extends ControlAPI {
    * @param params.config - Optional config override
    * @returns Endpoint object
    */
-  getAgentRuntimeEndpoint = async (params: { agentId: string; endpointId: string; headers?: Record<string, string>; config?: Config }): Promise<$AgentRun.AgentRuntimeEndpoint> => {
+  getAgentRuntimeEndpoint = async (params: {
+    agentId: string;
+    endpointId: string;
+    headers?: Record<string, string>;
+    config?: Config;
+  }): Promise<$AgentRun.AgentRuntimeEndpoint> => {
     const { agentId, endpointId, headers, config } = params;
 
     try {
@@ -414,15 +449,15 @@ export class AgentRuntimeControlAPI extends ControlAPI {
       );
 
       logger.debug(
-        `request api getAgentRuntimeEndpoint, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([agentId, endpointId])}\n  response: ${JSON.stringify(response.body?.data)}`,
+        `request api getAgentRuntimeEndpoint, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([agentId, endpointId])}\n  response: ${JSON.stringify(response.body?.data)}`
       );
 
       return response.body?.data as $AgentRun.AgentRuntimeEndpoint;
     } catch (error: unknown) {
-      if (error && typeof error === "object" && "statusCode" in error) {
+      if (error && typeof error === 'object' && 'statusCode' in error) {
         const e = error as { statusCode: number; message: string; data?: { requestId?: string } };
         const statusCode = e.statusCode;
-        const message = e.message || "Unknown error";
+        const message = e.message || 'Unknown error';
         const requestId = e.data?.requestId;
 
         if (statusCode >= 400 && statusCode < 500) {
@@ -445,7 +480,12 @@ export class AgentRuntimeControlAPI extends ControlAPI {
    * @param params.config - Optional config override
    * @returns List of Endpoint objects
    */
-  listAgentRuntimeEndpoints = async (params: { agentId: string; input: $AgentRun.ListAgentRuntimeEndpointsRequest; headers?: Record<string, string>; config?: Config }): Promise<$AgentRun.ListAgentRuntimeEndpointsOutput> => {
+  listAgentRuntimeEndpoints = async (params: {
+    agentId: string;
+    input: $AgentRun.ListAgentRuntimeEndpointsRequest;
+    headers?: Record<string, string>;
+    config?: Config;
+  }): Promise<$AgentRun.ListAgentRuntimeEndpointsOutput> => {
     const { agentId, input, headers, config } = params;
 
     try {
@@ -460,15 +500,15 @@ export class AgentRuntimeControlAPI extends ControlAPI {
       );
 
       logger.debug(
-        `request api listAgentRuntimeEndpoints, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([agentId, input])}\n  response: ${JSON.stringify(response.body?.data)}`,
+        `request api listAgentRuntimeEndpoints, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([agentId, input])}\n  response: ${JSON.stringify(response.body?.data)}`
       );
 
       return response.body?.data as $AgentRun.ListAgentRuntimeEndpointsOutput;
     } catch (error: unknown) {
-      if (error && typeof error === "object" && "statusCode" in error) {
+      if (error && typeof error === 'object' && 'statusCode' in error) {
         const e = error as { statusCode: number; message: string; data?: { requestId?: string } };
         const statusCode = e.statusCode;
-        const message = e.message || "Unknown error";
+        const message = e.message || 'Unknown error';
         const requestId = e.data?.requestId;
 
         if (statusCode >= 400 && statusCode < 500) {
@@ -491,7 +531,12 @@ export class AgentRuntimeControlAPI extends ControlAPI {
    * @param params.config - Optional config override
    * @returns List of Version objects
    */
-  listAgentRuntimeVersions = async (params: { agentId: string; input: $AgentRun.ListAgentRuntimeVersionsRequest; headers?: Record<string, string>; config?: Config }): Promise<$AgentRun.ListAgentRuntimeVersionsOutput> => {
+  listAgentRuntimeVersions = async (params: {
+    agentId: string;
+    input: $AgentRun.ListAgentRuntimeVersionsRequest;
+    headers?: Record<string, string>;
+    config?: Config;
+  }): Promise<$AgentRun.ListAgentRuntimeVersionsOutput> => {
     const { agentId, input, headers, config } = params;
 
     try {
@@ -506,15 +551,15 @@ export class AgentRuntimeControlAPI extends ControlAPI {
       );
 
       logger.debug(
-        `request api listAgentRuntimeVersions, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([agentId, input])}\n  response: ${JSON.stringify(response.body?.data)}`,
+        `request api listAgentRuntimeVersions, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([agentId, input])}\n  response: ${JSON.stringify(response.body?.data)}`
       );
 
       return response.body?.data as $AgentRun.ListAgentRuntimeVersionsOutput;
     } catch (error: unknown) {
-      if (error && typeof error === "object" && "statusCode" in error) {
+      if (error && typeof error === 'object' && 'statusCode' in error) {
         const e = error as { statusCode: number; message: string; data?: { requestId?: string } };
         const statusCode = e.statusCode;
-        const message = e.message || "Unknown error";
+        const message = e.message || 'Unknown error';
         const requestId = e.data?.requestId;
 
         if (statusCode >= 400 && statusCode < 500) {
@@ -526,5 +571,4 @@ export class AgentRuntimeControlAPI extends ControlAPI {
       throw error;
     }
   };
-
 }

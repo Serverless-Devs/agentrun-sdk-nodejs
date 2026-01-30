@@ -49,10 +49,8 @@ export class CredentialClient {
       const normalized = {
         ...input,
         credentialAuthType: credCfg?.credentialAuthType ?? credCfg?.authType,
-        credentialSourceType:
-          credCfg?.credentialSourceType ?? credCfg?.sourceType,
-        credentialPublicConfig:
-          credCfg?.credentialPublicConfig ?? credCfg?.publicConfig,
+        credentialSourceType: credCfg?.credentialSourceType ?? credCfg?.sourceType,
+        credentialPublicConfig: credCfg?.credentialPublicConfig ?? credCfg?.publicConfig,
         credentialSecret: credCfg?.credentialSecret ?? credCfg?.secret,
       };
 
@@ -89,10 +87,7 @@ export class CredentialClient {
       return new Credential(result);
     } catch (error) {
       if (error instanceof HTTPError) {
-        throw error.toResourceError(
-          'Credential',
-          params?.input?.credentialName
-        );
+        throw error.toResourceError('Credential', params?.input?.credentialName);
       }
 
       throw error;
@@ -102,10 +97,7 @@ export class CredentialClient {
   /**
    * Delete a Credential
    */
-  delete = async (params: {
-    name: string;
-    config?: Config;
-  }): Promise<Credential> => {
+  delete = async (params: { name: string; config?: Config }): Promise<Credential> => {
     try {
       const { name, config } = params;
       const cfg = Config.withConfigs(this.config, config);
@@ -138,14 +130,11 @@ export class CredentialClient {
       const credCfg = input.credentialConfig as any | undefined;
       const normalized: any = { ...input };
       if (credCfg) {
-        normalized.credentialAuthType =
-          credCfg?.credentialAuthType ?? credCfg?.authType;
-        normalized.credentialSourceType =
-          credCfg?.credentialSourceType ?? credCfg?.sourceType;
+        normalized.credentialAuthType = credCfg?.credentialAuthType ?? credCfg?.authType;
+        normalized.credentialSourceType = credCfg?.credentialSourceType ?? credCfg?.sourceType;
         normalized.credentialPublicConfig =
           credCfg?.credentialPublicConfig ?? credCfg?.publicConfig;
-        normalized.credentialSecret =
-          credCfg?.credentialSecret ?? credCfg?.secret;
+        normalized.credentialSecret = credCfg?.credentialSecret ?? credCfg?.secret;
 
         // Ensure users field is always present in credentialPublicConfig
         if (normalized.credentialPublicConfig) {
@@ -189,10 +178,7 @@ export class CredentialClient {
   /**
    * Get a Credential
    */
-  get = async (params: {
-    name: string;
-    config?: Config;
-  }): Promise<Credential> => {
+  get = async (params: { name: string; config?: Config }): Promise<Credential> => {
     try {
       const { name, config } = params;
       const cfg = Config.withConfigs(this.config, config);
@@ -226,10 +212,7 @@ export class CredentialClient {
         config: cfg,
       });
 
-      return (
-        results.items?.map((item) => new CredentialListOutput(item as any)) ??
-        []
-      );
+      return results.items?.map(item => new CredentialListOutput(item as any)) ?? [];
     } catch (error) {
       if (error instanceof HTTPError) {
         throw error.toResourceError('Credential');

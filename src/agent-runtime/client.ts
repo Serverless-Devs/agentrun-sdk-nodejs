@@ -64,9 +64,7 @@ export class AgentRuntimeClient {
         } else if (input.containerConfiguration) {
           input.artifactType = AgentRuntimeArtifact.CONTAINER;
         } else {
-          throw new Error(
-            'Either codeConfiguration or containerConfiguration must be provided'
-          );
+          throw new Error('Either codeConfiguration or containerConfiguration must be provided');
         }
       }
 
@@ -85,8 +83,7 @@ export class AgentRuntimeClient {
             : undefined,
           networkConfiguration: input.networkConfiguration
             ? new $AgentRun.NetworkConfiguration({
-                networkMode:
-                  input.networkConfiguration.networkMode || NetworkMode.PUBLIC,
+                networkMode: input.networkConfiguration.networkMode || NetworkMode.PUBLIC,
                 securityGroupId: input.networkConfiguration.securityGroupId,
                 vpcId: input.networkConfiguration.vpcId,
                 vswitchIds: input.networkConfiguration.vSwitchIds,
@@ -108,10 +105,7 @@ export class AgentRuntimeClient {
   /**
    * Delete an Agent Runtime
    */
-  delete = async (params: {
-    id: string;
-    config?: Config;
-  }): Promise<AgentRuntime> => {
+  delete = async (params: { id: string; config?: Config }): Promise<AgentRuntime> => {
     const { id, config } = params;
     const cfg = Config.withConfigs(this.config, config);
 
@@ -131,7 +125,7 @@ export class AgentRuntimeClient {
         config: cfg,
       });
       while (remaining.length > 0) {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 1000));
         remaining = await this.listEndpoints({
           agentRuntimeId: id,
           config: cfg,
@@ -194,10 +188,7 @@ export class AgentRuntimeClient {
   /**
    * Get an Agent Runtime
    */
-  get = async (params: {
-    id: string;
-    config?: Config;
-  }): Promise<AgentRuntime> => {
+  get = async (params: { id: string; config?: Config }): Promise<AgentRuntime> => {
     const { id, config } = params;
     const cfg = Config.withConfigs(this.config, config);
 
@@ -231,7 +222,7 @@ export class AgentRuntimeClient {
       input: request,
       config: cfg,
     });
-    return (result.items || []).map((item) => new AgentRuntime(item, cfg));
+    return (result.items || []).map(item => new AgentRuntime(item, cfg));
   };
 
   // /**
@@ -305,10 +296,7 @@ export class AgentRuntimeClient {
       return new AgentRuntimeEndpoint(result, cfg);
     } catch (error) {
       if (error instanceof HTTPError) {
-        throw error.toResourceError(
-          'AgentRuntimeEndpoint',
-          `${agentRuntimeId}/${endpointId}`
-        );
+        throw error.toResourceError('AgentRuntimeEndpoint', `${agentRuntimeId}/${endpointId}`);
       }
       throw error;
     }
@@ -338,10 +326,7 @@ export class AgentRuntimeClient {
       return new AgentRuntimeEndpoint(result, cfg);
     } catch (error) {
       if (error instanceof HTTPError) {
-        throw error.toResourceError(
-          'AgentRuntimeEndpoint',
-          `${agentRuntimeId}/${endpointId}`
-        );
+        throw error.toResourceError('AgentRuntimeEndpoint', `${agentRuntimeId}/${endpointId}`);
       }
       throw error;
     }
@@ -367,10 +352,7 @@ export class AgentRuntimeClient {
       return new AgentRuntimeEndpoint(result, cfg);
     } catch (error) {
       if (error instanceof HTTPError) {
-        throw error.toResourceError(
-          'AgentRuntimeEndpoint',
-          `${agentRuntimeId}/${endpointId}`
-        );
+        throw error.toResourceError('AgentRuntimeEndpoint', `${agentRuntimeId}/${endpointId}`);
       }
       throw error;
     }
@@ -396,9 +378,7 @@ export class AgentRuntimeClient {
         input: request,
         config: cfg,
       });
-      return (result.items || []).map(
-        (item) => new AgentRuntimeEndpoint(item, cfg)
-      );
+      return (result.items || []).map(item => new AgentRuntimeEndpoint(item, cfg));
     } catch (error) {
       if (error instanceof HTTPError) {
         throw error.toResourceError('AgentRuntime', agentRuntimeId);
@@ -455,7 +435,7 @@ export class AgentRuntimeClient {
 
     // Deduplicate
     const seen = new Set<string>();
-    return versions.filter((v) => {
+    return versions.filter(v => {
       if (!v.agentRuntimeVersion || seen.has(v.agentRuntimeVersion)) {
         return false;
       }
@@ -501,11 +481,7 @@ export class AgentRuntimeClient {
     const cfg = Config.withConfigs(this.config, config);
 
     // Create Data API client
-    const dataApi = new AgentRuntimeDataAPI(
-      agentRuntimeName,
-      agentRuntimeEndpointName,
-      cfg
-    );
+    const dataApi = new AgentRuntimeDataAPI(agentRuntimeName, agentRuntimeEndpointName, cfg);
 
     return dataApi.invokeOpenai({
       messages,

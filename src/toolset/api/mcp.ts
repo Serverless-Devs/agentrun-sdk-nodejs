@@ -1,17 +1,17 @@
 /**
  * MCP Protocol Handler
  * MCP 协议处理
- * 
+ *
  * Handles tool invocations for MCP (Model Context Protocol).
  * 处理 MCP(Model Context Protocol)协议的工具调用。
  */
 
-import { Config } from "../../utils/config";
-import { logger } from "../../utils/log";
+import { Config } from '../../utils/config';
+import { logger } from '../../utils/log';
 
 /**
  * MCP Session
- * 
+ *
  * Manages an MCP session connection.
  * 管理 MCP 会话连接。
  */
@@ -33,8 +33,8 @@ export class MCPSession {
   connect = async (_params?: { config?: Config }): Promise<any> => {
     try {
       // Dynamically import MCP SDK
-      const { Client } = await import("@modelcontextprotocol/sdk/client/index.js");
-      const { SSEClientTransport } = await import("@modelcontextprotocol/sdk/client/sse.js");
+      const { Client } = await import('@modelcontextprotocol/sdk/client/index.js');
+      const { SSEClientTransport } = await import('@modelcontextprotocol/sdk/client/sse.js');
 
       // Create SSE transport
       // Note: SSEClientTransport does not support timeout or headers in constructor
@@ -43,8 +43,8 @@ export class MCPSession {
       // Create client
       this.client = new Client(
         {
-          name: "agentrun-nodejs-client",
-          version: "1.0.0",
+          name: 'agentrun-nodejs-client',
+          version: '1.0.0',
         },
         {
           capabilities: {},
@@ -56,7 +56,7 @@ export class MCPSession {
 
       return this.client;
     } catch (error) {
-      logger.error("Failed to create MCP session:", error);
+      logger.error('Failed to create MCP session:', error);
       throw error;
     }
   };
@@ -70,7 +70,7 @@ export class MCPSession {
       try {
         await this.client.close();
       } catch (error) {
-        logger.error("Failed to close MCP session:", error);
+        logger.error('Failed to close MCP session:', error);
       }
     }
   };
@@ -81,13 +81,13 @@ export class MCPSession {
    */
   toolsets(config?: Config): MCPToolSet {
     const cfg = Config.withConfigs(this.config, config);
-    return new MCPToolSet(this.url + "/toolsets", cfg);
+    return new MCPToolSet(this.url + '/toolsets', cfg);
   }
 }
 
 /**
  * MCP Tool Set
- * 
+ *
  * Manages MCP tools and provides invocation capabilities.
  * 管理 MCP 工具并提供调用功能。
  */
@@ -127,7 +127,7 @@ export class MCPToolSet {
   /**
    * List available tools (sync wrapper)
    * 列出可用工具（同步包装）
-   * 
+   *
    * Note: This is a convenience method that wraps the async version.
    * In Node.js, prefer using toolsAsync() directly.
    */
@@ -176,15 +176,11 @@ export class MCPToolSet {
   /**
    * Call a tool (sync wrapper)
    * 调用工具（同步包装）
-   * 
+   *
    * Note: This is a convenience method that wraps the async version.
    * In Node.js, prefer using callToolAsync() directly.
    */
-  callTool(
-    name: string,
-    args?: Record<string, unknown>,
-    config?: Config
-  ): Promise<any> {
+  callTool(name: string, args?: Record<string, unknown>, config?: Config): Promise<any> {
     return this.callToolAsync(name, args, config);
   }
 }

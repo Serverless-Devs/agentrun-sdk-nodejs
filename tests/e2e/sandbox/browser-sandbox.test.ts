@@ -12,8 +12,6 @@
  * - 测试用例设计参考 Python SDK 的 tests/e2e/test_sandbox_browser.py
  */
 
-
-
 import {
   Sandbox,
   Template,
@@ -58,7 +56,7 @@ describe('Browser Sandbox E2E Tests', () => {
     await Template.create({ input: templateInput });
 
     // 等待模板就绪
-    await new Promise((resolve) => setTimeout(resolve, 5000));
+    await new Promise(resolve => setTimeout(resolve, 5000));
   });
 
   afterAll(async () => {
@@ -85,10 +83,9 @@ describe('Browser Sandbox E2E Tests', () => {
     if (!sandbox) {
       // 创建 Sandbox
       // 注意: BrowserSandbox.createFromTemplate 方法需要先创建模板
-      sandbox = await BrowserSandbox.createFromTemplate(
-        templateName,
-        { sandboxIdleTimeoutSeconds: 600 }
-      );
+      sandbox = await BrowserSandbox.createFromTemplate(templateName, {
+        sandboxIdleTimeoutSeconds: 600,
+      });
 
       // 等待 Sandbox 就绪
       await sandbox.waitUntilRunning({
@@ -184,4 +181,3 @@ describe('Browser Sandbox E2E Tests', () => {
     });
   });
 });
-
