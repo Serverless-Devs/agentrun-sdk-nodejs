@@ -58,13 +58,11 @@
     "README.md"
   ],
   "scripts": {
-    "prebuild": "npm run generate-exports",
-    "build": "tsup",
+    "build": "node scripts/inject-version-check.mjs && tsup",
     "build:types": "tsc -p tsconfig.types.json",
     "codegen": "npx tsx scripts/codegen.ts",
     "generate-exports": "node scripts/generate-exports.mjs",
-    "format": "prettier --check \"src/**/*.{js,ts,jsx,tsx}\" --write",
-    "test": "jest",
+    "inject-version-check": "node scripts/inject-version-check.mjs",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "lint": "eslint src --ext .ts",

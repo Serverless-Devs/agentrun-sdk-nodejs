@@ -2,6 +2,8 @@
  * Model module exports
  */
 
+import "@/utils/version-check";
+
 export { ModelClient } from "./client";
 export { ModelService } from "./model-service";
 export { ModelProxy } from "./model-proxy";

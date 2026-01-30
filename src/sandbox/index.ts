@@ -2,6 +2,8 @@
  * Sandbox module exports
  */
 
+import "@/utils/version-check";
+
 export { SandboxClient } from "./client";
 export { Sandbox } from "./sandbox";
 export { Template } from "./template";

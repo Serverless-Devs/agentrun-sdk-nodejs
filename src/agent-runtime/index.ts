@@ -2,6 +2,9 @@
  * Agent Runtime module exports
  */
 
+
+import "@/utils/version-check";
+
 export { AgentRuntimeClient } from "./client";
 export { AgentRuntime } from "./runtime";
 export { AgentRuntimeEndpoint } from "./endpoint";

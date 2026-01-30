@@ -9,6 +9,8 @@
  * 本模块处理所有 Mastra 特定的转换，避免在 builtin 模块中引入依赖。
  */
 
+import "@/utils/version-check";
+
 import { TemplateType } from '@/sandbox';
 import type { Config } from '@/utils/config';
 import { logger } from '@/utils/log';

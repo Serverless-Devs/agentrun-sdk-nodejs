@@ -6,6 +6,8 @@
  * 提供内置的集成函数，用于快速创建模型和工具。
  */
 
+import "@/utils/version-check";
+
 // Tool definitions
 export {
   Tool,

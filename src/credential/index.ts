@@ -2,6 +2,8 @@
  * Credential module exports
  */
 
+import "@/utils/version-check";
+
 export { CredentialClient } from './client';
 export { Credential } from './credential';
 export { CredentialControlAPI } from './api/control';

@@ -234,16 +234,19 @@ class Logger {
 }
 
 export const logger = new Logger();
-
 if (
-  ![undefined, null, '', 'False', 'FALSE', 'false', '0'].includes(
-    process.env['AGENTRUN_SDK_DEBUG']
+  ![undefined, null, "", "False", "FALSE", "false", "0"].includes(
+    process.env["AGENTRUN_SDK_DEBUG"],
   )
 ) {
-  logger.setLevel('debug');
-  logger.warn(
-    '启用 AgentRun SDK 调试日志， 移除 AGENTRUN_SDK_DEBUG 环境变量以关闭'
-  );
+  logger.setLevel("debug");
+
+  if (!(globalThis as any)._AGENTRUN_DEBUG_LOGGED) {
+    logger.warn(
+      "启用 AgentRun SDK 调试日志， 移除 AGENTRUN_SDK_DEBUG 环境变量以关闭",
+    );
+    (globalThis as any)._AGENTRUN_DEBUG_LOGGED = true;
+  }
 } else {
-  logger.setLevel('info');
+  logger.setLevel("info");
 }

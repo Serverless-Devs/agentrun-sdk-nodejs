@@ -6,5 +6,7 @@
  * 此模块包含工具集的 API 接口。
  */
 
+import "@/utils/version-check";
+
 export { ToolControlAPI } from "./control";
 export { MCPSession, MCPToolSet } from "./mcp";

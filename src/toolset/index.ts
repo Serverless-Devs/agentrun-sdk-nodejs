@@ -5,6 +5,8 @@
  * Module for managing ToolSet resources.
  */
 
+import "@/utils/version-check";
+
 export { ToolSetClient } from "./client";
 export { ToolSet } from "./toolset";
 export { OpenAPI, ApiSet } from "./openapi";
