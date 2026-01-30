@@ -5,10 +5,10 @@
  * This module defines the base class for control API.
  */
 
-import * as $AgentRun from "@alicloud/agentrun20250910";
-import * as $OpenApi from "@alicloud/openapi-client";
+import * as $AgentRun from '@alicloud/agentrun20250910';
+import * as $OpenApi from '@alicloud/openapi-client';
 
-import { Config } from "./config";
+import { Config } from './config';
 
 // Handle ESM/CJS interop for Client class
 const $AgentRunClient =
@@ -38,8 +38,8 @@ export class ControlAPI {
     let endpoint = cfg.controlEndpoint;
 
     // Remove protocol prefix
-    if (endpoint.startsWith("http://") || endpoint.startsWith("https://")) {
-      endpoint = endpoint.split("://")[1];
+    if (endpoint.startsWith('http://') || endpoint.startsWith('https://')) {
+      endpoint = endpoint.split('://')[1];
     }
 
     const openApiConfig = new $OpenApi.Config({
@@ -49,6 +49,7 @@ export class ControlAPI {
       regionId: cfg.regionId,
       endpoint: endpoint,
       connectTimeout: cfg.timeout,
+      readTimeout: cfg.readTimeout,
     });
 
     return new $AgentRunClient(openApiConfig);

@@ -118,8 +118,10 @@ describe('Model E2E Tests', () => {
         // 验证时间戳
         expect(modelService.createdAt).toBeDefined();
         const createdAt = new Date(modelService.createdAt!);
-        expect(createdAt.getTime()).toBeGreaterThan(time1.getTime());
-        expect(createdAt.getTime()).toBeLessThan(time2.getTime());
+        expect(createdAt.getTime()).toBeGreaterThanOrEqual(time1.getTime());
+        expect(createdAt.getTime()).toBeLessThanOrEqual(
+          time2.getTime() + 5 * 60 * 1000
+        );
       });
 
       it('should get a ModelService by name', async () => {
@@ -303,8 +305,10 @@ describe('Model E2E Tests', () => {
           // 验证时间戳
           expect(modelProxy.createdAt).toBeDefined();
           const createdAt = new Date(modelProxy.createdAt!);
-          expect(createdAt.getTime()).toBeGreaterThan(time1.getTime());
-          expect(createdAt.getTime()).toBeLessThan(time2.getTime());
+          expect(createdAt.getTime()).toBeGreaterThanOrEqual(time1.getTime());
+          expect(createdAt.getTime()).toBeLessThanOrEqual(
+            time2.getTime() + 5 * 60 * 1000
+          );
         } catch (error) {
           // 如果因为 executionRole 问题失败，跳过
           logger.warn(

@@ -10,7 +10,9 @@
 
 // Version is injected at build time from package.json
 declare const __VERSION__: string;
-export const VERSION = __VERSION__;
+
+export const VERSION =
+  typeof __VERSION__ !== 'undefined' ? __VERSION__ : '0.0.0-dev';
 
 // Config
 export { Config, type ConfigOptions } from './utils/config';
@@ -84,8 +86,14 @@ export {
   CodeInterpreterDataAPI,
   BrowserDataAPI,
   AioDataAPI,
-} from "./sandbox";
-export { TemplateType, SandboxState, CodeLanguage, TemplateNetworkMode, TemplateOSSPermission } from "./sandbox";
+} from './sandbox';
+export {
+  TemplateType,
+  SandboxState,
+  CodeLanguage,
+  TemplateNetworkMode,
+  TemplateOSSPermission,
+} from './sandbox';
 export type {
   TemplateNetworkConfiguration,
   TemplateOssConfiguration,
@@ -104,7 +112,7 @@ export type {
   SandboxData,
   ExecuteCodeResult,
   FileInfo,
-} from "./sandbox";
+} from './sandbox';
 
 // Model
 export {
@@ -148,6 +156,40 @@ export type {
 } from './toolset';
 export { ToolSetSchemaType } from './toolset';
 
+export * from '@/integration';
+
+// Server
+export {
+  AgentRunServer,
+  AgentInvoker,
+  OpenAIProtocolHandler,
+  AGUIProtocolHandler,
+  ProtocolHandler,
+  ExpressAdapter,
+  createExpressAdapter,
+  AGUI_EVENT_TYPES,
+  MessageRole,
+  EventType,
+} from './server';
+export type {
+  AgentRunServerOptions,
+  InvokeAgentHandler,
+  AgentRequest,
+  AgentEvent,
+  AgentResult,
+  Message,
+  Tool,
+  ToolCall,
+  ServerConfig,
+  ProtocolConfig,
+  OpenAIProtocolConfig,
+  AGUIProtocolConfig,
+  ProtocolRequest,
+  ProtocolResponse,
+  RouteDefinition,
+  ExpressAdapterOptions,
+} from './server';
+
 // Logger
 import { logger } from './utils/log';
 
@@ -155,16 +197,15 @@ import { logger } from './utils/log';
 if (!process.env.DISABLE_BREAKING_CHANGES_WARNING) {
   logger.warn(
     `当前您正在使用 AgentRun Node.js SDK 版本 ${VERSION}。` +
-    '早期版本通常包含许多新功能，这些功能\x1b[1;33m 可能引入不兼容的变更 \x1b[0m。' +
-    '为避免潜在问题，我们强烈建议\x1b[1;32m 将依赖锁定为此版本 \x1b[0m。\n' +
-    `You are currently using AgentRun Node.js SDK version ${VERSION}. ` +
-    'Early versions often include many new features, which\x1b[1;33m may introduce breaking changes\x1b[0m. ' +
-    'To avoid potential issues, we strongly recommend \x1b[1;32mpinning the dependency to this version\x1b[0m.\n' +
-    `\x1b[2;3m  npm install '@agentrun/sdk@${VERSION}' \x1b[0m\n` +
-    `\x1b[2;3m  bun add '@agentrun/sdk@${VERSION}' \x1b[0m\n\n` +
-    '增加\x1b[2;3m DISABLE_BREAKING_CHANGES_WARNING=1 \x1b[0m到您的环境变量以关闭此警告。\n' +
-    'Add\x1b[2;3m DISABLE_BREAKING_CHANGES_WARNING=1 \x1b[0mto your environment variables to disable this warning.\n\n' +
-    'Releases:\x1b[2;3m https://github.com/Serverless-Devs/agentrun-sdk-nodejs/releases \x1b[0m'
+      '早期版本通常包含许多新功能，这些功能\x1b[1;33m 可能引入不兼容的变更 \x1b[0m。' +
+      '为避免潜在问题，我们强烈建议\x1b[1;32m 将依赖锁定为此版本 \x1b[0m。\n' +
+      `You are currently using AgentRun Node.js SDK version ${VERSION}. ` +
+      'Early versions often include many new features, which\x1b[1;33m may introduce breaking changes\x1b[0m. ' +
+      'To avoid potential issues, we strongly recommend \x1b[1;32mpinning the dependency to this version\x1b[0m.\n' +
+      `\x1b[2;3m  npm install '@agentrun/sdk@${VERSION}' \x1b[0m\n` +
+      `\x1b[2;3m  bun add '@agentrun/sdk@${VERSION}' \x1b[0m\n\n` +
+      '增加\x1b[2;3m DISABLE_BREAKING_CHANGES_WARNING=1 \x1b[0m到您的环境变量以关闭此警告。\n' +
+      'Add\x1b[2;3m DISABLE_BREAKING_CHANGES_WARNING=1 \x1b[0mto your environment variables to disable this warning.\n\n' +
+      'Releases:\x1b[2;3m https://github.com/Serverless-Devs/agentrun-sdk-nodejs/releases \x1b[0m',
   );
 }
-

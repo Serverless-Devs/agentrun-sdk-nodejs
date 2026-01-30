@@ -13,10 +13,10 @@
  *   npm run example:model
  */
 
-import { ModelClient, ResourceAlreadyExistError, ResourceNotExistError, Status, BackendType, ModelType, ModelService, ModelProxy } from '../src/index';
-import type { ModelServiceCreateInput, ModelServiceUpdateInput, ModelProxyCreateInput, ModelProxyUpdateInput, ProviderSettings, ProxyConfig } from '../src/index';
-import { logger } from '../src/utils/log';
+import type { ModelProxyCreateInput, ModelServiceCreateInput, ProviderSettings, ProxyConfig } from '../src/index';
+import { ModelClient, ModelProxy, ModelService, ModelType, ResourceAlreadyExistError, ResourceNotExistError, Status } from '../src/index';
 import { Config } from '../src/utils/config';
+import { logger } from '../src/utils/log';
 
 // Logger helper
 function log(message: string, ...args: unknown[]) {
@@ -68,7 +68,7 @@ async function createOrGetModelService(): Promise<ModelService> {
 
   // 等待就绪 / Wait for ready
   await ms.waitUntilReadyOrFailed({
-    beforeCheck: (service: ModelService) =>
+    callback: (service) =>
       log(`  当前状态 / Current status: ${service.status}`),
   });
 
@@ -112,7 +112,11 @@ async function updateModelService(ms: ModelService): Promise<void> {
 async function listModelServices(): Promise<void> {
   log('枚举资源列表 / Listing resources');
 
-  const services = await ModelService.list({ modelType: ModelType.LLM });
+  const services = await ModelService.list({
+    input: {
+      modelType: ModelType.LLM
+    }
+  });
   log(
     `共有 ${services.length} 个资源，分别为 / Total ${services.length} resources:`,
     services.map((s) => s.modelServiceName)
@@ -131,8 +135,10 @@ async function invokeModelService(ms: ModelService): Promise<void> {
   });
 
   // 流式输出 / Stream output
-  for await (const chunk of result.textStream) {
-    process.stdout.write(chunk);
+  if ('textStream' in result && result.textStream) {
+    for await (const chunk of result.textStream) {
+      process.stdout.write(chunk);
+    }
   }
   logger.info(''); // 换行
 }
@@ -198,7 +204,7 @@ async function createOrGetModelProxy(): Promise<ModelProxy> {
 
   // 等待就绪 / Wait for ready
   await mp.waitUntilReadyOrFailed({
-    beforeCheck: (proxy: ModelProxy) =>
+    callback: (proxy) =>
       log(`  当前状态 / Current status: ${proxy.status}`),
   });
 
@@ -257,14 +263,16 @@ async function listModelProxies(): Promise<void> {
 async function invokeModelProxy(mp: ModelProxy): Promise<void> {
   log('调用模型代理进行推理 / Invoking model proxy for inference');
 
-  const result = await mp.completions({
+  const result = await mp.completion({
     messages: [{ role: 'user', content: '你好,请介绍一下你自己' }],
     stream: true,
   });
 
   // 流式输出 / Stream output
-  for await (const chunk of result.textStream) {
-    process.stdout.write(chunk);
+  if ('textStream' in result && result.textStream) {
+    for await (const chunk of result.textStream) {
+      process.stdout.write(chunk);
+    }
   }
   logger.info(''); // 换行
 }
