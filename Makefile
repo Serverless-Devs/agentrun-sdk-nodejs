@@ -47,7 +47,7 @@ clean-all: clean ## 完全清理 / Full clean including node_modules
 .PHONY: fmt
 fmt: ## 格式化代码 / Format code
 	@echo "🎨 Formatting code..."
-	@npm run lint:fix
+	@npm run format:fix
 	@echo "✅ Code formatted"
 
 .PHONY: lint

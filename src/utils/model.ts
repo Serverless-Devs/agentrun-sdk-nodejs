@@ -5,7 +5,6 @@
  * This module defines common data models.
  */
 
-
 /**
  * Resource status enum
  */
@@ -33,12 +32,7 @@ export function isFinalStatus(status?: Status) {
     undefined,
     null,
     '',
-    ...([
-      'READY',
-      'CREATE_FAILED',
-      'UPDATE_FAILED',
-      'DELETE_FAILED',
-    ] as Status[]),
+    ...(['READY', 'CREATE_FAILED', 'UPDATE_FAILED', 'DELETE_FAILED'] as Status[]),
   ].includes(status);
 }
 
@@ -75,7 +69,7 @@ export interface NetworkConfig {
  * Helper to convert camelCase to snake_case
  */
 export function toSnakeCase(str: string): string {
-  return str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
+  return str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
 }
 
 /**
@@ -97,7 +91,7 @@ export function toSnakeCaseKeys<T extends Record<string, unknown>>(
     if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
       result[snakeKey] = toSnakeCaseKeys(value as Record<string, unknown>);
     } else if (Array.isArray(value)) {
-      result[snakeKey] = value.map((item) =>
+      result[snakeKey] = value.map(item =>
         typeof item === 'object' && item !== null
           ? toSnakeCaseKeys(item as Record<string, unknown>)
           : item
@@ -121,7 +115,7 @@ export function toCamelCaseKeys<T extends Record<string, unknown>>(
     if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
       result[camelKey] = toCamelCaseKeys(value as Record<string, unknown>);
     } else if (Array.isArray(value)) {
-      result[camelKey] = value.map((item) =>
+      result[camelKey] = value.map(item =>
         typeof item === 'object' && item !== null
           ? toCamelCaseKeys(item as Record<string, unknown>)
           : item
@@ -136,9 +130,7 @@ export function toCamelCaseKeys<T extends Record<string, unknown>>(
 /**
  * Remove undefined values from object
  */
-export function removeUndefined<T extends Record<string, unknown>>(
-  obj: T
-): Partial<T> {
+export function removeUndefined<T extends Record<string, unknown>>(obj: T): Partial<T> {
   const result: Partial<T> = {};
   for (const [key, value] of Object.entries(obj)) {
     if (value !== undefined) {

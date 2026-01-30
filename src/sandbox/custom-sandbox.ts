@@ -4,16 +4,11 @@
  * 自定义镜像沙箱 / Custom Image Sandbox
  */
 
-import { Config } from "../utils/config";
+import { Config } from '../utils/config';
 
-import {
-  NASConfig,
-  OSSMountConfig,
-  PolarFsConfig,
-  TemplateType,
-} from "./model";
-import { Sandbox } from "./sandbox";
-import { SandboxDataAPI } from "./api/sandbox-data";
+import { NASConfig, OSSMountConfig, PolarFsConfig, TemplateType } from './model';
+import { Sandbox } from './sandbox';
+import { SandboxDataAPI } from './api/sandbox-data';
 
 /**
  * Custom Sandbox
@@ -62,7 +57,7 @@ export class CustomSandbox extends Sandbox {
   get dataApi(): SandboxDataAPI {
     if (!this._dataApi) {
       this._dataApi = new SandboxDataAPI({
-        sandboxId: this.sandboxId || "",
+        sandboxId: this.sandboxId || '',
         config: this._config,
       });
     }

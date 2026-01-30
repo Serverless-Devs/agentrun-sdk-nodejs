@@ -185,7 +185,7 @@ describe('MastraToolAdapter', () => {
     const result = adapter.fromCanonical(canonicalTools);
 
     expect(result).toHaveLength(3);
-    expect(result.map((t) => t.name)).toEqual(['tool1', 'tool2', 'tool3']);
+    expect(result.map(t => t.name)).toEqual(['tool1', 'tool2', 'tool3']);
   });
 
   it('should handle empty tools array', () => {

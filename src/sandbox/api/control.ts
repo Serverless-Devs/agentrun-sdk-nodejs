@@ -9,13 +9,13 @@
 
 // Source: sandbox_control_api.yaml
 
-import * as $AgentRun from "@alicloud/agentrun20250910";
-import * as $Util from "@alicloud/tea-util";
+import * as $AgentRun from '@alicloud/agentrun20250910';
+import * as $Util from '@alicloud/tea-util';
 
-import { Config } from "../../utils/config";
-import { ControlAPI } from "../../utils/control-api";
-import { ClientError, ServerError } from "../../utils/exception";
-import { logger } from "../../utils/log";
+import { Config } from '../../utils/config';
+import { ControlAPI } from '../../utils/control-api';
+import { ClientError, ServerError } from '../../utils/exception';
+import { logger } from '../../utils/log';
 
 /**
  * Sandbox Control API
@@ -34,7 +34,11 @@ export class SandboxControlAPI extends ControlAPI {
    * @param params.config - Optional config override
    * @returns Created Template object
    */
-  createTemplate = async (params: { input: $AgentRun.CreateTemplateInput; headers?: Record<string, string>; config?: Config }): Promise<$AgentRun.Template> => {
+  createTemplate = async (params: {
+    input: $AgentRun.CreateTemplateInput;
+    headers?: Record<string, string>;
+    config?: Config;
+  }): Promise<$AgentRun.Template> => {
     const { input, headers, config } = params;
 
     try {
@@ -48,15 +52,15 @@ export class SandboxControlAPI extends ControlAPI {
       );
 
       logger.debug(
-        `request api createTemplate, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([input])}\n  response: ${JSON.stringify(response.body?.data)}`,
+        `request api createTemplate, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([input])}\n  response: ${JSON.stringify(response.body?.data)}`
       );
 
       return response.body?.data as $AgentRun.Template;
     } catch (error: unknown) {
-      if (error && typeof error === "object" && "statusCode" in error) {
+      if (error && typeof error === 'object' && 'statusCode' in error) {
         const e = error as { statusCode: number; message: string; data?: { requestId?: string } };
         const statusCode = e.statusCode;
-        const message = e.message || "Unknown error";
+        const message = e.message || 'Unknown error';
         const requestId = e.data?.requestId;
 
         if (statusCode >= 400 && statusCode < 500) {
@@ -78,29 +82,29 @@ export class SandboxControlAPI extends ControlAPI {
    * @param params.config - Optional config override
    * @returns Deleted Template object
    */
-  deleteTemplate = async (params: { templateName: string; headers?: Record<string, string>; config?: Config }): Promise<$AgentRun.Template> => {
+  deleteTemplate = async (params: {
+    templateName: string;
+    headers?: Record<string, string>;
+    config?: Config;
+  }): Promise<$AgentRun.Template> => {
     const { templateName, headers, config } = params;
 
     try {
       const client = this.getClient(config);
       const runtime = new $Util.RuntimeOptions({});
 
-      const response = await client.deleteTemplateWithOptions(
-        templateName,
-        headers ?? {},
-        runtime
-      );
+      const response = await client.deleteTemplateWithOptions(templateName, headers ?? {}, runtime);
 
       logger.debug(
-        `request api deleteTemplate, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([templateName])}\n  response: ${JSON.stringify(response.body?.data)}`,
+        `request api deleteTemplate, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([templateName])}\n  response: ${JSON.stringify(response.body?.data)}`
       );
 
       return response.body?.data as $AgentRun.Template;
     } catch (error: unknown) {
-      if (error && typeof error === "object" && "statusCode" in error) {
+      if (error && typeof error === 'object' && 'statusCode' in error) {
         const e = error as { statusCode: number; message: string; data?: { requestId?: string } };
         const statusCode = e.statusCode;
-        const message = e.message || "Unknown error";
+        const message = e.message || 'Unknown error';
         const requestId = e.data?.requestId;
 
         if (statusCode >= 400 && statusCode < 500) {
@@ -123,7 +127,12 @@ export class SandboxControlAPI extends ControlAPI {
    * @param params.config - Optional config override
    * @returns Updated Template object
    */
-  updateTemplate = async (params: { templateName: string; input: $AgentRun.UpdateTemplateInput; headers?: Record<string, string>; config?: Config }): Promise<$AgentRun.Template> => {
+  updateTemplate = async (params: {
+    templateName: string;
+    input: $AgentRun.UpdateTemplateInput;
+    headers?: Record<string, string>;
+    config?: Config;
+  }): Promise<$AgentRun.Template> => {
     const { templateName, input, headers, config } = params;
 
     try {
@@ -138,15 +147,15 @@ export class SandboxControlAPI extends ControlAPI {
       );
 
       logger.debug(
-        `request api updateTemplate, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([templateName, input])}\n  response: ${JSON.stringify(response.body?.data)}`,
+        `request api updateTemplate, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([templateName, input])}\n  response: ${JSON.stringify(response.body?.data)}`
       );
 
       return response.body?.data as $AgentRun.Template;
     } catch (error: unknown) {
-      if (error && typeof error === "object" && "statusCode" in error) {
+      if (error && typeof error === 'object' && 'statusCode' in error) {
         const e = error as { statusCode: number; message: string; data?: { requestId?: string } };
         const statusCode = e.statusCode;
-        const message = e.message || "Unknown error";
+        const message = e.message || 'Unknown error';
         const requestId = e.data?.requestId;
 
         if (statusCode >= 400 && statusCode < 500) {
@@ -168,29 +177,29 @@ export class SandboxControlAPI extends ControlAPI {
    * @param params.config - Optional config override
    * @returns Template object
    */
-  getTemplate = async (params: { templateName: string; headers?: Record<string, string>; config?: Config }): Promise<$AgentRun.Template> => {
+  getTemplate = async (params: {
+    templateName: string;
+    headers?: Record<string, string>;
+    config?: Config;
+  }): Promise<$AgentRun.Template> => {
     const { templateName, headers, config } = params;
 
     try {
       const client = this.getClient(config);
       const runtime = new $Util.RuntimeOptions({});
 
-      const response = await client.getTemplateWithOptions(
-        templateName,
-        headers ?? {},
-        runtime
-      );
+      const response = await client.getTemplateWithOptions(templateName, headers ?? {}, runtime);
 
       logger.debug(
-        `request api getTemplate, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([templateName])}\n  response: ${JSON.stringify(response.body?.data)}`,
+        `request api getTemplate, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([templateName])}\n  response: ${JSON.stringify(response.body?.data)}`
       );
 
       return response.body?.data as $AgentRun.Template;
     } catch (error: unknown) {
-      if (error && typeof error === "object" && "statusCode" in error) {
+      if (error && typeof error === 'object' && 'statusCode' in error) {
         const e = error as { statusCode: number; message: string; data?: { requestId?: string } };
         const statusCode = e.statusCode;
-        const message = e.message || "Unknown error";
+        const message = e.message || 'Unknown error';
         const requestId = e.data?.requestId;
 
         if (statusCode >= 400 && statusCode < 500) {
@@ -212,29 +221,29 @@ export class SandboxControlAPI extends ControlAPI {
    * @param params.config - Optional config override
    * @returns List of Template objects
    */
-  listTemplates = async (params: { input: $AgentRun.ListTemplatesRequest; headers?: Record<string, string>; config?: Config }): Promise<$AgentRun.ListTemplatesOutput> => {
+  listTemplates = async (params: {
+    input: $AgentRun.ListTemplatesRequest;
+    headers?: Record<string, string>;
+    config?: Config;
+  }): Promise<$AgentRun.ListTemplatesOutput> => {
     const { input, headers, config } = params;
 
     try {
       const client = this.getClient(config);
       const runtime = new $Util.RuntimeOptions({});
 
-      const response = await client.listTemplatesWithOptions(
-        input,
-        headers ?? {},
-        runtime
-      );
+      const response = await client.listTemplatesWithOptions(input, headers ?? {}, runtime);
 
       logger.debug(
-        `request api listTemplates, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([input])}\n  response: ${JSON.stringify(response.body?.data)}`,
+        `request api listTemplates, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([input])}\n  response: ${JSON.stringify(response.body?.data)}`
       );
 
       return response.body?.data as $AgentRun.ListTemplatesOutput;
     } catch (error: unknown) {
-      if (error && typeof error === "object" && "statusCode" in error) {
+      if (error && typeof error === 'object' && 'statusCode' in error) {
         const e = error as { statusCode: number; message: string; data?: { requestId?: string } };
         const statusCode = e.statusCode;
-        const message = e.message || "Unknown error";
+        const message = e.message || 'Unknown error';
         const requestId = e.data?.requestId;
 
         if (statusCode >= 400 && statusCode < 500) {
@@ -256,7 +265,11 @@ export class SandboxControlAPI extends ControlAPI {
    * @param params.config - Optional config override
    * @returns Created Sandbox object
    */
-  createSandbox = async (params: { input: $AgentRun.CreateSandboxInput; headers?: Record<string, string>; config?: Config }): Promise<$AgentRun.Sandbox> => {
+  createSandbox = async (params: {
+    input: $AgentRun.CreateSandboxInput;
+    headers?: Record<string, string>;
+    config?: Config;
+  }): Promise<$AgentRun.Sandbox> => {
     const { input, headers, config } = params;
 
     try {
@@ -270,15 +283,15 @@ export class SandboxControlAPI extends ControlAPI {
       );
 
       logger.debug(
-        `request api createSandbox, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([input])}\n  response: ${JSON.stringify(response.body?.data)}`,
+        `request api createSandbox, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([input])}\n  response: ${JSON.stringify(response.body?.data)}`
       );
 
       return response.body?.data as $AgentRun.Sandbox;
     } catch (error: unknown) {
-      if (error && typeof error === "object" && "statusCode" in error) {
+      if (error && typeof error === 'object' && 'statusCode' in error) {
         const e = error as { statusCode: number; message: string; data?: { requestId?: string } };
         const statusCode = e.statusCode;
-        const message = e.message || "Unknown error";
+        const message = e.message || 'Unknown error';
         const requestId = e.data?.requestId;
 
         if (statusCode >= 400 && statusCode < 500) {
@@ -300,29 +313,29 @@ export class SandboxControlAPI extends ControlAPI {
    * @param params.config - Optional config override
    * @returns Deleted Sandbox object
    */
-  deleteSandbox = async (params: { sandboxId: string; headers?: Record<string, string>; config?: Config }): Promise<$AgentRun.Sandbox> => {
+  deleteSandbox = async (params: {
+    sandboxId: string;
+    headers?: Record<string, string>;
+    config?: Config;
+  }): Promise<$AgentRun.Sandbox> => {
     const { sandboxId, headers, config } = params;
 
     try {
       const client = this.getClient(config);
       const runtime = new $Util.RuntimeOptions({});
 
-      const response = await client.deleteSandboxWithOptions(
-        sandboxId,
-        headers ?? {},
-        runtime
-      );
+      const response = await client.deleteSandboxWithOptions(sandboxId, headers ?? {}, runtime);
 
       logger.debug(
-        `request api deleteSandbox, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([sandboxId])}\n  response: ${JSON.stringify(response.body?.data)}`,
+        `request api deleteSandbox, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([sandboxId])}\n  response: ${JSON.stringify(response.body?.data)}`
       );
 
       return response.body?.data as $AgentRun.Sandbox;
     } catch (error: unknown) {
-      if (error && typeof error === "object" && "statusCode" in error) {
+      if (error && typeof error === 'object' && 'statusCode' in error) {
         const e = error as { statusCode: number; message: string; data?: { requestId?: string } };
         const statusCode = e.statusCode;
-        const message = e.message || "Unknown error";
+        const message = e.message || 'Unknown error';
         const requestId = e.data?.requestId;
 
         if (statusCode >= 400 && statusCode < 500) {
@@ -344,29 +357,29 @@ export class SandboxControlAPI extends ControlAPI {
    * @param params.config - Optional config override
    * @returns Stopped Sandbox object
    */
-  stopSandbox = async (params: { sandboxId: string; headers?: Record<string, string>; config?: Config }): Promise<$AgentRun.Sandbox> => {
+  stopSandbox = async (params: {
+    sandboxId: string;
+    headers?: Record<string, string>;
+    config?: Config;
+  }): Promise<$AgentRun.Sandbox> => {
     const { sandboxId, headers, config } = params;
 
     try {
       const client = this.getClient(config);
       const runtime = new $Util.RuntimeOptions({});
 
-      const response = await client.stopSandboxWithOptions(
-        sandboxId,
-        headers ?? {},
-        runtime
-      );
+      const response = await client.stopSandboxWithOptions(sandboxId, headers ?? {}, runtime);
 
       logger.debug(
-        `request api stopSandbox, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([sandboxId])}\n  response: ${JSON.stringify(response.body?.data)}`,
+        `request api stopSandbox, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([sandboxId])}\n  response: ${JSON.stringify(response.body?.data)}`
       );
 
       return response.body?.data as $AgentRun.Sandbox;
     } catch (error: unknown) {
-      if (error && typeof error === "object" && "statusCode" in error) {
+      if (error && typeof error === 'object' && 'statusCode' in error) {
         const e = error as { statusCode: number; message: string; data?: { requestId?: string } };
         const statusCode = e.statusCode;
-        const message = e.message || "Unknown error";
+        const message = e.message || 'Unknown error';
         const requestId = e.data?.requestId;
 
         if (statusCode >= 400 && statusCode < 500) {
@@ -388,29 +401,29 @@ export class SandboxControlAPI extends ControlAPI {
    * @param params.config - Optional config override
    * @returns Sandbox object
    */
-  getSandbox = async (params: { sandboxId: string; headers?: Record<string, string>; config?: Config }): Promise<$AgentRun.Sandbox> => {
+  getSandbox = async (params: {
+    sandboxId: string;
+    headers?: Record<string, string>;
+    config?: Config;
+  }): Promise<$AgentRun.Sandbox> => {
     const { sandboxId, headers, config } = params;
 
     try {
       const client = this.getClient(config);
       const runtime = new $Util.RuntimeOptions({});
 
-      const response = await client.getSandboxWithOptions(
-        sandboxId,
-        headers ?? {},
-        runtime
-      );
+      const response = await client.getSandboxWithOptions(sandboxId, headers ?? {}, runtime);
 
       logger.debug(
-        `request api getSandbox, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([sandboxId])}\n  response: ${JSON.stringify(response.body?.data)}`,
+        `request api getSandbox, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([sandboxId])}\n  response: ${JSON.stringify(response.body?.data)}`
       );
 
       return response.body?.data as $AgentRun.Sandbox;
     } catch (error: unknown) {
-      if (error && typeof error === "object" && "statusCode" in error) {
+      if (error && typeof error === 'object' && 'statusCode' in error) {
         const e = error as { statusCode: number; message: string; data?: { requestId?: string } };
         const statusCode = e.statusCode;
-        const message = e.message || "Unknown error";
+        const message = e.message || 'Unknown error';
         const requestId = e.data?.requestId;
 
         if (statusCode >= 400 && statusCode < 500) {
@@ -432,29 +445,29 @@ export class SandboxControlAPI extends ControlAPI {
    * @param params.config - Optional config override
    * @returns List of Sandbox objects
    */
-  listSandboxes = async (params: { input: $AgentRun.ListSandboxesRequest; headers?: Record<string, string>; config?: Config }): Promise<$AgentRun.ListSandboxesOutput> => {
+  listSandboxes = async (params: {
+    input: $AgentRun.ListSandboxesRequest;
+    headers?: Record<string, string>;
+    config?: Config;
+  }): Promise<$AgentRun.ListSandboxesOutput> => {
     const { input, headers, config } = params;
 
     try {
       const client = this.getClient(config);
       const runtime = new $Util.RuntimeOptions({});
 
-      const response = await client.listSandboxesWithOptions(
-        input,
-        headers ?? {},
-        runtime
-      );
+      const response = await client.listSandboxesWithOptions(input, headers ?? {}, runtime);
 
       logger.debug(
-        `request api listSandboxes, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([input])}\n  response: ${JSON.stringify(response.body?.data)}`,
+        `request api listSandboxes, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([input])}\n  response: ${JSON.stringify(response.body?.data)}`
       );
 
       return response.body?.data as $AgentRun.ListSandboxesOutput;
     } catch (error: unknown) {
-      if (error && typeof error === "object" && "statusCode" in error) {
+      if (error && typeof error === 'object' && 'statusCode' in error) {
         const e = error as { statusCode: number; message: string; data?: { requestId?: string } };
         const statusCode = e.statusCode;
-        const message = e.message || "Unknown error";
+        const message = e.message || 'Unknown error';
         const requestId = e.data?.requestId;
 
         if (statusCode >= 400 && statusCode < 500) {
@@ -466,5 +479,4 @@ export class SandboxControlAPI extends ControlAPI {
       throw error;
     }
   };
-
 }

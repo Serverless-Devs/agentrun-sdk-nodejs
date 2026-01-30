@@ -2,14 +2,16 @@
  * Model module exports
  */
 
-export { ModelClient } from "./client";
-export { ModelService } from "./model-service";
-export { ModelProxy } from "./model-proxy";
+import '@/utils/version-check';
+
+export { ModelClient } from './client';
+export { ModelService } from './model-service';
+export { ModelProxy } from './model-proxy';
 
 // Re-export ControlAPI for advanced usage
-export { ControlAPI as ModelControlAPI } from "../utils/control-api";
+export { ControlAPI as ModelControlAPI } from '../utils/control-api';
 
-export { BackendType, ModelType, Provider } from "./model";
+export { BackendType, ModelType, Provider } from './model';
 
 export type {
   ProviderSettings,
@@ -29,4 +31,4 @@ export type {
   ModelProxyUpdateInput,
   ModelProxyListInput,
   ModelProxyData,
-} from "./model";
+} from './model';

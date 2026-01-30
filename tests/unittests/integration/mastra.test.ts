@@ -190,7 +190,7 @@ describe('Mastra Integration', () => {
 
       // Mock createTool from @mastra/core/tools
       const { createTool } = await import('@mastra/core/tools');
-      (createTool as jest.Mock).mockImplementation((params) => params);
+      (createTool as jest.Mock).mockImplementation(params => params);
 
       // Call toolset function
       const result = await toolset({
@@ -241,7 +241,7 @@ describe('Mastra Integration', () => {
       (builtin.toolset as jest.Mock).mockResolvedValue(mockToolSet);
 
       const { createTool } = await import('@mastra/core/tools');
-      (createTool as jest.Mock).mockImplementation((params) => params);
+      (createTool as jest.Mock).mockImplementation(params => params);
 
       const result = await toolset({ name: 'test' });
 
@@ -257,9 +257,7 @@ describe('Mastra Integration', () => {
         tools: jest.fn().mockReturnValue([]),
       };
 
-      (builtin.sandboxToolset as jest.Mock).mockResolvedValue(
-        mockSandboxToolSet,
-      );
+      (builtin.sandboxToolset as jest.Mock).mockResolvedValue(mockSandboxToolSet);
 
       await sandbox({
         templateName: 'my-template',
@@ -278,9 +276,7 @@ describe('Mastra Integration', () => {
         tools: jest.fn().mockReturnValue([]),
       };
 
-      (builtin.sandboxToolset as jest.Mock).mockResolvedValue(
-        mockSandboxToolSet,
-      );
+      (builtin.sandboxToolset as jest.Mock).mockResolvedValue(mockSandboxToolSet);
 
       await sandbox({
         templateName: 'browser-template',
@@ -299,9 +295,7 @@ describe('Mastra Integration', () => {
         tools: jest.fn().mockReturnValue([]),
       };
 
-      (builtin.sandboxToolset as jest.Mock).mockResolvedValue(
-        mockSandboxToolSet,
-      );
+      (builtin.sandboxToolset as jest.Mock).mockResolvedValue(mockSandboxToolSet);
 
       await sandbox({
         templateName: 'my-template',
@@ -320,9 +314,7 @@ describe('Mastra Integration', () => {
         tools: jest.fn().mockReturnValue([]),
       };
 
-      (builtin.sandboxToolset as jest.Mock).mockResolvedValue(
-        mockSandboxToolSet,
-      );
+      (builtin.sandboxToolset as jest.Mock).mockResolvedValue(mockSandboxToolSet);
 
       await sandbox({
         templateName: 'my-template',
@@ -343,9 +335,7 @@ describe('Mastra Integration', () => {
         tools: jest.fn().mockReturnValue([]),
       };
 
-      (builtin.sandboxToolset as jest.Mock).mockResolvedValue(
-        mockSandboxToolSet,
-      );
+      (builtin.sandboxToolset as jest.Mock).mockResolvedValue(mockSandboxToolSet);
 
       await codeInterpreter({
         templateName: 'code-template',
@@ -363,9 +353,7 @@ describe('Mastra Integration', () => {
         tools: jest.fn().mockReturnValue([]),
       };
 
-      (builtin.sandboxToolset as jest.Mock).mockResolvedValue(
-        mockSandboxToolSet,
-      );
+      (builtin.sandboxToolset as jest.Mock).mockResolvedValue(mockSandboxToolSet);
 
       await codeInterpreter({
         templateName: 'test-template',
@@ -382,24 +370,16 @@ describe('Mastra Integration', () => {
 
       // Should call with same parameters
       expect(builtin.sandboxToolset).toHaveBeenCalledTimes(2);
-      expect(builtin.sandboxToolset).toHaveBeenNthCalledWith(
-        1,
-        'test-template',
-        {
-          templateType: TemplateType.CODE_INTERPRETER,
-          sandboxIdleTimeoutSeconds: 300,
-          config: mockConfig,
-        },
-      );
-      expect(builtin.sandboxToolset).toHaveBeenNthCalledWith(
-        2,
-        'test-template',
-        {
-          templateType: TemplateType.CODE_INTERPRETER,
-          sandboxIdleTimeoutSeconds: 300,
-          config: mockConfig,
-        },
-      );
+      expect(builtin.sandboxToolset).toHaveBeenNthCalledWith(1, 'test-template', {
+        templateType: TemplateType.CODE_INTERPRETER,
+        sandboxIdleTimeoutSeconds: 300,
+        config: mockConfig,
+      });
+      expect(builtin.sandboxToolset).toHaveBeenNthCalledWith(2, 'test-template', {
+        templateType: TemplateType.CODE_INTERPRETER,
+        sandboxIdleTimeoutSeconds: 300,
+        config: mockConfig,
+      });
     });
   });
 
@@ -409,9 +389,7 @@ describe('Mastra Integration', () => {
         tools: jest.fn().mockReturnValue([]),
       };
 
-      (builtin.sandboxToolset as jest.Mock).mockResolvedValue(
-        mockSandboxToolSet,
-      );
+      (builtin.sandboxToolset as jest.Mock).mockResolvedValue(mockSandboxToolSet);
 
       await browser({
         templateName: 'browser-template',
@@ -429,9 +407,7 @@ describe('Mastra Integration', () => {
         tools: jest.fn().mockReturnValue([]),
       };
 
-      (builtin.sandboxToolset as jest.Mock).mockResolvedValue(
-        mockSandboxToolSet,
-      );
+      (builtin.sandboxToolset as jest.Mock).mockResolvedValue(mockSandboxToolSet);
 
       await browser({
         templateName: 'test-browser',
@@ -448,24 +424,16 @@ describe('Mastra Integration', () => {
 
       // Should call with same parameters
       expect(builtin.sandboxToolset).toHaveBeenCalledTimes(2);
-      expect(builtin.sandboxToolset).toHaveBeenNthCalledWith(
-        1,
-        'test-browser',
-        {
-          templateType: TemplateType.BROWSER,
-          sandboxIdleTimeoutSeconds: 300,
-          config: mockConfig,
-        },
-      );
-      expect(builtin.sandboxToolset).toHaveBeenNthCalledWith(
-        2,
-        'test-browser',
-        {
-          templateType: TemplateType.BROWSER,
-          sandboxIdleTimeoutSeconds: 300,
-          config: mockConfig,
-        },
-      );
+      expect(builtin.sandboxToolset).toHaveBeenNthCalledWith(1, 'test-browser', {
+        templateType: TemplateType.BROWSER,
+        sandboxIdleTimeoutSeconds: 300,
+        config: mockConfig,
+      });
+      expect(builtin.sandboxToolset).toHaveBeenNthCalledWith(2, 'test-browser', {
+        templateType: TemplateType.BROWSER,
+        sandboxIdleTimeoutSeconds: 300,
+        config: mockConfig,
+      });
     });
   });
 
@@ -497,7 +465,7 @@ describe('Mastra Integration', () => {
         execute: executeFn,
       };
 
-      (createTool as jest.Mock).mockImplementation((params) => params);
+      (createTool as jest.Mock).mockImplementation(params => params);
 
       const result = await createMastraTool(toolDef);
 
@@ -543,12 +511,10 @@ describe('Mastra Integration', () => {
       const mockSandboxToolSet = {
         tools: jest.fn().mockReturnValue([mockSandboxTool]),
       };
-      (builtin.sandboxToolset as jest.Mock).mockResolvedValue(
-        mockSandboxToolSet,
-      );
+      (builtin.sandboxToolset as jest.Mock).mockResolvedValue(mockSandboxToolSet);
 
       const { createTool } = await import('@mastra/core/tools');
-      (createTool as jest.Mock).mockImplementation((params) => params);
+      (createTool as jest.Mock).mockImplementation(params => params);
 
       // Create all components
       const llm = await model({ name: 'qwen-max' });

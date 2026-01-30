@@ -5,14 +5,22 @@
  * This module provides the client API for model services and model proxies.
  */
 
-import * as $AgentRun from "@alicloud/agentrun20250910";
+import * as $AgentRun from '@alicloud/agentrun20250910';
 import * as _ from 'lodash';
 
 import { Config } from '../utils/config';
 import { HTTPError } from '../utils/exception';
 
 import { ModelControlAPI } from './api/control';
-import { BackendType, ModelProxyCreateInput, ModelProxyListInput, ModelProxyUpdateInput, ModelServiceCreateInput, ModelServiceListInput, ModelServiceUpdateInput } from './model';
+import {
+  BackendType,
+  ModelProxyCreateInput,
+  ModelProxyListInput,
+  ModelProxyUpdateInput,
+  ModelServiceCreateInput,
+  ModelServiceListInput,
+  ModelServiceUpdateInput,
+} from './model';
 import { ModelProxy } from './model-proxy';
 import { ModelService } from './model-service';
 
@@ -39,19 +47,22 @@ export class ModelClient {
   /**
    * 创建模型服务
    * Create model service
-   * 
+   *
    * @param params - 参数 / Parameters
    * @returns 创建的对象 / Created object
    */
-  create = async (params: { input: ModelServiceCreateInput | ModelProxyCreateInput; config?: Config }): Promise<ModelService | ModelProxy> => {
+  create = async (params: {
+    input: ModelServiceCreateInput | ModelProxyCreateInput;
+    config?: Config;
+  }): Promise<ModelService | ModelProxy> => {
     const { input, config } = params;
     const cfg = Config.withConfigs(this.config, config);
-    
+
     try {
       if ('modelProxyName' in input) {
         // 处理 ModelProxyCreateInput
         const modelProxyInput = input as ModelProxyCreateInput;
-        
+
         // 如果没有设置 proxyModel，根据 endpoints 数量自动判断
         if (!modelProxyInput.proxyModel) {
           const endpoints = _.get(modelProxyInput, 'proxyConfig.endpoints', []);
@@ -75,7 +86,7 @@ export class ModelClient {
       } else {
         // 处理 ModelServiceCreateInput
         const modelServiceInput = input as ModelServiceCreateInput;
-        
+
         const createInput = new $AgentRun.CreateModelServiceInput({
           ...modelServiceInput,
         });
@@ -90,9 +101,10 @@ export class ModelClient {
       }
     } catch (e) {
       if (e instanceof HTTPError) {
-        const name = 'modelProxyName' in input 
-          ? (input as ModelProxyCreateInput).modelProxyName 
-          : (input as ModelServiceCreateInput).modelServiceName;
+        const name =
+          'modelProxyName' in input
+            ? (input as ModelProxyCreateInput).modelProxyName
+            : (input as ModelServiceCreateInput).modelServiceName;
         throw e.toResourceError('Model', name);
       }
       throw e;
@@ -102,17 +114,21 @@ export class ModelClient {
   /**
    * 删除模型服务
    * Delete model service
-   * 
+   *
    * @param params - 参数 / Parameters
    * @returns 删除的对象 / Deleted object
-   * 
+   *
    * @throws ResourceNotExistError - 模型服务不存在 / Model service does not exist
    */
-  delete = async (params: { name: string; backendType?: BackendType; config?: Config }): Promise<ModelService | ModelProxy> => {
+  delete = async (params: {
+    name: string;
+    backendType?: BackendType;
+    config?: Config;
+  }): Promise<ModelService | ModelProxy> => {
     const { name, backendType, config } = params;
     const cfg = Config.withConfigs(this.config, config);
     let error: HTTPError | null = null;
-    
+
     // 如果是 proxy 或未指定类型，先尝试删除 proxy
     if (backendType === 'proxy' || backendType === undefined) {
       try {
@@ -157,32 +173,36 @@ export class ModelClient {
   /**
    * 更新模型服务
    * Update model service
-   * 
+   *
    * @param params - 参数 / Parameters
    * @returns 更新后的模型服务对象 / Updated model service object
-   * 
+   *
    * @throws ResourceNotExistError - 模型服务不存在 / Model service does not exist
    */
-  update = async (params: { name: string; input: ModelServiceUpdateInput | ModelProxyUpdateInput; config?: Config }): Promise<ModelService | ModelProxy> => {
+  update = async (params: {
+    name: string;
+    input: ModelServiceUpdateInput | ModelProxyUpdateInput;
+    config?: Config;
+  }): Promise<ModelService | ModelProxy> => {
     const { name, input, config } = params;
     const cfg = Config.withConfigs(this.config, config);
-    
+
     if ('proxyModel' in input || 'executionRoleArn' in input) {
       // 处理 ModelProxyUpdateInput
       const modelProxyInput = input as ModelProxyUpdateInput;
-      
+
       try {
         // 如果没有设置 proxyModel，根据 endpoints 数量自动判断
         if (!modelProxyInput.proxyModel && modelProxyInput.proxyModel !== undefined) {
           const endpoints = _.get(modelProxyInput, 'proxyConfig.endpoints', []);
           modelProxyInput.proxyModel = endpoints.length > 1 ? 'multi' : 'single';
         }
-        
+
         const updateInput = new $AgentRun.UpdateModelProxyInput({
           ...modelProxyInput,
           proxyMode: modelProxyInput.proxyModel,
         });
-        
+
         const result = await this.controlApi.updateModelProxy({
           modelProxyName: name,
           input: updateInput,
@@ -200,12 +220,12 @@ export class ModelClient {
     } else {
       // 处理 ModelServiceUpdateInput
       const modelServiceInput = input as ModelServiceUpdateInput;
-      
+
       try {
         const updateInput = new $AgentRun.UpdateModelServiceInput({
           ...modelServiceInput,
         });
-        
+
         const result = await this.controlApi.updateModelService({
           modelServiceName: name,
           input: updateInput,
@@ -226,17 +246,21 @@ export class ModelClient {
   /**
    * 获取模型服务
    * Get model service
-   * 
+   *
    * @param params - 参数 / Parameters
    * @returns 模型服务对象 / Model service object
-   * 
+   *
    * @throws ResourceNotExistError - 模型服务不存在 / Model service does not exist
    */
-  get = async (params: { name: string; backendType?: BackendType; config?: Config }): Promise<ModelService | ModelProxy> => {
+  get = async (params: {
+    name: string;
+    backendType?: BackendType;
+    config?: Config;
+  }): Promise<ModelService | ModelProxy> => {
     const { name, backendType, config } = params;
     const cfg = Config.withConfigs(this.config, config);
     let error: HTTPError | null = null;
-    
+
     // 如果是 proxy 或未指定类型，先尝试获取 proxy
     if (backendType === 'proxy' || backendType === undefined) {
       try {
@@ -281,22 +305,25 @@ export class ModelClient {
   /**
    * 列出模型服务
    * List model services
-   * 
+   *
    * @param params - 参数 / Parameters
    * @returns 模型服务列表 / Model service list
    */
-  list = async (params?: { input?: ModelServiceListInput | ModelProxyListInput; config?: Config }): Promise<ModelService[] | ModelProxy[]> => {
+  list = async (params?: {
+    input?: ModelServiceListInput | ModelProxyListInput;
+    config?: Config;
+  }): Promise<ModelService[] | ModelProxy[]> => {
     const { input, config } = params ?? {};
     const cfg = Config.withConfigs(this.config, config);
-    
+
     if (input && 'modelProxyName' in input) {
       // 处理 ModelProxyListInput
       const modelProxyInput = input as ModelProxyListInput;
-      
+
       const request = new $AgentRun.ListModelProxiesRequest({
         ...modelProxyInput,
       });
-      
+
       const result = await this.controlApi.listModelProxies({
         input: request,
         config: cfg,
@@ -309,11 +336,11 @@ export class ModelClient {
     } else {
       // 处理 ModelServiceListInput 或无参数（默认列出 ModelService）
       const modelServiceInput = (input ?? {}) as ModelServiceListInput;
-      
+
       const request = new $AgentRun.ListModelServicesRequest({
         ...modelServiceInput,
       });
-      
+
       const result = await this.controlApi.listModelServices({
         input: request,
         config: cfg,

@@ -20,7 +20,7 @@ import {
   CodeLanguage,
   SandboxClient,
   Template,
-  TemplateType
+  TemplateType,
 } from '../src/index';
 import { logger } from '../src/utils/log';
 
@@ -41,9 +41,7 @@ async function listTemplates(): Promise<void> {
   log(`共有 ${templates.length} 个模板 / Total ${templates.length} templates:`);
 
   for (const template of templates) {
-    log(
-      `  - ${template.templateName} (${template.templateType}) [${template.status}]`
-    );
+    log(`  - ${template.templateName} (${template.templateType}) [${template.status}]`);
   }
 }
 
@@ -79,7 +77,7 @@ async function codeInterpreterExample(): Promise<void> {
       templateType: TemplateType.CODE_INTERPRETER,
       description: 'Test template from Node.js SDK',
       sandboxIdleTimeoutInSeconds: 600,
-    }
+    },
   });
 
   log(`✓ 创建模板成功 / Template created: ${template.templateName}`);
@@ -89,21 +87,19 @@ async function codeInterpreterExample(): Promise<void> {
   // 等待模板就绪 / Wait for template to be ready
   log('\n--- 等待模板就绪 / Waiting for template to be ready ---');
   await template.waitUntilReadyOrFailed({
-    callback: (t) => log(`  当前状态 / Current status: ${t.status}`),
+    callback: t => log(`  当前状态 / Current status: ${t.status}`),
   });
   log('✓ 模板已就绪 / Template is ready');
 
   // 创建沙箱 / Create sandbox
-  log(
-    '\n--- 创建 Code Interpreter 沙箱 / Creating Code Interpreter sandbox ---'
-  );
+  log('\n--- 创建 Code Interpreter 沙箱 / Creating Code Interpreter sandbox ---');
   const sandbox = await CodeInterpreterSandbox.createFromTemplate(templateName);
   log(`✓ 创建沙箱成功 / Sandbox created: ${sandbox.sandboxId}`);
 
   // 等待沙箱运行 / Wait for sandbox to be running
   log('\n--- 等待沙箱运行 / Waiting for sandbox to be running ---');
   await sandbox.waitUntilRunning({
-    beforeCheck: (s) => log(`  当前状态 / Current state: ${s.state}`),
+    beforeCheck: s => log(`  当前状态 / Current state: ${s.state}`),
   });
   log('✓ 沙箱已运行 / Sandbox is running');
 
@@ -137,9 +133,7 @@ async function codeInterpreterExample(): Promise<void> {
   log(`✓ 创建文件夹 /home/user/test / Created directory /home/user/test`);
 
   await sandbox.fileSystem.mkdir({ path: '/home/user/test-move' });
-  log(
-    `✓ 创建文件夹 /home/user/test-move / Created directory /home/user/test-move`
-  );
+  log(`✓ 创建文件夹 /home/user/test-move / Created directory /home/user/test-move`);
 
   // 测试上传下载 / Upload/Download test
   log('\n--- 测试上传下载 / Testing upload/download ---');
@@ -159,7 +153,7 @@ async function codeInterpreterExample(): Promise<void> {
   log(`✓ 上传文件成功 / File uploaded successfully`);
 
   const filestat = await sandbox.fileSystem.stat({
-    path: '/home/user/test-move/test_file.txt'
+    path: '/home/user/test-move/test_file.txt',
   });
   log(`✓ 上传文件详情 / Uploaded file stat:`, filestat);
 
@@ -172,12 +166,7 @@ async function codeInterpreterExample(): Promise<void> {
 
   // 验证下载的文件内容
   const downloadedContent = await fs.readFile(downloadPath, 'utf-8');
-  log(
-    `✓ 验证下载文件内容 / Verify downloaded content: ${downloadedContent.slice(
-      0,
-      50
-    )}...`
-  );
+  log(`✓ 验证下载文件内容 / Verify downloaded content: ${downloadedContent.slice(0, 50)}...`);
 
   // 测试文件读写 / File read/write test
   log('\n--- 测试文件读写 / Testing file read/write ---');
@@ -199,7 +188,7 @@ async function codeInterpreterExample(): Promise<void> {
   log(`✓ 移动文件成功 / File moved successfully`);
 
   const movedContent = await sandbox.file.read({
-    path: '/home/user/test-move/test2.txt'
+    path: '/home/user/test-move/test2.txt',
   });
   log(`✓ 读取移动后的文件 / Read moved file:`, movedContent);
 

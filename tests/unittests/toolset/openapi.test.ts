@@ -7,8 +7,6 @@
  * 3. 参数解析是否正确
  */
 
-
-
 import { OpenAPI, ApiSet } from '../../../src/toolset/openapi';
 
 describe('OpenAPI $ref Resolution', () => {
@@ -548,7 +546,7 @@ describe('OpenAPI Invoke', () => {
     const openapi = new OpenAPI({ schema: JSON.stringify(schema), baseUrl: 'http://test' });
 
     await expect(openapi.invokeToolAsync('nonExistent', {})).rejects.toThrow(
-      "Tool 'nonExistent' not found.",
+      "Tool 'nonExistent' not found."
     );
   });
 
@@ -567,8 +565,7 @@ describe('OpenAPI Invoke', () => {
     const openapi = new OpenAPI({ schema: JSON.stringify(schema), baseUrl: 'http://test' });
 
     expect(() => openapi.invokeToolSync('test', {})).toThrow(
-      'Synchronous invocation is not supported in Node.js.',
+      'Synchronous invocation is not supported in Node.js.'
     );
   });
 });
-

@@ -10,13 +10,7 @@ import { logger } from '../utils/log';
 import { ServerError } from '../utils/exception';
 
 import { CodeInterpreterDataAPI } from './api/code-interpreter-data';
-import {
-  CodeLanguage,
-  NASConfig,
-  OSSMountConfig,
-  PolarFsConfig,
-  TemplateType,
-} from './model';
+import { CodeLanguage, NASConfig, OSSMountConfig, PolarFsConfig, TemplateType } from './model';
 import { Sandbox } from './sandbox';
 
 /**
@@ -70,10 +64,7 @@ export class FileSystemOperations {
   /**
    * Move a file or directory
    */
-  move = async (params: {
-    source: string;
-    destination: string;
-  }): Promise<any> => {
+  move = async (params: { source: string; destination: string }): Promise<any> => {
     return this.sandbox.dataApi.moveFile(params);
   };
 
@@ -94,21 +85,14 @@ export class FileSystemOperations {
   /**
    * Create a directory
    */
-  mkdir = async (params: {
-    path: string;
-    parents?: boolean;
-    mode?: string;
-  }): Promise<any> => {
+  mkdir = async (params: { path: string; parents?: boolean; mode?: string }): Promise<any> => {
     return this.sandbox.dataApi.mkdir(params);
   };
 
   /**
    * Upload a file to the code interpreter
    */
-  upload = async (params: {
-    localFilePath: string;
-    targetFilePath: string;
-  }): Promise<any> => {
+  upload = async (params: { localFilePath: string; targetFilePath: string }): Promise<any> => {
     return this.sandbox.dataApi.uploadFile(params);
   };
 
@@ -136,11 +120,7 @@ export class ProcessOperations {
   /**
    * Execute a command in the code interpreter
    */
-  cmd = async (params: {
-    command: string;
-    cwd: string;
-    timeout?: number;
-  }): Promise<any> => {
+  cmd = async (params: { command: string; cwd: string; timeout?: number }): Promise<any> => {
     return this.sandbox.dataApi.cmd(params);
   };
 

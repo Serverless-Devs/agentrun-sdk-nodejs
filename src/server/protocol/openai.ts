@@ -54,7 +54,7 @@ export class OpenAIProtocolHandler extends ProtocolHandler {
    */
   private async handleChatCompletions(
     req: ProtocolRequest,
-    invoker: AgentInvoker,
+    invoker: AgentInvoker
   ): Promise<ProtocolResponse> {
     try {
       const { agentRequest, context } = this.parseRequest(req.body);
@@ -145,7 +145,7 @@ export class OpenAIProtocolHandler extends ProtocolHandler {
    * Parse OpenAI messages to internal Message format
    */
   private parseMessages(messages: unknown[]): Message[] {
-    return messages.map((m) => {
+    return messages.map(m => {
       const msg = m as Record<string, unknown>;
       return {
         id: msg.id as string | undefined,
@@ -153,9 +153,8 @@ export class OpenAIProtocolHandler extends ProtocolHandler {
         content: msg.content as string | undefined,
         name: msg.name as string | undefined,
         toolCallId: msg.tool_call_id as string | undefined,
-        toolCalls:
-          msg.tool_calls ?
-            (msg.tool_calls as unknown[]).map((tc) => {
+        toolCalls: msg.tool_calls
+          ? (msg.tool_calls as unknown[]).map(tc => {
               const call = tc as Record<string, unknown>;
               return {
                 id: call.id as string,
@@ -176,7 +175,7 @@ export class OpenAIProtocolHandler extends ProtocolHandler {
       return null;
     }
 
-    return tools.map((t) => {
+    return tools.map(t => {
       const tool = t as Record<string, unknown>;
       return {
         type: (tool.type as string) || 'function',
@@ -190,15 +189,12 @@ export class OpenAIProtocolHandler extends ProtocolHandler {
    */
   private async *formatStream(
     events: AsyncGenerator<AgentEvent>,
-    context: { id: string; model: string; created: number },
+    context: { id: string; model: string; created: number }
   ): AsyncGenerator<string> {
     let sentRole = false;
     let hasText = false;
     let toolCallIndex = -1;
-    const toolCallStates = new Map<
-      string,
-      { index: number; started: boolean }
-    >();
+    const toolCallStates = new Map<string, { index: number; started: boolean }>();
     let hasToolCalls = false;
 
     for await (const event of events) {
@@ -234,9 +230,7 @@ export class OpenAIProtocolHandler extends ProtocolHandler {
       if (event.event === EventType.TOOL_CALL_CHUNK) {
         const toolId = event.data?.id as string;
         const toolName = event.data?.name as string;
-        const argsDelta =
-          (event.data?.args_delta as string) ||
-          (event.data?.argsDelta as string);
+        const argsDelta = (event.data?.args_delta as string) || (event.data?.argsDelta as string);
 
         // First time seeing this tool call
         if (toolId && !toolCallStates.has(toolId)) {
@@ -289,10 +283,7 @@ export class OpenAIProtocolHandler extends ProtocolHandler {
     }
 
     // Send finish_reason
-    const finishReason =
-      hasToolCalls ? 'tool_calls'
-      : hasText ? 'stop'
-      : 'stop';
+    const finishReason = hasToolCalls ? 'tool_calls' : hasText ? 'stop' : 'stop';
     yield this.buildChunk(context, { delta: {}, finish_reason: finishReason });
 
     // Send [DONE]
@@ -307,7 +298,7 @@ export class OpenAIProtocolHandler extends ProtocolHandler {
     choice: {
       delta?: Record<string, unknown>;
       finish_reason?: string | null;
-    },
+    }
   ): string {
     const chunk = {
       id: context.id,
@@ -330,7 +321,7 @@ export class OpenAIProtocolHandler extends ProtocolHandler {
    */
   private formatNonStream(
     events: AgentEvent[],
-    context: { id: string; model: string; created: number },
+    context: { id: string; model: string; created: number }
   ): Record<string, unknown> {
     let content = '';
     const toolCalls: ToolCall[] = [];
@@ -341,12 +332,10 @@ export class OpenAIProtocolHandler extends ProtocolHandler {
       } else if (event.event === EventType.TOOL_CALL_CHUNK) {
         const toolId = event.data?.id as string;
         const toolName = event.data?.name as string;
-        const argsDelta =
-          (event.data?.args_delta as string) ||
-          (event.data?.argsDelta as string);
+        const argsDelta = (event.data?.args_delta as string) || (event.data?.argsDelta as string);
 
         // Find or create tool call
-        let toolCall = toolCalls.find((tc) => tc.id === toolId);
+        let toolCall = toolCalls.find(tc => tc.id === toolId);
         if (!toolCall && toolId) {
           toolCall = {
             id: toolId,

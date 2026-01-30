@@ -1,11 +1,6 @@
 import { Agent } from '@mastra/core/agent';
 import { AgentRunServer, type AgentRequest } from '../src/server';
-import {
-  MastraConverter,
-  type AgentEventItem,
-  model,
-  toolset,
-} from '../src/integration/mastra';
+import { MastraConverter, type AgentEventItem, model, toolset } from '../src/integration/mastra';
 
 import { logger } from '../src/utils/log';
 
@@ -21,18 +16,16 @@ const mastraAgent = new Agent({
   tools: () => toolset({ name: 'start-mcp-time-ggda' }),
 });
 
-async function* invokeAgent(
-  request: AgentRequest,
-): AsyncGenerator<AgentEventItem> {
+async function* invokeAgent(request: AgentRequest): AsyncGenerator<AgentEventItem> {
   const converter = new MastraConverter();
   const mastraStream = await mastraAgent.stream(
     request.messages.map(
-      (msg) =>
+      msg =>
         ({
           role: msg.role,
           content: msg.content || '',
-        }) as any,
-    ),
+        }) as any
+    )
   );
   for await (const chunk of mastraStream.fullStream) {
     const events = converter.convert(chunk);

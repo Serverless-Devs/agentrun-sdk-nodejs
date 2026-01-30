@@ -4,7 +4,16 @@
  * 测试 model.ts 的各种功能。
  */
 
-import { isFinalStatus, NetworkMode, removeUndefined, Status, toCamelCase, toCamelCaseKeys, toSnakeCase, toSnakeCaseKeys } from '../../../src/utils/model';
+import {
+  isFinalStatus,
+  NetworkMode,
+  removeUndefined,
+  Status,
+  toCamelCase,
+  toCamelCaseKeys,
+  toSnakeCase,
+  toSnakeCaseKeys,
+} from '../../../src/utils/model';
 
 describe('Utils Model', () => {
   describe('Status enum', () => {
@@ -107,7 +116,7 @@ describe('Utils Model', () => {
     it('should convert object keys from camelCase to snake_case', () => {
       const obj = { firstName: 'John', lastName: 'Doe' };
       const result = toSnakeCaseKeys(obj);
-      
+
       expect(result).toEqual({ first_name: 'John', last_name: 'Doe' });
     });
 
@@ -120,7 +129,7 @@ describe('Utils Model', () => {
         },
       };
       const result = toSnakeCaseKeys(obj);
-      
+
       expect(result).toEqual({
         user_name: 'test',
         user_profile: {
@@ -132,32 +141,26 @@ describe('Utils Model', () => {
 
     it('should handle arrays of objects', () => {
       const obj = {
-        userList: [
-          { firstName: 'John' },
-          { firstName: 'Jane' },
-        ],
+        userList: [{ firstName: 'John' }, { firstName: 'Jane' }],
       };
       const result = toSnakeCaseKeys(obj);
-      
+
       expect(result).toEqual({
-        user_list: [
-          { first_name: 'John' },
-          { first_name: 'Jane' },
-        ],
+        user_list: [{ first_name: 'John' }, { first_name: 'Jane' }],
       });
     });
 
     it('should handle arrays of primitives', () => {
       const obj = { tagNames: ['tag1', 'tag2'] };
       const result = toSnakeCaseKeys(obj);
-      
+
       expect(result).toEqual({ tag_names: ['tag1', 'tag2'] });
     });
 
     it('should handle null values', () => {
       const obj = { nullValue: null, validValue: 'test' };
       const result = toSnakeCaseKeys(obj);
-      
+
       expect(result).toEqual({ null_value: null, valid_value: 'test' });
     });
   });
@@ -166,7 +169,7 @@ describe('Utils Model', () => {
     it('should convert object keys from snake_case to camelCase', () => {
       const obj = { first_name: 'John', last_name: 'Doe' };
       const result = toCamelCaseKeys(obj);
-      
+
       expect(result).toEqual({ firstName: 'John', lastName: 'Doe' });
     });
 
@@ -179,7 +182,7 @@ describe('Utils Model', () => {
         },
       };
       const result = toCamelCaseKeys(obj);
-      
+
       expect(result).toEqual({
         userName: 'test',
         userProfile: {
@@ -191,32 +194,26 @@ describe('Utils Model', () => {
 
     it('should handle arrays of objects', () => {
       const obj = {
-        user_list: [
-          { first_name: 'John' },
-          { first_name: 'Jane' },
-        ],
+        user_list: [{ first_name: 'John' }, { first_name: 'Jane' }],
       };
       const result = toCamelCaseKeys(obj);
-      
+
       expect(result).toEqual({
-        userList: [
-          { firstName: 'John' },
-          { firstName: 'Jane' },
-        ],
+        userList: [{ firstName: 'John' }, { firstName: 'Jane' }],
       });
     });
 
     it('should handle arrays of primitives', () => {
       const obj = { tag_names: ['tag1', 'tag2'] };
       const result = toCamelCaseKeys(obj);
-      
+
       expect(result).toEqual({ tagNames: ['tag1', 'tag2'] });
     });
 
     it('should handle null values', () => {
       const obj = { null_value: null, valid_value: 'test' };
       const result = toCamelCaseKeys(obj);
-      
+
       expect(result).toEqual({ nullValue: null, validValue: 'test' });
     });
   });
@@ -225,7 +222,7 @@ describe('Utils Model', () => {
     it('should remove undefined values from object', () => {
       const obj = { a: 1, b: undefined, c: 'test' };
       const result = removeUndefined(obj);
-      
+
       expect(result).toEqual({ a: 1, c: 'test' });
       expect('b' in result).toBe(false);
     });
@@ -233,31 +230,29 @@ describe('Utils Model', () => {
     it('should keep null values', () => {
       const obj = { a: 1, b: null, c: 'test' };
       const result = removeUndefined(obj);
-      
+
       expect(result).toEqual({ a: 1, b: null, c: 'test' });
     });
 
     it('should handle object with no undefined values', () => {
       const obj = { a: 1, b: 'test', c: true };
       const result = removeUndefined(obj);
-      
+
       expect(result).toEqual({ a: 1, b: 'test', c: true });
     });
 
     it('should handle object with all undefined values', () => {
       const obj = { a: undefined, b: undefined };
       const result = removeUndefined(obj);
-      
+
       expect(result).toEqual({});
     });
 
     it('should handle empty object', () => {
       const obj = {};
       const result = removeUndefined(obj);
-      
+
       expect(result).toEqual({});
     });
   });
 });
-
-

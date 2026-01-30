@@ -251,5 +251,3 @@ export function getMockStore(): MockStore {
 export function resetMockStore(): void {
   MockStore.getInstance().reset();
 }
-
-

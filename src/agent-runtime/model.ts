@@ -5,51 +5,51 @@
  * This module defines all data models, enums, and input/output objects related to Agent Runtime.
  */
 
-import * as fs from "fs";
-import * as path from "path";
-import * as crc64Lib from "crc64-ecma182.js";
+import * as fs from 'fs';
+import * as path from 'path';
+import * as crc64Lib from 'crc64-ecma182.js';
 
-import { Status } from "../utils/model";
-import type { NetworkConfig, PageableInput } from "../utils/model";
+import { Status } from '../utils/model';
+import type { NetworkConfig, PageableInput } from '../utils/model';
 
 /**
  * Agent Runtime artifact type
  */
-export type AgentRuntimeArtifact = "Code" | "Container";
+export type AgentRuntimeArtifact = 'Code' | 'Container';
 
 export const AgentRuntimeArtifact = {
-  CODE: "Code" as AgentRuntimeArtifact,
-  CONTAINER: "Container" as AgentRuntimeArtifact,
+  CODE: 'Code' as AgentRuntimeArtifact,
+  CONTAINER: 'Container' as AgentRuntimeArtifact,
 };
 
 /**
  * Agent Runtime language
  */
 export type AgentRuntimeLanguage =
-  | "python3.10"
-  | "python3.12"
-  | "nodejs18"
-  | "nodejs20"
-  | "java8"
-  | "java11";
+  | 'python3.10'
+  | 'python3.12'
+  | 'nodejs18'
+  | 'nodejs20'
+  | 'java8'
+  | 'java11';
 
 export const AgentRuntimeLanguage = {
-  PYTHON310: "python3.10" as AgentRuntimeLanguage,
-  PYTHON312: "python3.12" as AgentRuntimeLanguage,
-  NODEJS18: "nodejs18" as AgentRuntimeLanguage,
-  NODEJS20: "nodejs20" as AgentRuntimeLanguage,
-  JAVA8: "java8" as AgentRuntimeLanguage,
-  JAVA11: "java11" as AgentRuntimeLanguage,
+  PYTHON310: 'python3.10' as AgentRuntimeLanguage,
+  PYTHON312: 'python3.12' as AgentRuntimeLanguage,
+  NODEJS18: 'nodejs18' as AgentRuntimeLanguage,
+  NODEJS20: 'nodejs20' as AgentRuntimeLanguage,
+  JAVA8: 'java8' as AgentRuntimeLanguage,
+  JAVA11: 'java11' as AgentRuntimeLanguage,
 };
 
 /**
  * Agent Runtime protocol type
  */
-export type AgentRuntimeProtocolType = "HTTP" | "MCP";
+export type AgentRuntimeProtocolType = 'HTTP' | 'MCP';
 
 export const AgentRuntimeProtocolType = {
-  HTTP: "HTTP" as AgentRuntimeProtocolType,
-  MCP: "MCP" as AgentRuntimeProtocolType,
+  HTTP: 'HTTP' as AgentRuntimeProtocolType,
+  MCP: 'MCP' as AgentRuntimeProtocolType,
 };
 
 /**
@@ -76,7 +76,7 @@ export interface AgentRuntimeCode {
 export async function codeFromZipFile(
   language: AgentRuntimeLanguage,
   command: string[],
-  zipFilePath: string,
+  zipFilePath: string
 ): Promise<AgentRuntimeCode> {
   const data = await fs.promises.readFile(zipFilePath);
 
@@ -86,7 +86,7 @@ export async function codeFromZipFile(
   return {
     language,
     command,
-    zipFile: data.toString("base64"),
+    zipFile: data.toString('base64'),
     checksum: checksum,
   };
 }
@@ -98,7 +98,7 @@ export function codeFromOss(
   language: AgentRuntimeLanguage,
   command: string[],
   bucket: string,
-  object: string,
+  object: string
 ): AgentRuntimeCode {
   return {
     language,
@@ -114,13 +114,13 @@ export function codeFromOss(
 export async function codeFromFile(
   language: AgentRuntimeLanguage,
   command: string[],
-  filePath: string,
+  filePath: string
 ): Promise<AgentRuntimeCode> {
-  const archiver = await import("archiver").catch(() => null);
+  const archiver = await import('archiver').catch(() => null);
 
   if (!archiver) {
     throw new Error(
-      "archiver package is required for codeFromFile. Install it with: npm install archiver",
+      'archiver package is required for codeFromFile. Install it with: npm install archiver'
     );
   }
 
@@ -129,11 +129,11 @@ export async function codeFromFile(
 
   // Create ZIP archive
   const output = fs.createWriteStream(zipFilePath);
-  const archive = archiver.default("zip", { zlib: { level: 9 } });
+  const archive = archiver.default('zip', { zlib: { level: 9 } });
 
   await new Promise<void>((resolve, reject) => {
-    output.on("close", resolve);
-    archive.on("error", reject);
+    output.on('close', resolve);
+    archive.on('error', reject);
     archive.pipe(output);
 
     if (stats.isDirectory()) {

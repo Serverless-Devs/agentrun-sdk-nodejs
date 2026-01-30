@@ -9,13 +9,13 @@
 
 // Source: credential_control_api.yaml
 
-import * as $AgentRun from "@alicloud/agentrun20250910";
-import * as $Util from "@alicloud/tea-util";
+import * as $AgentRun from '@alicloud/agentrun20250910';
+import * as $Util from '@alicloud/tea-util';
 
-import { Config } from "../../utils/config";
-import { ControlAPI } from "../../utils/control-api";
-import { ClientError, ServerError } from "../../utils/exception";
-import { logger } from "../../utils/log";
+import { Config } from '../../utils/config';
+import { ControlAPI } from '../../utils/control-api';
+import { ClientError, ServerError } from '../../utils/exception';
+import { logger } from '../../utils/log';
 
 /**
  * Credential Control API
@@ -34,7 +34,11 @@ export class CredentialControlAPI extends ControlAPI {
    * @param params.config - Optional config override
    * @returns Created credential object
    */
-  createCredential = async (params: { input: $AgentRun.CreateCredentialInput; headers?: Record<string, string>; config?: Config }): Promise<$AgentRun.Credential> => {
+  createCredential = async (params: {
+    input: $AgentRun.CreateCredentialInput;
+    headers?: Record<string, string>;
+    config?: Config;
+  }): Promise<$AgentRun.Credential> => {
     const { input, headers, config } = params;
 
     try {
@@ -48,15 +52,15 @@ export class CredentialControlAPI extends ControlAPI {
       );
 
       logger.debug(
-        `request api createCredential, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([input])}\n  response: ${JSON.stringify(response.body?.data)}`,
+        `request api createCredential, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([input])}\n  response: ${JSON.stringify(response.body?.data)}`
       );
 
       return response.body?.data as $AgentRun.Credential;
     } catch (error: unknown) {
-      if (error && typeof error === "object" && "statusCode" in error) {
+      if (error && typeof error === 'object' && 'statusCode' in error) {
         const e = error as { statusCode: number; message: string; data?: { requestId?: string } };
         const statusCode = e.statusCode;
-        const message = e.message || "Unknown error";
+        const message = e.message || 'Unknown error';
         const requestId = e.data?.requestId;
 
         if (statusCode >= 400 && statusCode < 500) {
@@ -78,7 +82,11 @@ export class CredentialControlAPI extends ControlAPI {
    * @param params.config - Optional config override
    * @returns Deleted credential object
    */
-  deleteCredential = async (params: { credentialName: string; headers?: Record<string, string>; config?: Config }): Promise<$AgentRun.Credential> => {
+  deleteCredential = async (params: {
+    credentialName: string;
+    headers?: Record<string, string>;
+    config?: Config;
+  }): Promise<$AgentRun.Credential> => {
     const { credentialName, headers, config } = params;
 
     try {
@@ -92,15 +100,15 @@ export class CredentialControlAPI extends ControlAPI {
       );
 
       logger.debug(
-        `request api deleteCredential, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([credentialName])}\n  response: ${JSON.stringify(response.body?.data)}`,
+        `request api deleteCredential, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([credentialName])}\n  response: ${JSON.stringify(response.body?.data)}`
       );
 
       return response.body?.data as $AgentRun.Credential;
     } catch (error: unknown) {
-      if (error && typeof error === "object" && "statusCode" in error) {
+      if (error && typeof error === 'object' && 'statusCode' in error) {
         const e = error as { statusCode: number; message: string; data?: { requestId?: string } };
         const statusCode = e.statusCode;
-        const message = e.message || "Unknown error";
+        const message = e.message || 'Unknown error';
         const requestId = e.data?.requestId;
 
         if (statusCode >= 400 && statusCode < 500) {
@@ -123,7 +131,12 @@ export class CredentialControlAPI extends ControlAPI {
    * @param params.config - Optional config override
    * @returns Updated credential object
    */
-  updateCredential = async (params: { credentialName: string; input: $AgentRun.UpdateCredentialInput; headers?: Record<string, string>; config?: Config }): Promise<$AgentRun.Credential> => {
+  updateCredential = async (params: {
+    credentialName: string;
+    input: $AgentRun.UpdateCredentialInput;
+    headers?: Record<string, string>;
+    config?: Config;
+  }): Promise<$AgentRun.Credential> => {
     const { credentialName, input, headers, config } = params;
 
     try {
@@ -138,15 +151,15 @@ export class CredentialControlAPI extends ControlAPI {
       );
 
       logger.debug(
-        `request api updateCredential, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([credentialName, input])}\n  response: ${JSON.stringify(response.body?.data)}`,
+        `request api updateCredential, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([credentialName, input])}\n  response: ${JSON.stringify(response.body?.data)}`
       );
 
       return response.body?.data as $AgentRun.Credential;
     } catch (error: unknown) {
-      if (error && typeof error === "object" && "statusCode" in error) {
+      if (error && typeof error === 'object' && 'statusCode' in error) {
         const e = error as { statusCode: number; message: string; data?: { requestId?: string } };
         const statusCode = e.statusCode;
-        const message = e.message || "Unknown error";
+        const message = e.message || 'Unknown error';
         const requestId = e.data?.requestId;
 
         if (statusCode >= 400 && statusCode < 500) {
@@ -168,7 +181,11 @@ export class CredentialControlAPI extends ControlAPI {
    * @param params.config - Optional config override
    * @returns Credential object
    */
-  getCredential = async (params: { credentialName: string; headers?: Record<string, string>; config?: Config }): Promise<$AgentRun.Credential> => {
+  getCredential = async (params: {
+    credentialName: string;
+    headers?: Record<string, string>;
+    config?: Config;
+  }): Promise<$AgentRun.Credential> => {
     const { credentialName, headers, config } = params;
 
     try {
@@ -182,15 +199,15 @@ export class CredentialControlAPI extends ControlAPI {
       );
 
       logger.debug(
-        `request api getCredential, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([credentialName])}\n  response: ${JSON.stringify(response.body?.data)}`,
+        `request api getCredential, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([credentialName])}\n  response: ${JSON.stringify(response.body?.data)}`
       );
 
       return response.body?.data as $AgentRun.Credential;
     } catch (error: unknown) {
-      if (error && typeof error === "object" && "statusCode" in error) {
+      if (error && typeof error === 'object' && 'statusCode' in error) {
         const e = error as { statusCode: number; message: string; data?: { requestId?: string } };
         const statusCode = e.statusCode;
-        const message = e.message || "Unknown error";
+        const message = e.message || 'Unknown error';
         const requestId = e.data?.requestId;
 
         if (statusCode >= 400 && statusCode < 500) {
@@ -212,29 +229,29 @@ export class CredentialControlAPI extends ControlAPI {
    * @param params.config - Optional config override
    * @returns List of credential objects
    */
-  listCredentials = async (params: { input: $AgentRun.ListCredentialsRequest; headers?: Record<string, string>; config?: Config }): Promise<$AgentRun.ListCredentialsOutput> => {
+  listCredentials = async (params: {
+    input: $AgentRun.ListCredentialsRequest;
+    headers?: Record<string, string>;
+    config?: Config;
+  }): Promise<$AgentRun.ListCredentialsOutput> => {
     const { input, headers, config } = params;
 
     try {
       const client = this.getClient(config);
       const runtime = new $Util.RuntimeOptions({});
 
-      const response = await client.listCredentialsWithOptions(
-        input,
-        headers ?? {},
-        runtime
-      );
+      const response = await client.listCredentialsWithOptions(input, headers ?? {}, runtime);
 
       logger.debug(
-        `request api listCredentials, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([input])}\n  response: ${JSON.stringify(response.body?.data)}`,
+        `request api listCredentials, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([input])}\n  response: ${JSON.stringify(response.body?.data)}`
       );
 
       return response.body?.data as $AgentRun.ListCredentialsOutput;
     } catch (error: unknown) {
-      if (error && typeof error === "object" && "statusCode" in error) {
+      if (error && typeof error === 'object' && 'statusCode' in error) {
         const e = error as { statusCode: number; message: string; data?: { requestId?: string } };
         const statusCode = e.statusCode;
-        const message = e.message || "Unknown error";
+        const message = e.message || 'Unknown error';
         const requestId = e.data?.requestId;
 
         if (statusCode >= 400 && statusCode < 500) {
@@ -246,5 +263,4 @@ export class CredentialControlAPI extends ControlAPI {
       throw error;
     }
   };
-
 }

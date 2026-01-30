@@ -9,13 +9,13 @@
 
 // Source: model_control_api.yaml
 
-import * as $AgentRun from "@alicloud/agentrun20250910";
-import * as $Util from "@alicloud/tea-util";
+import * as $AgentRun from '@alicloud/agentrun20250910';
+import * as $Util from '@alicloud/tea-util';
 
-import { Config } from "../../utils/config";
-import { ControlAPI } from "../../utils/control-api";
-import { ClientError, ServerError } from "../../utils/exception";
-import { logger } from "../../utils/log";
+import { Config } from '../../utils/config';
+import { ControlAPI } from '../../utils/control-api';
+import { ClientError, ServerError } from '../../utils/exception';
+import { logger } from '../../utils/log';
 
 /**
  * Model Control API
@@ -34,7 +34,11 @@ export class ModelControlAPI extends ControlAPI {
    * @param params.config - Optional config override
    * @returns Created model service object
    */
-  createModelService = async (params: { input: $AgentRun.CreateModelServiceInput; headers?: Record<string, string>; config?: Config }): Promise<$AgentRun.ModelService> => {
+  createModelService = async (params: {
+    input: $AgentRun.CreateModelServiceInput;
+    headers?: Record<string, string>;
+    config?: Config;
+  }): Promise<$AgentRun.ModelService> => {
     const { input, headers, config } = params;
 
     try {
@@ -48,15 +52,15 @@ export class ModelControlAPI extends ControlAPI {
       );
 
       logger.debug(
-        `request api createModelService, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([input])}\n  response: ${JSON.stringify(response.body?.data)}`,
+        `request api createModelService, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([input])}\n  response: ${JSON.stringify(response.body?.data)}`
       );
 
       return response.body?.data as $AgentRun.ModelService;
     } catch (error: unknown) {
-      if (error && typeof error === "object" && "statusCode" in error) {
+      if (error && typeof error === 'object' && 'statusCode' in error) {
         const e = error as { statusCode: number; message: string; data?: { requestId?: string } };
         const statusCode = e.statusCode;
-        const message = e.message || "Unknown error";
+        const message = e.message || 'Unknown error';
         const requestId = e.data?.requestId;
 
         if (statusCode >= 400 && statusCode < 500) {
@@ -78,7 +82,11 @@ export class ModelControlAPI extends ControlAPI {
    * @param params.config - Optional config override
    * @returns Deleted model service object
    */
-  deleteModelService = async (params: { modelServiceName: string; headers?: Record<string, string>; config?: Config }): Promise<$AgentRun.ModelService> => {
+  deleteModelService = async (params: {
+    modelServiceName: string;
+    headers?: Record<string, string>;
+    config?: Config;
+  }): Promise<$AgentRun.ModelService> => {
     const { modelServiceName, headers, config } = params;
 
     try {
@@ -92,15 +100,15 @@ export class ModelControlAPI extends ControlAPI {
       );
 
       logger.debug(
-        `request api deleteModelService, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([modelServiceName])}\n  response: ${JSON.stringify(response.body?.data)}`,
+        `request api deleteModelService, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([modelServiceName])}\n  response: ${JSON.stringify(response.body?.data)}`
       );
 
       return response.body?.data as $AgentRun.ModelService;
     } catch (error: unknown) {
-      if (error && typeof error === "object" && "statusCode" in error) {
+      if (error && typeof error === 'object' && 'statusCode' in error) {
         const e = error as { statusCode: number; message: string; data?: { requestId?: string } };
         const statusCode = e.statusCode;
-        const message = e.message || "Unknown error";
+        const message = e.message || 'Unknown error';
         const requestId = e.data?.requestId;
 
         if (statusCode >= 400 && statusCode < 500) {
@@ -123,7 +131,12 @@ export class ModelControlAPI extends ControlAPI {
    * @param params.config - Optional config override
    * @returns Updated model service object
    */
-  updateModelService = async (params: { modelServiceName: string; input: $AgentRun.UpdateModelServiceInput; headers?: Record<string, string>; config?: Config }): Promise<$AgentRun.ModelService> => {
+  updateModelService = async (params: {
+    modelServiceName: string;
+    input: $AgentRun.UpdateModelServiceInput;
+    headers?: Record<string, string>;
+    config?: Config;
+  }): Promise<$AgentRun.ModelService> => {
     const { modelServiceName, input, headers, config } = params;
 
     try {
@@ -138,15 +151,15 @@ export class ModelControlAPI extends ControlAPI {
       );
 
       logger.debug(
-        `request api updateModelService, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([modelServiceName, input])}\n  response: ${JSON.stringify(response.body?.data)}`,
+        `request api updateModelService, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([modelServiceName, input])}\n  response: ${JSON.stringify(response.body?.data)}`
       );
 
       return response.body?.data as $AgentRun.ModelService;
     } catch (error: unknown) {
-      if (error && typeof error === "object" && "statusCode" in error) {
+      if (error && typeof error === 'object' && 'statusCode' in error) {
         const e = error as { statusCode: number; message: string; data?: { requestId?: string } };
         const statusCode = e.statusCode;
-        const message = e.message || "Unknown error";
+        const message = e.message || 'Unknown error';
         const requestId = e.data?.requestId;
 
         if (statusCode >= 400 && statusCode < 500) {
@@ -168,7 +181,11 @@ export class ModelControlAPI extends ControlAPI {
    * @param params.config - Optional config override
    * @returns Model service object
    */
-  getModelService = async (params: { modelServiceName: string; headers?: Record<string, string>; config?: Config }): Promise<$AgentRun.ModelService> => {
+  getModelService = async (params: {
+    modelServiceName: string;
+    headers?: Record<string, string>;
+    config?: Config;
+  }): Promise<$AgentRun.ModelService> => {
     const { modelServiceName, headers, config } = params;
 
     try {
@@ -182,15 +199,15 @@ export class ModelControlAPI extends ControlAPI {
       );
 
       logger.debug(
-        `request api getModelService, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([modelServiceName])}\n  response: ${JSON.stringify(response.body?.data)}`,
+        `request api getModelService, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([modelServiceName])}\n  response: ${JSON.stringify(response.body?.data)}`
       );
 
       return response.body?.data as $AgentRun.ModelService;
     } catch (error: unknown) {
-      if (error && typeof error === "object" && "statusCode" in error) {
+      if (error && typeof error === 'object' && 'statusCode' in error) {
         const e = error as { statusCode: number; message: string; data?: { requestId?: string } };
         const statusCode = e.statusCode;
-        const message = e.message || "Unknown error";
+        const message = e.message || 'Unknown error';
         const requestId = e.data?.requestId;
 
         if (statusCode >= 400 && statusCode < 500) {
@@ -212,29 +229,29 @@ export class ModelControlAPI extends ControlAPI {
    * @param params.config - Optional config override
    * @returns List of model service objects
    */
-  listModelServices = async (params: { input: $AgentRun.ListModelServicesRequest; headers?: Record<string, string>; config?: Config }): Promise<$AgentRun.ListModelServicesOutput> => {
+  listModelServices = async (params: {
+    input: $AgentRun.ListModelServicesRequest;
+    headers?: Record<string, string>;
+    config?: Config;
+  }): Promise<$AgentRun.ListModelServicesOutput> => {
     const { input, headers, config } = params;
 
     try {
       const client = this.getClient(config);
       const runtime = new $Util.RuntimeOptions({});
 
-      const response = await client.listModelServicesWithOptions(
-        input,
-        headers ?? {},
-        runtime
-      );
+      const response = await client.listModelServicesWithOptions(input, headers ?? {}, runtime);
 
       logger.debug(
-        `request api listModelServices, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([input])}\n  response: ${JSON.stringify(response.body?.data)}`,
+        `request api listModelServices, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([input])}\n  response: ${JSON.stringify(response.body?.data)}`
       );
 
       return response.body?.data as $AgentRun.ListModelServicesOutput;
     } catch (error: unknown) {
-      if (error && typeof error === "object" && "statusCode" in error) {
+      if (error && typeof error === 'object' && 'statusCode' in error) {
         const e = error as { statusCode: number; message: string; data?: { requestId?: string } };
         const statusCode = e.statusCode;
-        const message = e.message || "Unknown error";
+        const message = e.message || 'Unknown error';
         const requestId = e.data?.requestId;
 
         if (statusCode >= 400 && statusCode < 500) {
@@ -256,7 +273,11 @@ export class ModelControlAPI extends ControlAPI {
    * @param params.config - Optional config override
    * @returns Created model proxy object
    */
-  createModelProxy = async (params: { input: $AgentRun.CreateModelProxyInput; headers?: Record<string, string>; config?: Config }): Promise<$AgentRun.ModelProxy> => {
+  createModelProxy = async (params: {
+    input: $AgentRun.CreateModelProxyInput;
+    headers?: Record<string, string>;
+    config?: Config;
+  }): Promise<$AgentRun.ModelProxy> => {
     const { input, headers, config } = params;
 
     try {
@@ -270,15 +291,15 @@ export class ModelControlAPI extends ControlAPI {
       );
 
       logger.debug(
-        `request api createModelProxy, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([input])}\n  response: ${JSON.stringify(response.body?.data)}`,
+        `request api createModelProxy, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([input])}\n  response: ${JSON.stringify(response.body?.data)}`
       );
 
       return response.body?.data as $AgentRun.ModelProxy;
     } catch (error: unknown) {
-      if (error && typeof error === "object" && "statusCode" in error) {
+      if (error && typeof error === 'object' && 'statusCode' in error) {
         const e = error as { statusCode: number; message: string; data?: { requestId?: string } };
         const statusCode = e.statusCode;
-        const message = e.message || "Unknown error";
+        const message = e.message || 'Unknown error';
         const requestId = e.data?.requestId;
 
         if (statusCode >= 400 && statusCode < 500) {
@@ -300,7 +321,11 @@ export class ModelControlAPI extends ControlAPI {
    * @param params.config - Optional config override
    * @returns Deleted model proxy object
    */
-  deleteModelProxy = async (params: { modelProxyName: string; headers?: Record<string, string>; config?: Config }): Promise<$AgentRun.ModelProxy> => {
+  deleteModelProxy = async (params: {
+    modelProxyName: string;
+    headers?: Record<string, string>;
+    config?: Config;
+  }): Promise<$AgentRun.ModelProxy> => {
     const { modelProxyName, headers, config } = params;
 
     try {
@@ -314,15 +339,15 @@ export class ModelControlAPI extends ControlAPI {
       );
 
       logger.debug(
-        `request api deleteModelProxy, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([modelProxyName])}\n  response: ${JSON.stringify(response.body?.data)}`,
+        `request api deleteModelProxy, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([modelProxyName])}\n  response: ${JSON.stringify(response.body?.data)}`
       );
 
       return response.body?.data as $AgentRun.ModelProxy;
     } catch (error: unknown) {
-      if (error && typeof error === "object" && "statusCode" in error) {
+      if (error && typeof error === 'object' && 'statusCode' in error) {
         const e = error as { statusCode: number; message: string; data?: { requestId?: string } };
         const statusCode = e.statusCode;
-        const message = e.message || "Unknown error";
+        const message = e.message || 'Unknown error';
         const requestId = e.data?.requestId;
 
         if (statusCode >= 400 && statusCode < 500) {
@@ -345,7 +370,12 @@ export class ModelControlAPI extends ControlAPI {
    * @param params.config - Optional config override
    * @returns Updated model proxy object
    */
-  updateModelProxy = async (params: { modelProxyName: string; input: $AgentRun.UpdateModelProxyInput; headers?: Record<string, string>; config?: Config }): Promise<$AgentRun.ModelProxy> => {
+  updateModelProxy = async (params: {
+    modelProxyName: string;
+    input: $AgentRun.UpdateModelProxyInput;
+    headers?: Record<string, string>;
+    config?: Config;
+  }): Promise<$AgentRun.ModelProxy> => {
     const { modelProxyName, input, headers, config } = params;
 
     try {
@@ -360,15 +390,15 @@ export class ModelControlAPI extends ControlAPI {
       );
 
       logger.debug(
-        `request api updateModelProxy, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([modelProxyName, input])}\n  response: ${JSON.stringify(response.body?.data)}`,
+        `request api updateModelProxy, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([modelProxyName, input])}\n  response: ${JSON.stringify(response.body?.data)}`
       );
 
       return response.body?.data as $AgentRun.ModelProxy;
     } catch (error: unknown) {
-      if (error && typeof error === "object" && "statusCode" in error) {
+      if (error && typeof error === 'object' && 'statusCode' in error) {
         const e = error as { statusCode: number; message: string; data?: { requestId?: string } };
         const statusCode = e.statusCode;
-        const message = e.message || "Unknown error";
+        const message = e.message || 'Unknown error';
         const requestId = e.data?.requestId;
 
         if (statusCode >= 400 && statusCode < 500) {
@@ -390,7 +420,11 @@ export class ModelControlAPI extends ControlAPI {
    * @param params.config - Optional config override
    * @returns Model proxy object
    */
-  getModelProxy = async (params: { modelProxyName: string; headers?: Record<string, string>; config?: Config }): Promise<$AgentRun.ModelProxy> => {
+  getModelProxy = async (params: {
+    modelProxyName: string;
+    headers?: Record<string, string>;
+    config?: Config;
+  }): Promise<$AgentRun.ModelProxy> => {
     const { modelProxyName, headers, config } = params;
 
     try {
@@ -404,15 +438,15 @@ export class ModelControlAPI extends ControlAPI {
       );
 
       logger.debug(
-        `request api getModelProxy, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([modelProxyName])}\n  response: ${JSON.stringify(response.body?.data)}`,
+        `request api getModelProxy, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([modelProxyName])}\n  response: ${JSON.stringify(response.body?.data)}`
       );
 
       return response.body?.data as $AgentRun.ModelProxy;
     } catch (error: unknown) {
-      if (error && typeof error === "object" && "statusCode" in error) {
+      if (error && typeof error === 'object' && 'statusCode' in error) {
         const e = error as { statusCode: number; message: string; data?: { requestId?: string } };
         const statusCode = e.statusCode;
-        const message = e.message || "Unknown error";
+        const message = e.message || 'Unknown error';
         const requestId = e.data?.requestId;
 
         if (statusCode >= 400 && statusCode < 500) {
@@ -434,29 +468,29 @@ export class ModelControlAPI extends ControlAPI {
    * @param params.config - Optional config override
    * @returns List of model proxy objects
    */
-  listModelProxies = async (params: { input: $AgentRun.ListModelProxiesRequest; headers?: Record<string, string>; config?: Config }): Promise<$AgentRun.ListModelProxiesOutput> => {
+  listModelProxies = async (params: {
+    input: $AgentRun.ListModelProxiesRequest;
+    headers?: Record<string, string>;
+    config?: Config;
+  }): Promise<$AgentRun.ListModelProxiesOutput> => {
     const { input, headers, config } = params;
 
     try {
       const client = this.getClient(config);
       const runtime = new $Util.RuntimeOptions({});
 
-      const response = await client.listModelProxiesWithOptions(
-        input,
-        headers ?? {},
-        runtime
-      );
+      const response = await client.listModelProxiesWithOptions(input, headers ?? {}, runtime);
 
       logger.debug(
-        `request api listModelProxies, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([input])}\n  response: ${JSON.stringify(response.body?.data)}`,
+        `request api listModelProxies, request Request ID: ${response.body?.requestId}\n  request: ${JSON.stringify([input])}\n  response: ${JSON.stringify(response.body?.data)}`
       );
 
       return response.body?.data as $AgentRun.ListModelProxiesOutput;
     } catch (error: unknown) {
-      if (error && typeof error === "object" && "statusCode" in error) {
+      if (error && typeof error === 'object' && 'statusCode' in error) {
         const e = error as { statusCode: number; message: string; data?: { requestId?: string } };
         const statusCode = e.statusCode;
-        const message = e.message || "Unknown error";
+        const message = e.message || 'Unknown error';
         const requestId = e.data?.requestId;
 
         if (statusCode >= 400 && statusCode < 500) {
@@ -468,5 +502,4 @@ export class ModelControlAPI extends ControlAPI {
       throw error;
     }
   };
-
 }

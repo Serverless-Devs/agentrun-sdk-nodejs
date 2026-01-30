@@ -15,9 +15,7 @@ describe('AgentRuntimeEndpoint', () => {
   it('should throw when updating without ids', async () => {
     const endpoint = new AgentRuntimeEndpoint();
 
-    await expect(
-      endpoint.update({ input: { description: 'test' } })
-    ).rejects.toThrow(
+    await expect(endpoint.update({ input: { description: 'test' } })).rejects.toThrow(
       'agentRuntimeId and agentRuntimeEndpointId are required to update an endpoint'
     );
   });
@@ -33,8 +31,8 @@ describe('AgentRuntimeEndpoint', () => {
   it('should throw when runtime name cannot be determined', async () => {
     const endpoint = new AgentRuntimeEndpoint();
 
-    await expect(
-      endpoint.invokeOpenai({ messages: baseMessages })
-    ).rejects.toThrow('Unable to determine agent runtime name for this endpoint');
+    await expect(endpoint.invokeOpenai({ messages: baseMessages })).rejects.toThrow(
+      'Unable to determine agent runtime name for this endpoint'
+    );
   });
 });

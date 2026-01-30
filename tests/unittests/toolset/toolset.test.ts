@@ -6,11 +6,7 @@
  */
 
 import { ToolsetStatus } from '@alicloud/devs20230714';
-import {
-  ToolSet,
-  ToolSetSchemaType,
-  ToolSetClient,
-} from '../../../src/toolset';
+import { ToolSet, ToolSetSchemaType, ToolSetClient } from '../../../src/toolset';
 import { Status } from '../../../src/utils/model';
 
 describe('ToolSet', () => {
@@ -78,9 +74,7 @@ describe('ToolSet', () => {
     it('should throw error when deleting without name', async () => {
       const toolset = new ToolSet({});
 
-      await expect(toolset.delete()).rejects.toThrow(
-        'name is required to delete a ToolSet'
-      );
+      await expect(toolset.delete()).rejects.toThrow('name is required to delete a ToolSet');
     });
 
     it('should throw error when updating without name', async () => {
@@ -94,9 +88,7 @@ describe('ToolSet', () => {
     it('should throw error when refreshing without name', async () => {
       const toolset = new ToolSet({});
 
-      await expect(toolset.refresh()).rejects.toThrow(
-        'name is required to refresh a ToolSet'
-      );
+      await expect(toolset.refresh()).rejects.toThrow('name is required to refresh a ToolSet');
     });
   });
 });

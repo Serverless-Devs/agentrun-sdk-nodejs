@@ -5,11 +5,7 @@
  * Tests for SandboxClient class.
  */
 
-import {
-  SandboxState,
-  TemplateNetworkMode,
-  TemplateType,
-} from '../../../src/sandbox/model';
+import { SandboxState, TemplateNetworkMode, TemplateType } from '../../../src/sandbox/model';
 import { Config } from '../../../src/utils/config';
 
 // Mock SandboxControlAPI
@@ -51,12 +47,12 @@ jest.mock('../../../src/sandbox/sandbox', () => {
     templateName?: string;
     status?: string;
     _config?: any;
-    
+
     constructor(data?: any, config?: any) {
       Object.assign(this, data);
       this._config = config;
     }
-    
+
     static get = jest.fn();
     static fromInnerObject = jest.fn((data, config) => {
       return new MockSandbox(data, config);
@@ -72,8 +68,7 @@ const mockCodeInterpreterCreateFromTemplate = jest.fn();
 jest.mock('../../../src/sandbox/code-interpreter-sandbox', () => {
   return {
     CodeInterpreterSandbox: {
-      createFromTemplate: (...args: any[]) =>
-        mockCodeInterpreterCreateFromTemplate(...args),
+      createFromTemplate: (...args: any[]) => mockCodeInterpreterCreateFromTemplate(...args),
     },
   };
 });
@@ -83,8 +78,7 @@ const mockBrowserCreateFromTemplate = jest.fn();
 jest.mock('../../../src/sandbox/browser-sandbox', () => {
   return {
     BrowserSandbox: {
-      createFromTemplate: (...args: any[]) =>
-        mockBrowserCreateFromTemplate(...args),
+      createFromTemplate: (...args: any[]) => mockBrowserCreateFromTemplate(...args),
     },
   };
 });

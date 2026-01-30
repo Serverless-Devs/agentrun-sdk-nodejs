@@ -2,19 +2,21 @@
  * Sandbox module exports
  */
 
-export { SandboxClient } from "./client";
-export { Sandbox } from "./sandbox";
-export { Template } from "./template";
-export { CodeInterpreterSandbox } from "./code-interpreter-sandbox";
-export { BrowserSandbox } from "./browser-sandbox";
-export { AioSandbox } from "./aio-sandbox";
-export { CustomSandbox } from "./custom-sandbox";
+import '@/utils/version-check';
+
+export { SandboxClient } from './client';
+export { Sandbox } from './sandbox';
+export { Template } from './template';
+export { CodeInterpreterSandbox } from './code-interpreter-sandbox';
+export { BrowserSandbox } from './browser-sandbox';
+export { AioSandbox } from './aio-sandbox';
+export { CustomSandbox } from './custom-sandbox';
 
 // Data API exports
-export { SandboxDataAPI } from "./api/sandbox-data";
-export { CodeInterpreterDataAPI } from "./api/code-interpreter-data";
-export { BrowserDataAPI } from "./api/browser-data";
-export { AioDataAPI } from "./api/aio-data";
+export { SandboxDataAPI } from './api/sandbox-data';
+export { CodeInterpreterDataAPI } from './api/code-interpreter-data';
+export { BrowserDataAPI } from './api/browser-data';
+export { AioDataAPI } from './api/aio-data';
 
 export {
   TemplateType,
@@ -22,7 +24,7 @@ export {
   TemplateNetworkMode,
   TemplateOSSPermission,
   CodeLanguage,
-} from "./model";
+} from './model';
 
 export type {
   TemplateNetworkConfiguration,
@@ -49,4 +51,4 @@ export type {
   OSSMountPoint,
   PolarFsConfig,
   PolarFsMountConfig,
-} from "./model";
+} from './model';

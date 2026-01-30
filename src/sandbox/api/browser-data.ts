@@ -5,13 +5,13 @@
  * 此模块提供浏览器沙箱的数据 API 方法。
  */
 
-import * as fs from "fs";
+import * as fs from 'fs';
 
-import { Config } from "../../utils/config";
-import { ClientError } from "../../utils/exception";
-import { logger } from "../../utils/log";
+import { Config } from '../../utils/config';
+import { ClientError } from '../../utils/exception';
+import { logger } from '../../utils/log';
 
-import { SandboxDataAPI } from "./sandbox-data";
+import { SandboxDataAPI } from './sandbox-data';
 
 /**
  * Browser Data API
@@ -35,12 +35,12 @@ export class BrowserDataAPI extends SandboxDataAPI {
    * Generate the WebSocket URL for Chrome DevTools Protocol (CDP) connection
    */
   getCdpUrl(record?: boolean): string {
-    const cdpUrl = this.withPath("/ws/automation").replace("http", "ws");
+    const cdpUrl = this.withPath('/ws/automation').replace('http', 'ws');
     const url = new URL(cdpUrl);
 
-    url.searchParams.set("tenantId", this.config.accountId);
+    url.searchParams.set('tenantId', this.config.accountId);
     if (record) {
-      url.searchParams.set("recording", "true");
+      url.searchParams.set('recording', 'true');
     }
 
     return url.toString();
@@ -50,23 +50,22 @@ export class BrowserDataAPI extends SandboxDataAPI {
    * Generate the WebSocket URL for VNC (Virtual Network Computing) live view connection
    */
   getVncUrl(record?: boolean): string {
-    const vncUrl = this.withPath("/ws/liveview").replace("http", "ws");
+    const vncUrl = this.withPath('/ws/liveview').replace('http', 'ws');
     const url = new URL(vncUrl);
 
-    url.searchParams.set("tenantId", this.config.accountId);
+    url.searchParams.set('tenantId', this.config.accountId);
     if (record) {
-      url.searchParams.set("recording", "true");
+      url.searchParams.set('recording', 'true');
     }
 
     return url.toString();
   }
 
-
   /**
    * List all recordings
    */
   listRecordings = async (params?: { config?: Config }): Promise<any> => {
-    return this.get({ path: "/recordings", config: params?.config });
+    return this.get({ path: '/recordings', config: params?.config });
   };
 
   /**
@@ -107,7 +106,7 @@ export class BrowserDataAPI extends SandboxDataAPI {
 
     try {
       const response = await fetch(url, {
-        method: "GET",
+        method: 'GET',
         headers: reqHeaders,
         signal: AbortSignal.timeout(cfg.timeout),
       });

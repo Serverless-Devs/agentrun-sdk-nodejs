@@ -158,10 +158,7 @@ describe('ToolSchema', () => {
 
     it('should parse anyOf', () => {
       const input = {
-        anyOf: [
-          { type: 'string' },
-          { type: 'number' },
-        ],
+        anyOf: [{ type: 'string' }, { type: 'number' }],
       };
 
       const schema = ToolSchema.fromAnyOpenAPISchema(input);
@@ -303,34 +300,22 @@ describe('ToolSchema', () => {
 
     it('should convert union types (anyOf)', () => {
       const schema = new ToolSchema({
-        anyOf: [
-          new ToolSchema({ type: 'string' }),
-          new ToolSchema({ type: 'number' }),
-        ],
+        anyOf: [new ToolSchema({ type: 'string' }), new ToolSchema({ type: 'number' })],
       });
 
       const result = schema.toJSONSchema();
 
-      expect(result.anyOf).toEqual([
-        { type: 'string' },
-        { type: 'number' },
-      ]);
+      expect(result.anyOf).toEqual([{ type: 'string' }, { type: 'number' }]);
     });
 
     it('should convert oneOf types', () => {
       const schema = new ToolSchema({
-        oneOf: [
-          new ToolSchema({ type: 'string' }),
-          new ToolSchema({ type: 'boolean' }),
-        ],
+        oneOf: [new ToolSchema({ type: 'string' }), new ToolSchema({ type: 'boolean' })],
       });
 
       const result = schema.toJSONSchema();
 
-      expect(result.oneOf).toEqual([
-        { type: 'string' },
-        { type: 'boolean' },
-      ]);
+      expect(result.oneOf).toEqual([{ type: 'string' }, { type: 'boolean' }]);
     });
 
     it('should convert allOf types', () => {
@@ -397,8 +382,8 @@ describe('ToolSchema', () => {
         properties: {
           name: { type: 'string', minLength: 1 },
           age: { type: 'integer', minimum: 0 },
-          tags: { 
-            type: 'array', 
+          tags: {
+            type: 'array',
             items: { type: 'string' },
             minItems: 0,
           },
@@ -458,7 +443,9 @@ describe('ToolInfo', () => {
     });
 
     it('should throw error for object without name', () => {
-      expect(() => ToolInfo.fromMCPTool({ description: 'test' })).toThrow('Unsupported MCP tool format');
+      expect(() => ToolInfo.fromMCPTool({ description: 'test' })).toThrow(
+        'Unsupported MCP tool format'
+      );
     });
 
     it('should parse simple MCP tool', () => {
@@ -532,5 +519,3 @@ describe('ToolSetSchemaType', () => {
     expect(ToolSetSchemaType.MCP).toBe('MCP');
   });
 });
-
-

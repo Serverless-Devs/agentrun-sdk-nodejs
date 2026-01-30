@@ -9,20 +9,10 @@
  * - 删除 Template
  */
 
-import {
-  Template,
-  TemplateType,
-  TemplateNetworkMode,
-} from '../../../src/sandbox';
-import {
-  ResourceNotExistError,
-  ResourceAlreadyExistError,
-} from '../../../src/utils/exception';
+import { Template, TemplateType, TemplateNetworkMode } from '../../../src/sandbox';
+import { ResourceNotExistError, ResourceAlreadyExistError } from '../../../src/utils/exception';
 import { logger } from '../../../src/utils/log';
-import type {
-  TemplateCreateInput,
-  TemplateUpdateInput,
-} from '../../../src/sandbox';
+import type { TemplateCreateInput, TemplateUpdateInput } from '../../../src/sandbox';
 
 /**
  * 生成唯一名称
@@ -34,7 +24,7 @@ function generateUniqueName(prefix: string): string {
 }
 
 function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 async function waitForTemplateReady(
@@ -240,7 +230,7 @@ describe('Template E2E Tests', () => {
         expect(templates.length).toBeGreaterThan(0);
 
         // 验证包含我们创建的 template
-        const found = templates.find((t) => t.templateName === templateName);
+        const found = templates.find(t => t.templateName === templateName);
         expect(found).toBeDefined();
       });
 
@@ -339,7 +329,7 @@ describe('Template E2E Tests', () => {
       expect(Array.isArray(templates)).toBe(true);
 
       // 验证包含我们创建的 template
-      const found = templates.find((t) => t.templateName === templateName);
+      const found = templates.find(t => t.templateName === templateName);
       expect(found).toBeDefined();
     });
   });
@@ -479,10 +469,7 @@ describe('Template E2E Tests', () => {
         await template.delete();
       } catch (error) {
         // PRIVATE 模式可能需要额外配置，如果失败则跳过
-        logger.warn(
-          'PRIVATE template creation failed, possibly due to missing VPC config:',
-          error
-        );
+        logger.warn('PRIVATE template creation failed, possibly due to missing VPC config:', error);
       }
     });
   });

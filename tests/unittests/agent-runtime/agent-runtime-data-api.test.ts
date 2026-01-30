@@ -33,21 +33,14 @@ describe('AgentRuntimeDataAPI', () => {
     const apiBase =
       'https://data.example.com/agent-runtimes/runtime-name/endpoints/endpoint/invocations/openai/v1';
 
-    (api as any).auth = jest
-      .fn()
-      .mockResolvedValue([apiBase, { 'X-Auth': 'token' }, {}]);
+    (api as any).auth = jest.fn().mockResolvedValue([apiBase, { 'X-Auth': 'token' }, {}]);
 
     mockCreate.mockResolvedValue({ ok: true });
 
     const messages: ChatCompletionMessageParam[] = [{ role: 'user', content: 'hello' }];
     const result = await api.invokeOpenai({ messages });
 
-    expect((api as any).auth).toHaveBeenCalledWith(
-      apiBase,
-      {},
-      undefined,
-      expect.any(Config)
-    );
+    expect((api as any).auth).toHaveBeenCalledWith(apiBase, {}, undefined, expect.any(Config));
     expect(mockOpenAIConstructor).toHaveBeenCalledWith({
       apiKey: '',
       baseURL: apiBase,
@@ -72,9 +65,7 @@ describe('AgentRuntimeDataAPI', () => {
     const apiBase =
       'https://data.example.com/agent-runtimes/runtime/endpoints/Default/invocations/openai/v1';
 
-    (api as any).auth = jest
-      .fn()
-      .mockResolvedValue([apiBase, { 'X-Auth': 'token' }, {}]);
+    (api as any).auth = jest.fn().mockResolvedValue([apiBase, { 'X-Auth': 'token' }, {}]);
 
     mockCreate.mockResolvedValue('streamed');
 

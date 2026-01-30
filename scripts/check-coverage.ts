@@ -121,7 +121,8 @@ function loadConfig(configPath: string): CoverageConfig {
             : undefined,
           incremental: override?.incremental
             ? {
-                branch_coverage: override.incremental.branch_coverage ?? incremental.branch_coverage,
+                branch_coverage:
+                  override.incremental.branch_coverage ?? incremental.branch_coverage,
                 line_coverage: override.incremental.line_coverage ?? incremental.line_coverage,
               }
             : undefined,
@@ -145,7 +146,7 @@ function loadConfig(configPath: string): CoverageConfig {
 function getThresholdForDirectory(
   config: CoverageConfig,
   directory: string,
-  isIncremental = false,
+  isIncremental = false
 ): CoverageThreshold {
   const defaultThreshold = isIncremental ? config.incremental : config.full;
 
@@ -189,7 +190,7 @@ function calculateFileCoverage(fileData: FileCoverageData): CoverageResult {
   // 计算语句覆盖率 / Calculate statement coverage
   const statements = Object.values(fileData.s);
   const totalStatements = statements.length;
-  const coveredStatements = statements.filter((hits) => hits > 0).length;
+  const coveredStatements = statements.filter(hits => hits > 0).length;
 
   // 计算分支覆盖率 / Calculate branch coverage
   // 每个 branchMap 条目可能有多个分支（如 if/else 有两个分支）
@@ -217,7 +218,7 @@ function calculateFileCoverage(fileData: FileCoverageData): CoverageResult {
 
 function calculateCoverage(
   coverageData: CoverageFinalJson,
-  fileFilter?: (filePath: string) => boolean,
+  fileFilter?: (filePath: string) => boolean
 ): CoverageResult {
   let totalStatements = 0;
   let coveredStatements = 0;
@@ -250,12 +251,12 @@ function calculateCoverage(
 function calculateDirectoryCoverage(
   coverageData: CoverageFinalJson,
   directory: string,
-  projectRoot: string,
+  projectRoot: string
 ): CoverageResult {
   // 将目录转换为绝对路径用于匹配
   const dirAbsPath = path.join(projectRoot, directory);
 
-  return calculateCoverage(coverageData, (filePath) => filePath.startsWith(dirAbsPath));
+  return calculateCoverage(coverageData, filePath => filePath.startsWith(dirAbsPath));
 }
 
 function discoverDirectories(coverageData: CoverageFinalJson, projectRoot: string): string[] {
@@ -281,7 +282,7 @@ function discoverDirectories(coverageData: CoverageFinalJson, projectRoot: strin
 
 function printCoverageReport(
   fullCoverage: CoverageResult,
-  directoryCoverages: Map<string, CoverageResult>,
+  directoryCoverages: Map<string, CoverageResult>
 ): void {
   console.log('\n' + '='.repeat(70));
   console.log('📊 覆盖率报告 / Coverage Report');
@@ -289,15 +290,19 @@ function printCoverageReport(
 
   console.log('\n📈 全量代码覆盖率 / Full Coverage:');
   console.log(`   行覆盖率 / Line Coverage:     ${fullCoverage.lineCoverage.toFixed(2)}%`);
-  console.log(`                                 (${fullCoverage.coveredStatements}/${fullCoverage.totalStatements} 语句)`);
+  console.log(
+    `                                 (${fullCoverage.coveredStatements}/${fullCoverage.totalStatements} 语句)`
+  );
   console.log(`   分支覆盖率 / Branch Coverage: ${fullCoverage.branchCoverage.toFixed(2)}%`);
-  console.log(`                                 (${fullCoverage.coveredBranches}/${fullCoverage.totalBranches} 分支)`);
+  console.log(
+    `                                 (${fullCoverage.coveredBranches}/${fullCoverage.totalBranches} 分支)`
+  );
 
   if (directoryCoverages.size > 0) {
     console.log('\n📁 目录覆盖率 / Directory Coverage:');
     console.log('-'.repeat(70));
     console.log(
-      `${'目录 / Directory'.padEnd(35)} | ${'行覆盖率'.padStart(10)} | ${'分支覆盖率'.padStart(10)}`,
+      `${'目录 / Directory'.padEnd(35)} | ${'行覆盖率'.padStart(10)} | ${'分支覆盖率'.padStart(10)}`
     );
     console.log('-'.repeat(70));
 
@@ -324,7 +329,7 @@ interface CheckResult {
 function checkCoverageThresholds(
   config: CoverageConfig,
   fullCoverage: CoverageResult,
-  directoryCoverages: Map<string, CoverageResult>,
+  directoryCoverages: Map<string, CoverageResult>
 ): CheckResult {
   const failures: string[] = [];
 
@@ -339,7 +344,7 @@ function checkCoverageThresholds(
     failures.push(msg);
   } else {
     console.log(
-      `   ✅ 全量分支覆盖率 ${fullCoverage.branchCoverage.toFixed(2)}% >= ${fullThreshold.branch_coverage}%`,
+      `   ✅ 全量分支覆盖率 ${fullCoverage.branchCoverage.toFixed(2)}% >= ${fullThreshold.branch_coverage}%`
     );
   }
 
@@ -349,7 +354,7 @@ function checkCoverageThresholds(
     failures.push(msg);
   } else {
     console.log(
-      `   ✅ 全量行覆盖率 ${fullCoverage.lineCoverage.toFixed(2)}% >= ${fullThreshold.line_coverage}%`,
+      `   ✅ 全量行覆盖率 ${fullCoverage.lineCoverage.toFixed(2)}% >= ${fullThreshold.line_coverage}%`
     );
   }
 
@@ -363,7 +368,7 @@ function checkCoverageThresholds(
       failures.push(msg);
     } else {
       console.log(
-        `   ✅ ${directory} 分支覆盖率 ${coverage.branchCoverage.toFixed(2)}% >= ${dirThreshold.branch_coverage}%`,
+        `   ✅ ${directory} 分支覆盖率 ${coverage.branchCoverage.toFixed(2)}% >= ${dirThreshold.branch_coverage}%`
       );
     }
 
@@ -373,7 +378,7 @@ function checkCoverageThresholds(
       failures.push(msg);
     } else {
       console.log(
-        `   ✅ ${directory} 行覆盖率 ${coverage.lineCoverage.toFixed(2)}% >= ${dirThreshold.line_coverage}%`,
+        `   ✅ ${directory} 行覆盖率 ${coverage.lineCoverage.toFixed(2)}% >= ${dirThreshold.line_coverage}%`
       );
     }
   }
@@ -442,7 +447,7 @@ function main(): void {
             line_coverage: cov.lineCoverage,
             branch_coverage: cov.branchCoverage,
           },
-        ]),
+        ])
       ),
     };
     console.log(JSON.stringify(result, null, 2));

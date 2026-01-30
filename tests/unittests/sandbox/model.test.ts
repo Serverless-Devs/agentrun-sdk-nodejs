@@ -191,7 +191,7 @@ describe('Sandbox Model', () => {
         TemplateType.CUSTOM,
       ];
 
-      types.forEach((templateType) => {
+      types.forEach(templateType => {
         const input: TemplateCreateInput = {
           templateName: `template-${templateType}`,
           templateType,

@@ -44,10 +44,8 @@ export class HTTPError extends AgentRunError {
    * Convert HTTP error to resource-specific error based on status code
    */
   toResourceError(resourceType: string, resourceId?: string): HTTPError {
-    if (this.statusCode == 404)
-      return new ResourceNotExistError(resourceType, resourceId);
-    else if (this.statusCode == 409)
-      return new ResourceAlreadyExistError(resourceType, resourceId);
+    if (this.statusCode == 404) return new ResourceNotExistError(resourceType, resourceId);
+    else if (this.statusCode == 409) return new ResourceAlreadyExistError(resourceType, resourceId);
     else if (
       (this.statusCode == 400 || this.statusCode == 500) &&
       this.message.includes('already exists')

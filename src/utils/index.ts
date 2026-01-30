@@ -2,6 +2,8 @@
  * Utility exports
  */
 
+import '@/utils/version-check';
+
 export { Config, type ConfigOptions } from './config';
 export { DataAPI, ResourceType } from './data-api';
 export {

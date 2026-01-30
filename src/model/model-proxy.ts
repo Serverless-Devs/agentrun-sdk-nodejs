@@ -27,10 +27,7 @@ import {
  */
 export class ModelProxy
   extends ResourceBase
-  implements
-    ModelProxyImmutableProps,
-    ModelProxyMutableProps,
-    ModelProxySystemProps
+  implements ModelProxyImmutableProps, ModelProxyMutableProps, ModelProxySystemProps
 {
   // ImmutableProps
   modelType?: ModelProxyImmutableProps['modelType'];
@@ -103,10 +100,7 @@ export class ModelProxy
    * @param params - 参数 / Parameters
    * @returns 删除的模型代理对象 / Deleted model proxy object
    */
-  static async delete(params: {
-    name: string;
-    config?: Config;
-  }): Promise<ModelProxy> {
+  static async delete(params: { name: string; config?: Config }): Promise<ModelProxy> {
     const { name, config } = params;
     return await this.getClient().delete({
       name,
@@ -136,10 +130,7 @@ export class ModelProxy
    * @param params - 参数 / Parameters
    * @returns 模型代理对象 / Model proxy object
    */
-  static async get(params: {
-    name: string;
-    config?: Config;
-  }): Promise<ModelProxy> {
+  static async get(params: { name: string; config?: Config }): Promise<ModelProxy> {
     const { name, config } = params;
     return await this.getClient().get({
       name,

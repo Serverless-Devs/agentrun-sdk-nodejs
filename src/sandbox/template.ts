@@ -7,11 +7,7 @@
 
 import { Config } from '../utils/config';
 import { Status } from '../utils/model';
-import {
-  listAllResourcesFunction,
-  ResourceBase,
-  updateObjectProperties,
-} from '../utils/resource';
+import { listAllResourcesFunction, ResourceBase, updateObjectProperties } from '../utils/resource';
 
 import {
   TemplateCreateInput,
@@ -123,20 +119,14 @@ export class Template extends ResourceBase implements TemplateData {
   /**
    * Create a new Template
    */
-  static async create(params: {
-    input: TemplateCreateInput;
-    config?: Config;
-  }): Promise<Template> {
+  static async create(params: { input: TemplateCreateInput; config?: Config }): Promise<Template> {
     return await Template.getClient().createTemplate(params);
   }
 
   /**
    * Delete a Template by name
    */
-  static async delete(params: {
-    name: string;
-    config?: Config;
-  }): Promise<Template> {
+  static async delete(params: { name: string; config?: Config }): Promise<Template> {
     return await Template.getClient().deleteTemplate(params);
   }
 
@@ -154,20 +144,14 @@ export class Template extends ResourceBase implements TemplateData {
   /**
    * Get a Template by name
    */
-  static async get(params: {
-    name: string;
-    config?: Config;
-  }): Promise<Template> {
+  static async get(params: { name: string; config?: Config }): Promise<Template> {
     return await Template.getClient().getTemplate(params);
   }
 
   /**
    * List Templates
    */
-  static async list(params?: {
-    input?: TemplateListInput;
-    config?: Config;
-  }): Promise<Template[]> {
+  static async list(params?: { input?: TemplateListInput; config?: Config }): Promise<Template[]> {
     return await Template.getClient().listTemplates(params);
   }
 
@@ -204,10 +188,7 @@ export class Template extends ResourceBase implements TemplateData {
   /**
    * Update this template
    */
-  update = async (params: {
-    input: TemplateUpdateInput;
-    config?: Config;
-  }): Promise<Template> => {
+  update = async (params: { input: TemplateUpdateInput; config?: Config }): Promise<Template> => {
     const { input, config } = params;
     if (!this.templateName) {
       throw new Error('templateName is required to update a Template');
@@ -251,13 +232,9 @@ export class Template extends ResourceBase implements TemplateData {
       return undefined;
     };
 
-    this.sandboxIdleTimeoutInSeconds = toNumber(
-      this.sandboxIdleTimeoutInSeconds,
-    );
+    this.sandboxIdleTimeoutInSeconds = toNumber(this.sandboxIdleTimeoutInSeconds);
     this.sandboxTtlInSeconds = toNumber(this.sandboxTtlInSeconds);
-    this.shareConcurrencyLimitPerSandbox = toNumber(
-      this.shareConcurrencyLimitPerSandbox,
-    );
+    this.shareConcurrencyLimitPerSandbox = toNumber(this.shareConcurrencyLimitPerSandbox);
     this.cpu = toNumber(this.cpu);
     this.memory = toNumber(this.memory);
     this.diskSize = toNumber(this.diskSize);

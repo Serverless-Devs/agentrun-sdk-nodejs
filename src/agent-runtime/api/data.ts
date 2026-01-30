@@ -5,9 +5,9 @@
  * This module defines the Data API for Agent Runtime, used to invoke Agent Runtime instances.
  */
 
-import type { ChatCompletionMessageParam } from "openai/resources";
-import { Config } from "../../utils/config";
-import { DataAPI, ResourceType } from "../../utils/data-api";
+import type { ChatCompletionMessageParam } from 'openai/resources';
+import { Config } from '../../utils/config';
+import { DataAPI, ResourceType } from '../../utils/data-api';
 
 /**
  * Invoke arguments for OpenAI-compatible API
@@ -27,14 +27,14 @@ export interface InvokeArgs {
 export class AgentRuntimeDataAPI extends DataAPI {
   constructor(
     agentRuntimeName: string,
-    agentRuntimeEndpointName: string = "Default",
-    config?: Config,
+    agentRuntimeEndpointName: string = 'Default',
+    config?: Config
   ) {
     super(
       agentRuntimeName,
       ResourceType.Runtime,
       config,
-      `agent-runtimes/${agentRuntimeName}/endpoints/${agentRuntimeEndpointName}/invocations`,
+      `agent-runtimes/${agentRuntimeName}/endpoints/${agentRuntimeEndpointName}/invocations`
     );
   }
 
@@ -46,17 +46,17 @@ export class AgentRuntimeDataAPI extends DataAPI {
 
     // Merge configs
     const cfg = Config.withConfigs(this.getConfig(), config);
-    const apiBase = this.withPath("openai/v1");
+    const apiBase = this.withPath('openai/v1');
 
     // Get authenticated headers
     const [, headers] = await this.getAuthHeaders(apiBase, {}, cfg);
 
     // Use dynamic import to avoid bundling OpenAI SDK if not used
-    const { default: OpenAI } = await import("openai");
+    const { default: OpenAI } = await import('openai');
 
     // Create OpenAI client with custom base URL and auth headers
     const client = new OpenAI({
-      apiKey: "", // Empty API key, we use custom headers for auth
+      apiKey: '', // Empty API key, we use custom headers for auth
       baseURL: apiBase,
       defaultHeaders: headers,
       timeout: cfg.timeout,
@@ -81,14 +81,9 @@ export class AgentRuntimeDataAPI extends DataAPI {
   private async getAuthHeaders(
     url: string,
     headers: Record<string, string>,
-    config?: Config,
+    config?: Config
   ): Promise<[string, Record<string, string>]> {
-    const [authUrl, authHeaders] = await (this as any).auth(
-      url,
-      headers,
-      undefined,
-      config,
-    );
+    const [authUrl, authHeaders] = await (this as any).auth(url, headers, undefined, config);
     return [authUrl, authHeaders];
   }
 }

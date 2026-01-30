@@ -70,15 +70,15 @@ function generateExports(modules) {
     '.': {
       types: './dist/index.d.ts',
       import: './dist/index.js',
-      require: './dist/index.cjs'
-    }
+      require: './dist/index.cjs',
+    },
   };
 
   for (const module of modules) {
     exports[`./${module}`] = {
       types: `./dist/${module}/index.d.ts`,
       import: `./dist/${module}/index.js`,
-      require: `./dist/${module}/index.cjs`
+      require: `./dist/${module}/index.cjs`,
     };
   }
 

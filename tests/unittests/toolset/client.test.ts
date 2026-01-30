@@ -36,9 +36,7 @@ describe('ToolSetClient', () => {
       regionId: 'cn-beijing',
     });
 
-    const withConfigsSpy = jest
-      .spyOn(Config, 'withConfigs')
-      .mockReturnValue(mergedConfig);
+    const withConfigsSpy = jest.spyOn(Config, 'withConfigs').mockReturnValue(mergedConfig);
 
     getToolset.mockResolvedValue({ name: 'tool' });
 
@@ -70,9 +68,9 @@ describe('ToolSetClient', () => {
 
       createToolset.mockRejectedValue(httpError);
 
-      await expect(
-        client.create({ input: { name: 'test-toolset' } })
-      ).rejects.toThrow(ResourceNotExistError);
+      await expect(client.create({ input: { name: 'test-toolset' } })).rejects.toThrow(
+        ResourceNotExistError
+      );
     });
 
     test('create should rethrow non-HTTPError', async () => {
@@ -81,9 +79,9 @@ describe('ToolSetClient', () => {
 
       createToolset.mockRejectedValue(genericError);
 
-      await expect(
-        client.create({ input: { name: 'test-toolset' } })
-      ).rejects.toThrow('Network error');
+      await expect(client.create({ input: { name: 'test-toolset' } })).rejects.toThrow(
+        'Network error'
+      );
     });
 
     test('delete should convert HTTPError to ResourceError', async () => {
@@ -92,9 +90,7 @@ describe('ToolSetClient', () => {
 
       deleteToolset.mockRejectedValue(httpError);
 
-      await expect(
-        client.delete({ name: 'test-toolset' })
-      ).rejects.toThrow(ResourceNotExistError);
+      await expect(client.delete({ name: 'test-toolset' })).rejects.toThrow(ResourceNotExistError);
     });
 
     test('delete should rethrow non-HTTPError', async () => {
@@ -103,9 +99,7 @@ describe('ToolSetClient', () => {
 
       deleteToolset.mockRejectedValue(genericError);
 
-      await expect(
-        client.delete({ name: 'test-toolset' })
-      ).rejects.toThrow('Network error');
+      await expect(client.delete({ name: 'test-toolset' })).rejects.toThrow('Network error');
     });
 
     test('update should convert HTTPError to ResourceError', async () => {
@@ -136,9 +130,7 @@ describe('ToolSetClient', () => {
 
       getToolset.mockRejectedValue(httpError);
 
-      await expect(
-        client.get({ name: 'test-toolset' })
-      ).rejects.toThrow(ResourceNotExistError);
+      await expect(client.get({ name: 'test-toolset' })).rejects.toThrow(ResourceNotExistError);
     });
 
     test('get should rethrow non-HTTPError', async () => {
@@ -147,9 +139,7 @@ describe('ToolSetClient', () => {
 
       getToolset.mockRejectedValue(genericError);
 
-      await expect(
-        client.get({ name: 'test-toolset' })
-      ).rejects.toThrow('Network error');
+      await expect(client.get({ name: 'test-toolset' })).rejects.toThrow('Network error');
     });
   });
 });

@@ -38,14 +38,14 @@ Agent Runtime 是 AgentRun 中的核心资源，代表一个运行中的 AI Agen
 
 #### Agent Runtime 状态
 
-| 状态 | 说明 |
-|-----|------|
-| `CREATING` | 创建中 |
-| `READY` | 就绪，可正常提供服务 |
-| `UPDATING` | 更新中 |
-| `DELETING` | 删除中 |
-| `FAILED` | 失败 |
-| `DELETE_FAILED` | 删除失败 |
+| 状态            | 说明                 |
+| --------------- | -------------------- |
+| `CREATING`      | 创建中               |
+| `READY`         | 就绪，可正常提供服务 |
+| `UPDATING`      | 更新中               |
+| `DELETING`      | 删除中               |
+| `FAILED`        | 失败                 |
+| `DELETE_FAILED` | 删除失败             |
 
 ### Agent Runtime Endpoint（访问端点）
 
@@ -61,13 +61,13 @@ Endpoint 是 Agent Runtime 的对外访问入口，每个 Agent Runtime 可以�
 
 #### Endpoint 状态
 
-| 状态 | 说明 |
-|-----|------|
-| `CREATING` | 创建中 |
-| `READY` | 就绪，可正常访问 |
-| `UPDATING` | 更新中 |
-| `DELETING` | 删除中 |
-| `FAILED` | 失败 |
+| 状态       | 说明             |
+| ---------- | ---------------- |
+| `CREATING` | 创建中           |
+| `READY`    | 就绪，可正常访问 |
+| `UPDATING` | 更新中           |
+| `DELETING` | 删除中           |
+| `FAILED`   | 失败             |
 
 ### Agent Runtime Version（版本）
 
@@ -200,6 +200,7 @@ AgentRun 支持两种部署方式，满足不同场景需求。
 适合快速开发和部署简单应用。
 
 **特点：**
+
 - 直接上传代码文件
 - 支持多种编程语言（Node.js、Python、Java 等）
 - 自动安装依赖
@@ -225,6 +226,7 @@ const agent = await AgentRuntime.create({
 ```
 
 **支持的语言：**
+
 - Node.js 18
 - Node.js 20
 - Python 3.10
@@ -237,6 +239,7 @@ const agent = await AgentRuntime.create({
 适合复杂应用和生产环境。
 
 **特点：**
+
 - 完全自定义运行环境
 - 支持任何容器化应用
 - 版本管理更清晰
@@ -284,8 +287,8 @@ AgentRun 支持灵活的网络配置，满足不同安全和性能需求。
 import { AgentRuntime, NetworkConfig } from '@alicloud/agentrun-sdk';
 
 const networkConfig: NetworkConfig = {
-    networkMode: 'INTERNET', // 公网模式
-    vpcConfig: undefined  // 公网模式不需要 VPC 配置
+  networkMode: 'INTERNET', // 公网模式
+  vpcConfig: undefined, // 公网模式不需要 VPC 配置
 };
 
 const agent = await AgentRuntime.create({
@@ -306,15 +309,18 @@ const agent = await AgentRuntime.create({
 配置健康检查确保 Agent 正常运行：
 
 ```typescript
-import { AgentRuntime, AgentRuntimeHealthCheckConfig } from '@alicloud/agentrun-sdk';
+import {
+  AgentRuntime,
+  AgentRuntimeHealthCheckConfig,
+} from '@alicloud/agentrun-sdk';
 
 const healthCheckConfig: AgentRuntimeHealthCheckConfig = {
-    failureThreshold: 3,      // 失败阈值
-    httpGetUrl: "/health",    // 健康检查路径
-    initialDelaySeconds: 10,  // 初始延迟
-    periodSeconds: 30,        // 检查间隔
-    successThreshold: 1,      // 成功阈值
-    timeoutSeconds: 5,        // 超时时间
+  failureThreshold: 3, // 失败阈值
+  httpGetUrl: '/health', // 健康检查路径
+  initialDelaySeconds: 10, // 初始延迟
+  periodSeconds: 30, // 检查间隔
+  successThreshold: 1, // 成功阈值
+  timeoutSeconds: 5, // 超时时间
 };
 
 const agent = await AgentRuntime.create({
@@ -335,10 +341,14 @@ const agent = await AgentRuntime.create({
 支持多种协议类型：
 
 ```typescript
-import { AgentRuntime, AgentRuntimeProtocolType, AgentRuntimeProtocolConfig } from '@alicloud/agentrun-sdk';
+import {
+  AgentRuntime,
+  AgentRuntimeProtocolType,
+  AgentRuntimeProtocolConfig,
+} from '@alicloud/agentrun-sdk';
 
 const protocolConfig: AgentRuntimeProtocolConfig = {
-    type: AgentRuntimeProtocolType.HTTP,  // 协议类型
+  type: AgentRuntimeProtocolType.HTTP, // 协议类型
 };
 
 const agent = await AgentRuntime.create({
@@ -383,13 +393,13 @@ import { AgentRuntime, Status } from '@alicloud/agentrun-sdk';
 
 // 等待 Agent 就绪
 await agent.waitUntilReady({
-    beforeCheck: (runtime) => console.log(`当前状态: ${runtime.status}`)
+  beforeCheck: runtime => console.log(`当前状态: ${runtime.status}`),
 });
 
 // 检查状态并处理
 if (agent.status === Status.FAILED) {
-    console.log(`部署失败: ${agent.statusReason}`);
-    // 进行错误处理
+  console.log(`部署失败: ${agent.statusReason}`);
+  // 进行错误处理
 }
 ```
 
@@ -401,12 +411,14 @@ if (agent.status === Status.FAILED) {
 import { AgentRuntime } from '@alicloud/agentrun-sdk';
 
 // 删除 Endpoint
-const endpoints = await client.listEndpoints({ agentRuntimeId: agent.agentRuntimeId });
+const endpoints = await client.listEndpoints({
+  agentRuntimeId: agent.agentRuntimeId,
+});
 for (const endpoint of endpoints) {
-    await client.deleteEndpoint({
-        agentRuntimeId: agent.agentRuntimeId,
-        endpointId: endpoint.agentRuntimeEndpointId
-    });
+  await client.deleteEndpoint({
+    agentRuntimeId: agent.agentRuntimeId,
+    endpointId: endpoint.agentRuntimeEndpointId,
+  });
 }
 
 // 删除 Agent Runtime
@@ -422,27 +434,27 @@ import { AgentRuntime } from '@alicloud/agentrun-sdk';
 
 // 创建新版本
 const newAgent = await client.create({
-    input: updatedConfig
+  input: updatedConfig,
 });
 
 // 配置流量分配
 await client.updateEndpoint({
-    agentRuntimeId: agent.agentRuntimeId,
-    endpointId: endpoint.agentRuntimeEndpointId,
-    input: {
-        routingConfiguration: {
-            versionWeights: [
-                {
-                    version: oldAgent.agentRuntimeVersion,
-                    weight: 80  // 80% 流量给旧版本
-                },
-                {
-                    version: newAgent.agentRuntimeVersion,
-                    weight: 20  // 20% 流量给新版本
-                }
-            ]
-        }
-    }
+  agentRuntimeId: agent.agentRuntimeId,
+  endpointId: endpoint.agentRuntimeEndpointId,
+  input: {
+    routingConfiguration: {
+      versionWeights: [
+        {
+          version: oldAgent.agentRuntimeVersion,
+          weight: 80, // 80% 流量给旧版本
+        },
+        {
+          version: newAgent.agentRuntimeVersion,
+          weight: 20, // 20% 流量给新版本
+        },
+      ],
+    },
+  },
 });
 ```
 
@@ -451,19 +463,23 @@ await client.updateEndpoint({
 实现健壮的错误处理机制：
 
 ```typescript
-import { AgentRuntime, ResourceNotExistError, ClientError } from '@alicloud/agentrun-sdk';
+import {
+  AgentRuntime,
+  ResourceNotExistError,
+  ClientError,
+} from '@alicloud/agentrun-sdk';
 
 try {
-    const agent = await client.get({ id: "agent-id" });
+  const agent = await client.get({ id: 'agent-id' });
 } catch (error) {
-    if (error instanceof ResourceNotExistError) {
-        console.log("Agent 不存在");
-    } else if (error instanceof ClientError) {
-        console.log(`API 调用失败: ${error.message}`);
-        console.log(`错误码: ${error.errorCode}`);
-    } else {
-        throw error;
-    }
+  if (error instanceof ResourceNotExistError) {
+    console.log('Agent 不存在');
+  } else if (error instanceof ClientError) {
+    console.log(`API 调用失败: ${error.message}`);
+    console.log(`错误码: ${error.errorCode}`);
+  } else {
+    throw error;
+  }
 }
 ```
 
@@ -481,8 +497,8 @@ const agent = await AgentRuntime.create({
     command: ['node', 'index.js'],
   },
   logConfiguration: {
-    project: "your-project",     // SLS 项目
-    logstore: "your-log-store",  // SLS 日志库
+    project: 'your-project', // SLS 项目
+    logstore: 'your-log-store', // SLS 日志库
   },
   port: 9000,
   cpu: 2,
@@ -495,17 +511,20 @@ const agent = await AgentRuntime.create({
 对于高并发场景，使用异步 API：
 
 ```typescript
-import { AgentRuntimeClient, AgentRuntimeCreateInput } from '@alicloud/agentrun-sdk';
+import {
+  AgentRuntimeClient,
+  AgentRuntimeCreateInput,
+} from '@alicloud/agentrun-sdk';
 
 async function deployMultipleAgents() {
-    const client = new AgentRuntimeClient();
-    
-    // 并发创建多个 Agent
-    const configs: AgentRuntimeCreateInput[] = [config1, config2, config3];
-    const promises = configs.map(config => client.create({ input: config }));
-    
-    const agents = await Promise.all(promises);
-    return agents;
+  const client = new AgentRuntimeClient();
+
+  // 并发创建多个 Agent
+  const configs: AgentRuntimeCreateInput[] = [config1, config2, config3];
+  const promises = configs.map(config => client.create({ input: config }));
+
+  const agents = await Promise.all(promises);
+  return agents;
 }
 
 // 运行
@@ -559,7 +578,9 @@ const credential = await Credential.create({
   input: {
     credentialName: 'my-api-key',
     description: 'API key for external service',
-    credentialConfig: CredentialConfig.inboundApiKey({ apiKey: 'your-api-key-here' }),
+    credentialConfig: CredentialConfig.inboundApiKey({
+      apiKey: 'your-api-key-here',
+    }),
   },
 });
 
@@ -581,7 +602,13 @@ await credential.delete();
 管理模型服务和代理：
 
 ```typescript
-import { ModelService, ModelProxy, BackendType, Provider, ModelType } from '@alicloud/agentrun-sdk';
+import {
+  ModelService,
+  ModelProxy,
+  BackendType,
+  Provider,
+  ModelType,
+} from '@alicloud/agentrun-sdk';
 
 // 创建模型服务
 const modelService = await ModelService.create({
@@ -642,7 +669,9 @@ const template = await client.createTemplate({
 await template.waitUntilReady();
 
 // 创建沙箱
-const sandbox = await client.createCodeInterpreterSandbox(template.templateName!);
+const sandbox = await client.createCodeInterpreterSandbox(
+  template.templateName!
+);
 await sandbox.waitUntilRunning();
 
 // 执行代码 (需要数据 API 支持)
@@ -677,7 +706,11 @@ server.start({ port: 9000 });
 除了通过类方法创建Agent Runtime，还可以使用AgentRuntimeClient进行更灵活的管理：
 
 ```typescript
-import { AgentRuntimeClient, AgentRuntime, AgentRuntimeLanguage } from '@alicloud/agentrun-sdk';
+import {
+  AgentRuntimeClient,
+  AgentRuntime,
+  AgentRuntimeLanguage,
+} from '@alicloud/agentrun-sdk';
 
 // 创建客户端
 const client = new AgentRuntimeClient();
@@ -693,7 +726,7 @@ const agent = await client.create({
     port: 9000,
     cpu: 2,
     memory: 4096,
-  }
+  },
 });
 
 // 等待就绪
@@ -706,7 +739,7 @@ const existingAgent = await client.get({ id: agent.agentRuntimeId });
 const agents = await client.list({
   input: {
     agentRuntimeName: 'my-agent',
-  }
+  },
 });
 
 // 更新 Agent Runtime
@@ -714,7 +747,7 @@ const updatedAgent = await client.update({
   id: agent.agentRuntimeId,
   input: {
     description: 'Updated description',
-  }
+  },
 });
 
 // 删除 Agent Runtime
@@ -727,14 +760,14 @@ await client.delete({ id: agent.agentRuntimeId });
 
 - **运行命令**：使用项目根目录的 TypeScript 配置运行：
 
-    ```bash
-    npm run typecheck
-    ```
+  ```bash
+  npm run typecheck
+  ```
 
 - **必需项**：AI 在每次修改代码并准备提交时，必须：
-    - 运行上述类型检查命令并等待完成；
-    - 若检查通过，在提交消息或 PR 描述中写入简短摘要（例如："类型检查通过"）；
-    - 若检查失败，AI 应在 PR 描述中列出前 30 条错误（或最关键的若干条），并给出优先修复建议或自动修复方案。
+  - 运行上述类型检查命令并等待完成；
+  - 若检查通过，在提交消息或 PR 描述中写入简短摘要（例如："类型检查通过"）；
+  - 若检查失败，AI 应在 PR 描述中列出前 30 条错误（或最关键的若干条），并给出优先修复建议或自动修复方案。
 
 - **CI 行为**：项目 CI 可根据仓库策略决定是否将类型检查失败作为阻断条件；AI 应遵从仓库当前 CI 策略并在 PR 中说明检查结果。
 
@@ -755,6 +788,7 @@ await client.delete({ id: agent.agentRuntimeId });
 ### Q: Agent Runtime 启动失败怎么办？
 
 A: 检查以下几点：
+
 1. 代码或镜像是否正确
 2. 启动命令是否正确
 3. 端口配置是否匹配
@@ -763,6 +797,7 @@ A: 检查以下几点：
 ### Q: 如何实现零停机更新？
 
 A: 使用版本管理和流量路由：
+
 1. 创建新版本 Agent Runtime
 2. 等待新版本就绪
 3. 配置 Endpoint 路由权重，逐步切换流量
@@ -771,6 +806,7 @@ A: 使用版本管理和流量路由：
 ### Q: 如何优化 Agent 启动速度？
 
 A: 建议：
+
 1. 使用容器镜像部署，提前构建好环境
 2. 优化应用启动逻辑，减少初始化时间
 3. 合理配置健康检查参数
@@ -779,6 +815,7 @@ A: 建议：
 ### Q: 如何控制成本？
 
 A: 建议：
+
 1. 及时删除不用的 Agent Runtime
 2. 根据实际负载配置合适的实例规格
 3. 使用按量付费，避免资源闲置

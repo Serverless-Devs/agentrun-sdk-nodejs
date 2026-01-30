@@ -6,6 +6,8 @@
  * 提供内置的集成函数，用于快速创建模型和工具。
  */
 
+import '@/utils/version-check';
+
 // Tool definitions
 export {
   Tool,
@@ -20,12 +22,7 @@ export {
 } from './tool';
 
 // Sandbox toolsets
-export {
-  SandboxToolSet,
-  CodeInterpreterToolSet,
-  BrowserToolSet,
-  sandboxToolset,
-} from './sandbox';
+export { SandboxToolSet, CodeInterpreterToolSet, BrowserToolSet, sandboxToolset } from './sandbox';
 
 // ToolSet integration
 export { toolset } from './toolset';

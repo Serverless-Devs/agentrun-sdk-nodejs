@@ -142,8 +142,7 @@ export class Tool implements ToolDefinition {
     }
 
     const originalFunc = this.func;
-    const boundFunc = (...args: unknown[]) =>
-      originalFunc.call(instance, ...args);
+    const boundFunc = (...args: unknown[]) => originalFunc.call(instance, ...args);
 
     return new Tool({
       name: this.name,
@@ -225,19 +224,19 @@ export class CommonToolSet {
 
     // Apply filter
     if (options?.filterByName) {
-      tools = tools.filter((t) => options.filterByName!(t.name));
+      tools = tools.filter(t => options.filterByName!(t.name));
     }
 
     // Apply prefix
     const prefix = options?.prefix || this.name;
     tools = tools.map(
-      (t) =>
+      t =>
         new Tool({
           name: `${prefix}_${t.name}`,
           description: t.description,
           parameters: t.parameters,
           func: t.func,
-        }),
+        })
     );
 
     // Apply modification
@@ -245,7 +244,7 @@ export class CommonToolSet {
       tools = tools.map(options.modifyTool);
     }
 
-    return tools.map((tool) => ({
+    return tools.map(tool => ({
       name: tool.name,
       description: tool.description,
       parameters: tool.getParametersSchema(),
@@ -256,10 +255,7 @@ export class CommonToolSet {
   /**
    * Create CommonToolSet from AgentRun ToolSet
    */
-  static async fromAgentRunToolSet(
-    toolset: ToolSet,
-    config?: Config,
-  ): Promise<CommonToolSet> {
+  static async fromAgentRunToolSet(toolset: ToolSet, config?: Config): Promise<CommonToolSet> {
     const toolsMeta = (await toolset.listTools(config)) || [];
     const tools: Tool[] = [];
     const seenNames = new Set<string>();
@@ -268,9 +264,7 @@ export class CommonToolSet {
       const tool = buildToolFromMeta(toolset, meta, config);
       if (tool) {
         if (seenNames.has(tool.name)) {
-          logger.warn(
-            `Duplicate tool name '${tool.name}' detected, skipping second occurrence`,
-          );
+          logger.warn(`Duplicate tool name '${tool.name}' detected, skipping second occurrence`);
           continue;
         }
         seenNames.add(tool.name);
@@ -288,7 +282,7 @@ export class CommonToolSet {
     prefix?: string;
     filterByName?: (name: string) => boolean;
   }): Record<string, unknown>[] {
-    return this.tools(options).map((tool) => ({
+    return this.tools(options).map(tool => ({
       name: tool.name,
       description: tool.description,
       parameters: tool.parameters,
@@ -302,7 +296,7 @@ export class CommonToolSet {
     prefix?: string;
     filterByName?: (name: string) => boolean;
   }): Record<string, unknown>[] {
-    return this.tools(options).map((tool) => ({
+    return this.tools(options).map(tool => ({
       name: tool.name,
       description: tool.description,
       input_schema: tool.parameters,
@@ -323,12 +317,10 @@ export class CommonToolSet {
 function buildToolFromMeta(
   toolset: ToolSet,
   meta: Record<string, unknown>,
-  config?: Config,
+  config?: Config
 ): Tool | null {
   const toolName =
-    (meta.name as string) ||
-    (meta.operationId as string) ||
-    (meta.tool_id as string);
+    (meta.name as string) || (meta.operationId as string) || (meta.tool_id as string);
 
   if (!toolName) {
     return null;
@@ -344,11 +336,7 @@ function buildToolFromMeta(
 
   const func = async (args: unknown) => {
     logger.debug(`Invoking tool ${toolName} with arguments:`, args);
-    const result = await toolset.callTool(
-      toolName,
-      args as Record<string, unknown>,
-      config,
-    );
+    const result = await toolset.callTool(toolName, args as Record<string, unknown>, config);
     logger.debug(`Tool ${toolName} returned:`, result);
     return result;
   };
@@ -364,9 +352,7 @@ function buildToolFromMeta(
 /**
  * Build parameters schema from metadata
  */
-function buildParametersSchema(
-  meta: Record<string, unknown>,
-): ToolParametersSchema {
+function buildParametersSchema(meta: Record<string, unknown>): ToolParametersSchema {
   // Handle ToolSchema format (from ToolInfo)
   if (meta.parameters && typeof meta.parameters === 'object') {
     const params = meta.parameters as Record<string, unknown>;
@@ -403,8 +389,7 @@ function buildParametersSchema(
       const schema = (p.schema as Record<string, unknown>) || {};
       properties[name] = {
         ...schema,
-        description:
-          (p.description as string) || (schema.description as string) || '',
+        description: (p.description as string) || (schema.description as string) || '',
       };
 
       if (p.required) {
@@ -431,15 +416,11 @@ export function tool(options: {
   name?: string;
   description?: string;
   parameters?: ToolParametersSchema;
-}): (
-  target: unknown,
-  propertyKey: string,
-  descriptor: PropertyDescriptor,
-) => PropertyDescriptor {
+}): (target: unknown, propertyKey: string, descriptor: PropertyDescriptor) => PropertyDescriptor {
   return function (
     _target: unknown,
     propertyKey: string,
-    descriptor: PropertyDescriptor,
+    descriptor: PropertyDescriptor
   ): PropertyDescriptor {
     const originalMethod = descriptor.value;
     const toolName = options.name || propertyKey;

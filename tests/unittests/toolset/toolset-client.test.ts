@@ -17,9 +17,7 @@ describe('ToolSetClient', () => {
   it('should create toolset with auth config', async () => {
     const client = new ToolSetClient(new Config());
     const controlApi = (client as any).controlApi;
-    controlApi.createToolset = jest
-      .fn()
-      .mockResolvedValue({ name: 'new-toolset' } as any);
+    controlApi.createToolset = jest.fn().mockResolvedValue({ name: 'new-toolset' } as any);
     const result = await client.create({
       input: {
         name: 'new-toolset',
@@ -44,9 +42,7 @@ describe('ToolSetClient', () => {
   it('should update toolset with schema only', async () => {
     const client = new ToolSetClient();
     const controlApi = (client as any).controlApi;
-    controlApi.updateToolset = jest
-      .fn()
-      .mockResolvedValue({ name: 'schema-toolset' } as any);
+    controlApi.updateToolset = jest.fn().mockResolvedValue({ name: 'schema-toolset' } as any);
     const result = await client.update({
       name: 'schema-toolset',
       input: {
@@ -66,9 +62,7 @@ describe('ToolSetClient', () => {
   it('should delete toolset', async () => {
     const client = new ToolSetClient();
     const controlApi = (client as any).controlApi;
-    controlApi.deleteToolset = jest
-      .fn()
-      .mockResolvedValue({ name: 'deleted-toolset' } as any);
+    controlApi.deleteToolset = jest.fn().mockResolvedValue({ name: 'deleted-toolset' } as any);
     const result = await client.delete({ name: 'deleted-toolset' });
 
     expect(controlApi.deleteToolset).toHaveBeenCalled();
@@ -78,9 +72,7 @@ describe('ToolSetClient', () => {
   it('should get toolset', async () => {
     const client = new ToolSetClient();
     const controlApi = (client as any).controlApi;
-    controlApi.getToolset = jest
-      .fn()
-      .mockResolvedValue({ name: 'my-toolset' } as any);
+    controlApi.getToolset = jest.fn().mockResolvedValue({ name: 'my-toolset' } as any);
     const result = await client.get({ name: 'my-toolset' });
 
     expect(controlApi.getToolset).toHaveBeenCalled();
@@ -103,9 +95,7 @@ describe('ToolSetClient', () => {
   it('should create toolset without auth config', async () => {
     const client = new ToolSetClient();
     const controlApi = (client as any).controlApi;
-    controlApi.createToolset = jest
-      .fn()
-      .mockResolvedValue({ name: 'no-auth-toolset' } as any);
+    controlApi.createToolset = jest.fn().mockResolvedValue({ name: 'no-auth-toolset' } as any);
     const result = await client.create({
       input: {
         name: 'no-auth-toolset',
@@ -126,9 +116,7 @@ describe('ToolSetClient', () => {
   it('should create toolset without spec', async () => {
     const client = new ToolSetClient();
     const controlApi = (client as any).controlApi;
-    controlApi.createToolset = jest
-      .fn()
-      .mockResolvedValue({ name: 'no-spec-toolset' } as any);
+    controlApi.createToolset = jest.fn().mockResolvedValue({ name: 'no-spec-toolset' } as any);
     const result = await client.create({
       input: {
         name: 'no-spec-toolset',
@@ -143,9 +131,7 @@ describe('ToolSetClient', () => {
   it('should create toolset with spec but without schema', async () => {
     const client = new ToolSetClient();
     const controlApi = (client as any).controlApi;
-    controlApi.createToolset = jest
-      .fn()
-      .mockResolvedValue({ name: 'no-schema-toolset' } as any);
+    controlApi.createToolset = jest.fn().mockResolvedValue({ name: 'no-schema-toolset' } as any);
     const result = await client.create({
       input: {
         name: 'no-schema-toolset',
@@ -167,9 +153,7 @@ describe('ToolSetClient', () => {
   it('should update toolset with auth config', async () => {
     const client = new ToolSetClient();
     const controlApi = (client as any).controlApi;
-    controlApi.updateToolset = jest
-      .fn()
-      .mockResolvedValue({ name: 'auth-updated-toolset' } as any);
+    controlApi.updateToolset = jest.fn().mockResolvedValue({ name: 'auth-updated-toolset' } as any);
     const result = await client.update({
       name: 'auth-updated-toolset',
       input: {
@@ -195,9 +179,7 @@ describe('ToolSetClient', () => {
   it('should update toolset without spec', async () => {
     const client = new ToolSetClient();
     const controlApi = (client as any).controlApi;
-    controlApi.updateToolset = jest
-      .fn()
-      .mockResolvedValue({ name: 'no-spec-update' } as any);
+    controlApi.updateToolset = jest.fn().mockResolvedValue({ name: 'no-spec-update' } as any);
     const result = await client.update({
       name: 'no-spec-update',
       input: {
@@ -213,9 +195,7 @@ describe('ToolSetClient', () => {
   it('should update toolset with spec but without schema', async () => {
     const client = new ToolSetClient();
     const controlApi = (client as any).controlApi;
-    controlApi.updateToolset = jest
-      .fn()
-      .mockResolvedValue({ name: 'no-schema-update' } as any);
+    controlApi.updateToolset = jest.fn().mockResolvedValue({ name: 'no-schema-update' } as any);
     const result = await client.update({
       name: 'no-schema-update',
       input: {

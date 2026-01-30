@@ -9,6 +9,8 @@
  * 本模块处理所有 Mastra 特定的转换，避免在 builtin 模块中引入依赖。
  */
 
+import '@/utils/version-check';
+
 import { TemplateType } from '@/sandbox';
 import type { Config } from '@/utils/config';
 import { logger } from '@/utils/log';
@@ -45,7 +47,7 @@ async function convertToolSetToMastra(
   options?: {
     prefix?: string;
     filterByName?: (name: string) => boolean;
-  },
+  }
 ): Promise<ToolsInput> {
   const tools = toolSet.tools(options);
   const mastraTools: ToolsInput = {};
@@ -55,10 +57,7 @@ async function convertToolSetToMastra(
       const mastraTool = await convertToolToMastra(tool);
       mastraTools[tool.name] = mastraTool;
     } catch (error) {
-      logger.warn(
-        `Failed to convert tool '${tool.name}' to Mastra format:`,
-        error,
-      );
+      logger.warn(`Failed to convert tool '${tool.name}' to Mastra format:`, error);
     }
   }
 
@@ -135,13 +134,13 @@ export async function createMastraTool<
   TSchemaOut = unknown,
   TSuspend = unknown,
   TResume = unknown,
-  TContext extends ToolExecutionContext<TSuspend, TResume> =
-    ToolExecutionContext<TSuspend, TResume>,
+  TContext extends ToolExecutionContext<TSuspend, TResume> = ToolExecutionContext<
+    TSuspend,
+    TResume
+  >,
 >(
-  params: ToolAction<TSchemaIn, TSchemaOut, TSuspend, TResume, TContext, TId>,
-): Promise<
-  ToolAction<TSchemaIn, TSchemaOut, TSuspend, TResume, TContext, TId>
-> {
+  params: ToolAction<TSchemaIn, TSchemaOut, TSuspend, TResume, TContext, TId>
+): Promise<ToolAction<TSchemaIn, TSchemaOut, TSuspend, TResume, TContext, TId>> {
   const { createTool } = await import('@mastra/core/tools');
   return await createTool(params);
 }
@@ -158,10 +157,7 @@ export async function createMastraTool<
  * const agent = new Agent({ tools });
  * ```
  */
-export async function toolset(params: {
-  name: string;
-  config?: Config;
-}): Promise<ToolsInput> {
+export async function toolset(params: { name: string; config?: Config }): Promise<ToolsInput> {
   const { name, config } = params;
 
   // Use builtin toolset to get CommonToolSet
@@ -209,8 +205,7 @@ export async function sandbox(params: {
   sandboxIdleTimeoutSeconds?: number;
   config?: Config;
 }): Promise<ToolsInput> {
-  const { templateName, templateType, sandboxIdleTimeoutSeconds, config } =
-    params;
+  const { templateName, templateType, sandboxIdleTimeoutSeconds, config } = params;
 
   // Use builtin sandboxToolset
   const toolsetInstance = await sandboxToolset(templateName, {
@@ -283,4 +278,3 @@ export async function browser(params: {
 
 // Export converter for event conversion
 export { MastraConverter, type AgentEventItem } from './converter';
-

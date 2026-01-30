@@ -9,7 +9,6 @@
  * - 删除 ModelService
  */
 
-
 import {
   ModelClient,
   ModelService,
@@ -20,17 +19,12 @@ import {
   type ProviderSettings,
 } from '../../../src/model';
 import { Status } from '../../../src/utils/model';
-import {
-  ResourceNotExistError,
-  ResourceAlreadyExistError,
-} from '../../../src/utils/exception';
+import { ResourceNotExistError, ResourceAlreadyExistError } from '../../../src/utils/exception';
 import { logger } from '../../../src/utils/log';
 
 // 测试配置
 const API_KEY = process.env.API_KEY || 'sk-test-key';
-const BASE_URL =
-  process.env.BASE_URL ||
-  'https://dashscope.aliyuncs.com/compatible-mode/v1';
+const BASE_URL = process.env.BASE_URL || 'https://dashscope.aliyuncs.com/compatible-mode/v1';
 const MODEL_NAMES = ['qwen-flash', 'qwen-max'];
 
 describe('test model service', () => {
@@ -59,10 +53,10 @@ describe('test model service', () => {
 
     const time2 = new Date();
 
-    const ms2 = await client.get({
+    const ms2 = (await client.get({
       name: modelServiceName,
-      backendType: BackendType.SERVICE
-    }) as ModelService;
+      backendType: BackendType.SERVICE,
+    })) as ModelService;
 
     // 检查返回的内容是否符合预期
     let preCreatedAt = new Date();
@@ -132,11 +126,11 @@ describe('test model service', () => {
     assertModelService2(ms2);
 
     // 列举 model services
-    const msList = await client.list({
+    const msList = (await client.list({
       input: {
         modelType: ModelType.LLM,
-      }
-    }) as ModelService[];
+      },
+    })) as ModelService[];
     expect(msList.length).toBeGreaterThan(0);
     let matchedMs = 0;
     for (const m of msList) {
@@ -160,7 +154,7 @@ describe('test model service', () => {
             baseUrl: BASE_URL,
             modelNames: MODEL_NAMES,
           } as ProviderSettings,
-        }
+        },
       })
     ).rejects.toThrow(ResourceAlreadyExistError);
 
@@ -170,7 +164,7 @@ describe('test model service', () => {
     while (true) {
       try {
         await ms.get();
-        await new Promise((resolve) => setTimeout(resolve, 5000));
+        await new Promise(resolve => setTimeout(resolve, 5000));
       } catch (error) {
         if (error instanceof ResourceNotExistError) {
           break;

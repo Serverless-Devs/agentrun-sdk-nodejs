@@ -6,9 +6,9 @@
  * 此模块提供包含代码解释器和浏览器沙箱功能的组合数据 API。
  */
 
-import { Config } from "../../utils/config";
-import { BrowserDataAPI } from "./browser-data";
-import { CodeInterpreterDataAPI } from "./code-interpreter-data";
+import { Config } from '../../utils/config';
+import { BrowserDataAPI } from './browser-data';
+import { CodeInterpreterDataAPI } from './code-interpreter-data';
 
 /**
  * AIO Data API

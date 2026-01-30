@@ -6,11 +6,7 @@
  */
 
 import { Config } from '../utils/config';
-import {
-  listAllResourcesFunction,
-  ResourceBase,
-  updateObjectProperties,
-} from '../utils/resource';
+import { listAllResourcesFunction, ResourceBase, updateObjectProperties } from '../utils/resource';
 import { PageableInput, Status } from '../utils/model';
 
 import { AgentRuntimeDataAPI, InvokeArgs } from './api/data';
@@ -26,10 +22,7 @@ import { KeyOf } from 'zod/v4/core/util.cjs';
 /**
  * Agent Runtime Endpoint resource class
  */
-export class AgentRuntimeEndpoint
-  extends ResourceBase
-  implements AgentRuntimeEndpointData
-{
+export class AgentRuntimeEndpoint extends ResourceBase implements AgentRuntimeEndpointData {
   // System properties
   agentRuntimeEndpointArn?: string;
   agentRuntimeEndpointId?: string;
@@ -171,9 +164,7 @@ export class AgentRuntimeEndpoint
   /**
    * Delete this endpoint
    */
-  delete = async (params?: {
-    config?: Config;
-  }): Promise<AgentRuntimeEndpoint> => {
+  delete = async (params?: { config?: Config }): Promise<AgentRuntimeEndpoint> => {
     const config = params?.config;
     if (!this.agentRuntimeId || !this.agentRuntimeEndpointId) {
       throw new Error(
@@ -219,9 +210,7 @@ export class AgentRuntimeEndpoint
   /**
    * Refresh this endpoint's data
    */
-  refresh = async (params?: {
-    config?: Config;
-  }): Promise<AgentRuntimeEndpoint> => {
+  refresh = async (params?: { config?: Config }): Promise<AgentRuntimeEndpoint> => {
     const config = params?.config;
     if (!this.agentRuntimeId || !this.agentRuntimeEndpointId) {
       throw new Error(
@@ -279,9 +268,7 @@ export class AgentRuntimeEndpoint
       }
 
       if (!this._agentRuntimeName) {
-        throw new Error(
-          'Unable to determine agent runtime name for this endpoint'
-        );
+        throw new Error('Unable to determine agent runtime name for this endpoint');
       }
 
       this._dataApi = new AgentRuntimeDataAPI(

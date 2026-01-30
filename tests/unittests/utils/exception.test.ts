@@ -2,8 +2,6 @@
  * Exception Tests
  */
 
-
-
 import {
   AgentRunError,
   HTTPError,
@@ -148,4 +146,3 @@ describe('Exceptions', () => {
     });
   });
 });
-

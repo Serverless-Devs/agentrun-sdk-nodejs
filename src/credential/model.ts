@@ -10,18 +10,10 @@ import { updateObjectProperties } from '../utils/resource';
 import { Config } from '../utils/config';
 
 /** 凭证认证类型 / Credential Authentication Types */
-export type CredentialAuthType =
-  | 'jwt'
-  | 'api_key'
-  | 'basic'
-  | 'aksk'
-  | 'custom_header';
+export type CredentialAuthType = 'jwt' | 'api_key' | 'basic' | 'aksk' | 'custom_header';
 
 /** 凭证来源类型 / Credential Source Types */
-export type CredentialSourceType =
-  | 'external_llm'
-  | 'external_tool'
-  | 'internal';
+export type CredentialSourceType = 'external_llm' | 'external_tool' | 'internal';
 
 /**
  * Credential basic authentication configuration
@@ -142,9 +134,7 @@ export class CredentialConfig implements CredentialConfigInterface {
   }
 
   /** 配置访问第三方工具的自定义凭证 */
-  static outboundToolAKSKCustom(params: {
-    authConfig: Record<string, string>;
-  }) {
+  static outboundToolAKSKCustom(params: { authConfig: Record<string, string> }) {
     const { authConfig } = params;
     return new CredentialConfig({
       credentialSourceType: 'external_tool',
@@ -185,9 +175,7 @@ export interface CredentialSystemProps {
   relatedResources?: RelatedResource[];
 }
 
-export interface CredentialCreateInput
-  extends CredentialMutableProps,
-    CredentialImmutableProps {
+export interface CredentialCreateInput extends CredentialMutableProps, CredentialImmutableProps {
   credentialConfig?: CredentialConfig;
 }
 
@@ -238,7 +226,8 @@ export class CredentialListOutput {
  */
 
 export interface CredentialInterface
-  extends CredentialMutableProps,
+  extends
+    CredentialMutableProps,
     CredentialImmutableProps,
     CredentialSystemProps,
     CredentialConfigInterface {}

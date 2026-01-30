@@ -101,7 +101,7 @@ export class AgentRunServer {
         return;
       }
 
-      this.server.close((err) => {
+      this.server.close(err => {
         if (err) {
           reject(err);
         } else {
@@ -115,20 +115,14 @@ export class AgentRunServer {
   /**
    * Handle CORS headers
    */
-  private handleCors(
-    req: http.IncomingMessage,
-    res: http.ServerResponse,
-  ): void {
+  private handleCors(req: http.IncomingMessage, res: http.ServerResponse): void {
     const origins = this.config.corsOrigins ?? ['*'];
     const origin = req.headers.origin;
 
     if (origins.includes('*') || (origin && origins.includes(origin))) {
       res.setHeader('Access-Control-Allow-Origin', origin || '*');
       res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-      res.setHeader(
-        'Access-Control-Allow-Headers',
-        'Content-Type, Authorization',
-      );
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
       res.setHeader('Access-Control-Allow-Credentials', 'true');
     }
   }
@@ -136,10 +130,7 @@ export class AgentRunServer {
   /**
    * Handle HTTP request
    */
-  private async handleRequest(
-    req: http.IncomingMessage,
-    res: http.ServerResponse,
-  ): Promise<void> {
+  private async handleRequest(req: http.IncomingMessage, res: http.ServerResponse): Promise<void> {
     const url = req.url || '/';
 
     // Health check
@@ -177,7 +168,7 @@ export class AgentRunServer {
    */
   private toProtocolRequest(
     req: http.IncomingMessage,
-    body: Record<string, unknown>,
+    body: Record<string, unknown>
   ): ProtocolRequest {
     const headers: Record<string, string> = {};
     for (const [key, value] of Object.entries(req.headers)) {
@@ -213,10 +204,7 @@ export class AgentRunServer {
   /**
    * Send ProtocolResponse via http.ServerResponse
    */
-  private async sendResponse(
-    res: http.ServerResponse,
-    response: ProtocolResponse,
-  ): Promise<void> {
+  private async sendResponse(res: http.ServerResponse, response: ProtocolResponse): Promise<void> {
     res.writeHead(response.status, response.headers);
 
     if (typeof response.body === 'string') {
@@ -233,12 +221,10 @@ export class AgentRunServer {
   /**
    * Parse request body as JSON
    */
-  private parseBody(
-    req: http.IncomingMessage,
-  ): Promise<Record<string, unknown>> {
+  private parseBody(req: http.IncomingMessage): Promise<Record<string, unknown>> {
     return new Promise((resolve, reject) => {
       let body = '';
-      req.on('data', (chunk) => (body += chunk));
+      req.on('data', chunk => (body += chunk));
       req.on('end', () => {
         try {
           resolve(JSON.parse(body || '{}'));

@@ -51,15 +51,12 @@ export class SandboxClient {
    * Create a Template
    */
   createTemplate: {
-    (params: {
-      input: TemplateCreateInput;
-      config?: Config;
-    }): Promise<Template>;
+    (params: { input: TemplateCreateInput; config?: Config }): Promise<Template>;
     /** @deprecated Use createTemplate({ input, config }) instead. */
     (input: TemplateCreateInput, config?: Config): Promise<Template>;
   } = async (
     arg1: { input: TemplateCreateInput; config?: Config } | TemplateCreateInput,
-    arg2?: Config,
+    arg2?: Config
   ): Promise<Template> => {
     let input: TemplateCreateInput;
     let config: Config | undefined;
@@ -69,7 +66,7 @@ export class SandboxClient {
       config = arg1.config;
     } else {
       logger.warn(
-        'Deprecated: createTemplate(input, config) is deprecated. Use createTemplate({ input, config }) instead.',
+        'Deprecated: createTemplate(input, config) is deprecated. Use createTemplate({ input, config }) instead.'
       );
       input = arg1;
       config = arg2;
@@ -83,9 +80,8 @@ export class SandboxClient {
       const result = await this.controlApi.createTemplate({
         input: new $AgentRun.CreateTemplateInput({
           ...finalInput,
-          networkConfiguration:
-            finalInput.networkConfiguration ?
-              new $AgentRun.NetworkConfiguration({
+          networkConfiguration: finalInput.networkConfiguration
+            ? new $AgentRun.NetworkConfiguration({
                 ...finalInput.networkConfiguration,
               })
             : undefined,
@@ -111,14 +107,14 @@ export class SandboxClient {
     (name: string, config?: Config): Promise<Template>;
   } = async (
     arg1: { name: string; config?: Config } | string,
-    arg2?: Config,
+    arg2?: Config
   ): Promise<Template> => {
     let name: string;
     let config: Config | undefined;
 
     if (typeof arg1 === 'string') {
       logger.warn(
-        'Deprecated: deleteTemplate(name, config) is deprecated. Use deleteTemplate({ name, config }) instead.',
+        'Deprecated: deleteTemplate(name, config) is deprecated. Use deleteTemplate({ name, config }) instead.'
       );
       name = arg1;
       config = arg2;
@@ -147,23 +143,13 @@ export class SandboxClient {
    * Update a Template
    */
   updateTemplate: {
-    (params: {
-      name: string;
-      input: TemplateUpdateInput;
-      config?: Config;
-    }): Promise<Template>;
+    (params: { name: string; input: TemplateUpdateInput; config?: Config }): Promise<Template>;
     /** @deprecated Use updateTemplate({ name, input, config }) instead. */
-    (
-      name: string,
-      input: TemplateUpdateInput,
-      config?: Config,
-    ): Promise<Template>;
+    (name: string, input: TemplateUpdateInput, config?: Config): Promise<Template>;
   } = async (
-    arg1:
-      | { name: string; input: TemplateUpdateInput; config?: Config }
-      | string,
+    arg1: { name: string; input: TemplateUpdateInput; config?: Config } | string,
     arg2?: TemplateUpdateInput,
-    arg3?: Config,
+    arg3?: Config
   ): Promise<Template> => {
     let name: string;
     let input: TemplateUpdateInput;
@@ -171,7 +157,7 @@ export class SandboxClient {
 
     if (typeof arg1 === 'string') {
       logger.warn(
-        'Deprecated: updateTemplate(name, input, config) is deprecated. Use updateTemplate({ name, input, config }) instead.',
+        'Deprecated: updateTemplate(name, input, config) is deprecated. Use updateTemplate({ name, input, config }) instead.'
       );
       name = arg1;
       input = arg2 as TemplateUpdateInput;
@@ -189,9 +175,8 @@ export class SandboxClient {
         templateName: name,
         input: new $AgentRun.UpdateTemplateInput({
           ...input,
-          networkConfiguration:
-            input.networkConfiguration ?
-              new $AgentRun.NetworkConfiguration({
+          networkConfiguration: input.networkConfiguration
+            ? new $AgentRun.NetworkConfiguration({
                 ...input.networkConfiguration,
               })
             : undefined,
@@ -216,14 +201,14 @@ export class SandboxClient {
     (name: string, config?: Config): Promise<Template>;
   } = async (
     arg1: { name: string; config?: Config } | string,
-    arg2?: Config,
+    arg2?: Config
   ): Promise<Template> => {
     let name: string;
     let config: Config | undefined;
 
     if (typeof arg1 === 'string') {
       logger.warn(
-        'Deprecated: getTemplate(name, config) is deprecated. Use getTemplate({ name, config }) instead.',
+        'Deprecated: getTemplate(name, config) is deprecated. Use getTemplate({ name, config }) instead.'
       );
       name = arg1;
       config = arg2;
@@ -252,32 +237,24 @@ export class SandboxClient {
    * List Templates
    */
   listTemplates: {
-    (params?: {
-      input?: TemplateListInput;
-      config?: Config;
-    }): Promise<Template[]>;
+    (params?: { input?: TemplateListInput; config?: Config }): Promise<Template[]>;
     /** @deprecated Use listTemplates({ input, config }) instead. */
     (input: TemplateListInput, config?: Config): Promise<Template[]>;
   } = async (
     arg1?: { input?: TemplateListInput; config?: Config } | TemplateListInput,
-    arg2?: Config,
+    arg2?: Config
   ): Promise<Template[]> => {
     let input: TemplateListInput | undefined;
     let config: Config | undefined;
 
-    if (
-      arg2 ||
-      (arg1 &&
-        ('pageNumber' in arg1 || 'pageSize' in arg1 || 'templateType' in arg1))
-    ) {
+    if (arg2 || (arg1 && ('pageNumber' in arg1 || 'pageSize' in arg1 || 'templateType' in arg1))) {
       logger.warn(
-        'Deprecated: listTemplates(input, config) is deprecated. Use listTemplates({ input, config }) instead.',
+        'Deprecated: listTemplates(input, config) is deprecated. Use listTemplates({ input, config }) instead.'
       );
       input = arg1 as TemplateListInput;
       config = arg2;
     } else {
-      const params =
-        (arg1 as { input?: TemplateListInput; config?: Config }) ?? {};
+      const params = (arg1 as { input?: TemplateListInput; config?: Config }) ?? {};
       input = params.input;
       config = params.config;
     }
@@ -290,7 +267,7 @@ export class SandboxClient {
       input: request,
       config: cfg,
     });
-    return (result?.items || []).map((item) => new Template(item, cfg));
+    return (result?.items || []).map(item => new Template(item, cfg));
   };
 
   // ============ Sandbox Operations ============
@@ -334,7 +311,7 @@ export class SandboxClient {
           config?: Config;
         }
       | SandboxCreateInput,
-    arg2?: Config,
+    arg2?: Config
   ): Promise<any> => {
     let input: SandboxCreateInput;
     let templateType: TemplateType | undefined;
@@ -353,7 +330,7 @@ export class SandboxClient {
     } else {
       // Legacy API: createSandbox(input, config?)
       logger.warn(
-        'Deprecated: createSandbox(input, config) is deprecated. Use createSandbox({ input, config }) instead.',
+        'Deprecated: createSandbox(input, config) is deprecated. Use createSandbox({ input, config }) instead.'
       );
       input = arg1 as SandboxCreateInput;
       config = arg2;
@@ -370,19 +347,14 @@ export class SandboxClient {
       });
 
       const state = ((result as { status?: string; state?: string }).status ??
-        (result as { status?: string; state?: string }).state) as
-        | SandboxState
-        | undefined;
+        (result as { status?: string; state?: string }).state) as SandboxState | undefined;
       const sb = new Sandbox({ ...result, state }, cfg);
 
       if (templateType === TemplateType.CODE_INTERPRETER)
         return new CodeInterpreterSandbox(sb, cfg);
-      else if (templateType === TemplateType.BROWSER)
-        return new BrowserSandbox(sb, cfg);
-      else if (templateType === TemplateType.AIO)
-        return new AioSandbox(sb, cfg);
-      else if (templateType === TemplateType.CUSTOM)
-        return new CustomSandbox(sb, cfg);
+      else if (templateType === TemplateType.BROWSER) return new BrowserSandbox(sb, cfg);
+      else if (templateType === TemplateType.AIO) return new AioSandbox(sb, cfg);
+      else if (templateType === TemplateType.CUSTOM) return new CustomSandbox(sb, cfg);
 
       return sb;
     } catch (error) {
@@ -408,11 +380,7 @@ export class SandboxClient {
     config?: Config;
   }): Promise<CodeInterpreterSandbox> => {
     const { templateName, options, config } = params;
-    return CodeInterpreterSandbox.createFromTemplate(
-      templateName,
-      options,
-      config ?? this.config,
-    );
+    return CodeInterpreterSandbox.createFromTemplate(templateName, options, config ?? this.config);
   };
 
   /**
@@ -430,11 +398,7 @@ export class SandboxClient {
     config?: Config;
   }): Promise<BrowserSandbox> => {
     const { templateName, options, config } = params;
-    return BrowserSandbox.createFromTemplate(
-      templateName,
-      options,
-      config ?? this.config,
-    );
+    return BrowserSandbox.createFromTemplate(templateName, options, config ?? this.config);
   };
 
   /**
@@ -444,16 +408,13 @@ export class SandboxClient {
     (params: { id: string; config?: Config }): Promise<Sandbox>;
     /** @deprecated Use deleteSandbox({ id, config }) instead. */
     (id: string, config?: Config): Promise<Sandbox>;
-  } = async (
-    arg1: { id: string; config?: Config } | string,
-    arg2?: Config,
-  ): Promise<Sandbox> => {
+  } = async (arg1: { id: string; config?: Config } | string, arg2?: Config): Promise<Sandbox> => {
     let id: string;
     let config: Config | undefined;
 
     if (typeof arg1 === 'string') {
       logger.warn(
-        'Deprecated: deleteSandbox(id, config) is deprecated. Use deleteSandbox({ id, config }) instead.',
+        'Deprecated: deleteSandbox(id, config) is deprecated. Use deleteSandbox({ id, config }) instead.'
       );
       id = arg1;
       config = arg2;
@@ -485,16 +446,13 @@ export class SandboxClient {
     (params: { id: string; config?: Config }): Promise<Sandbox>;
     /** @deprecated Use stopSandbox({ id, config }) instead. */
     (id: string, config?: Config): Promise<Sandbox>;
-  } = async (
-    arg1: { id: string; config?: Config } | string,
-    arg2?: Config,
-  ): Promise<Sandbox> => {
+  } = async (arg1: { id: string; config?: Config } | string, arg2?: Config): Promise<Sandbox> => {
     let id: string;
     let config: Config | undefined;
 
     if (typeof arg1 === 'string') {
       logger.warn(
-        'Deprecated: stopSandbox(id, config) is deprecated. Use stopSandbox({ id, config }) instead.',
+        'Deprecated: stopSandbox(id, config) is deprecated. Use stopSandbox({ id, config }) instead.'
       );
       id = arg1;
       config = arg2;
@@ -527,21 +485,13 @@ export class SandboxClient {
    * @param params.config - Configuration
    */
   getSandbox: {
-    (params: {
-      id: string;
-      templateType?: TemplateType;
-      config?: Config;
-    }): Promise<Sandbox>;
+    (params: { id: string; templateType?: TemplateType; config?: Config }): Promise<Sandbox>;
     /** @deprecated Use getSandbox({ id, templateType, config }) instead. */
-    (
-      id: string,
-      templateType?: TemplateType,
-      config?: Config,
-    ): Promise<Sandbox>;
+    (id: string, templateType?: TemplateType, config?: Config): Promise<Sandbox>;
   } = async (
     arg1: { id: string; templateType?: TemplateType; config?: Config } | string,
     arg2?: TemplateType | Config,
-    arg3?: Config,
+    arg3?: Config
   ): Promise<Sandbox> => {
     let id: string;
     let templateType: TemplateType | undefined;
@@ -549,7 +499,7 @@ export class SandboxClient {
 
     if (typeof arg1 === 'string') {
       logger.warn(
-        'Deprecated: getSandbox(id, templateType, config?) is deprecated. Use getSandbox({ id, templateType, config }) instead.',
+        'Deprecated: getSandbox(id, templateType, config?) is deprecated. Use getSandbox({ id, templateType, config }) instead.'
       );
       id = arg1;
       if (arg2 && typeof arg2 === 'string') {
@@ -601,15 +551,12 @@ export class SandboxClient {
    * List Sandboxes
    */
   listSandboxes: {
-    (params?: {
-      input?: SandboxListInput;
-      config?: Config;
-    }): Promise<Sandbox[]>;
+    (params?: { input?: SandboxListInput; config?: Config }): Promise<Sandbox[]>;
     /** @deprecated Use listSandboxes({ input, config }) instead. */
     (input: SandboxListInput, config?: Config): Promise<Sandbox[]>;
   } = async (
     arg1?: { input?: SandboxListInput; config?: Config } | SandboxListInput,
-    arg2?: Config,
+    arg2?: Config
   ): Promise<Sandbox[]> => {
     let input: SandboxListInput | undefined;
     let config: Config | undefined;
@@ -624,13 +571,12 @@ export class SandboxClient {
           'templateType' in arg1))
     ) {
       logger.warn(
-        'Deprecated: listSandboxes(input, config) is deprecated. Use listSandboxes({ input, config }) instead.',
+        'Deprecated: listSandboxes(input, config) is deprecated. Use listSandboxes({ input, config }) instead.'
       );
       input = arg1 as SandboxListInput;
       config = arg2;
     } else {
-      const params =
-        (arg1 as { input?: SandboxListInput; config?: Config }) ?? {};
+      const params = (arg1 as { input?: SandboxListInput; config?: Config }) ?? {};
       input = params.input;
       config = params.config;
     }
@@ -644,13 +590,11 @@ export class SandboxClient {
       config: cfg,
     });
     return (result.sandboxes || []).map((item: $AgentRun.Sandbox) =>
-      Sandbox.fromInnerObject(item, cfg),
+      Sandbox.fromInnerObject(item, cfg)
     );
   };
 
-  private prepareTemplateCreateInput(
-    input: TemplateCreateInput,
-  ): TemplateCreateInput {
+  private prepareTemplateCreateInput(input: TemplateCreateInput): TemplateCreateInput {
     const defaults = this.getTemplateDefaults(input.templateType);
     const finalInput = { ...defaults, ...input };
 
@@ -664,9 +608,7 @@ export class SandboxClient {
     return finalInput;
   }
 
-  private getTemplateDefaults(
-    templateType: TemplateType,
-  ): Partial<TemplateCreateInput> {
+  private getTemplateDefaults(templateType: TemplateType): Partial<TemplateCreateInput> {
     const base = {
       cpu: 2,
       memory: 4096,
@@ -688,12 +630,11 @@ export class SandboxClient {
 
   private validateTemplateCreateInput(input: TemplateCreateInput): void {
     if (
-      (input.templateType === TemplateType.BROWSER ||
-        input.templateType === TemplateType.AIO) &&
+      (input.templateType === TemplateType.BROWSER || input.templateType === TemplateType.AIO) &&
       input.diskSize !== 10240
     ) {
       throw new Error(
-        `When templateType is BROWSER or AIO, diskSize must be 10240, got ${input.diskSize}`,
+        `When templateType is BROWSER or AIO, diskSize must be 10240, got ${input.diskSize}`
       );
     }
 
@@ -703,7 +644,7 @@ export class SandboxClient {
       input.networkConfiguration?.networkMode === TemplateNetworkMode.PRIVATE
     ) {
       throw new Error(
-        `When templateType is CODE_INTERPRETER or AIO, networkMode cannot be PRIVATE`,
+        `When templateType is CODE_INTERPRETER or AIO, networkMode cannot be PRIVATE`
       );
     }
   }

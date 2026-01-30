@@ -11,7 +11,7 @@ import { Config } from '../../../src/utils/config';
 describe('DataAPI', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     // Setup environment
     process.env.AGENTRUN_ACCESS_KEY_ID = 'test-key';
     process.env.AGENTRUN_ACCESS_KEY_SECRET = 'test-secret';
@@ -29,7 +29,7 @@ describe('DataAPI', () => {
   describe('constructor', () => {
     it('should create DataAPI with resource name and type', () => {
       const api = new DataAPI('test-resource', ResourceType.Runtime);
-      
+
       expect(api).toBeInstanceOf(DataAPI);
     });
 
@@ -40,9 +40,9 @@ describe('DataAPI', () => {
         regionId: 'cn-shanghai',
         accountId: '789',
       });
-      
+
       const api = new DataAPI('test-resource', ResourceType.Runtime, config);
-      
+
       expect(api).toBeInstanceOf(DataAPI);
     });
 
@@ -54,9 +54,9 @@ describe('DataAPI', () => {
         accountId: '123',
         token: 'pre-set-token',
       });
-      
+
       const api = new DataAPI('test-resource', ResourceType.Runtime, config);
-      
+
       expect(api).toBeInstanceOf(DataAPI);
     });
 
@@ -66,7 +66,7 @@ describe('DataAPI', () => {
       const toolApi = new DataAPI('resource', ResourceType.Tool);
       const templateApi = new DataAPI('resource', ResourceType.Template);
       const sandboxApi = new DataAPI('resource', ResourceType.Sandbox);
-      
+
       expect(runtimeApi).toBeInstanceOf(DataAPI);
       expect(litellmApi).toBeInstanceOf(DataAPI);
       expect(toolApi).toBeInstanceOf(DataAPI);
@@ -76,7 +76,7 @@ describe('DataAPI', () => {
 
     it('should support custom namespace', () => {
       const api = new DataAPI('test-resource', ResourceType.Runtime, undefined, 'custom-namespace');
-      
+
       expect(api).toBeInstanceOf(DataAPI);
     });
   });
@@ -107,28 +107,28 @@ describe('DataAPI', () => {
 
     it('should construct URL with path', () => {
       const url = api.withPath('test/endpoint');
-      
+
       expect(url).toContain('agents');
       expect(url).toContain('test/endpoint');
     });
 
     it('should handle leading slash in path', () => {
       const url = api.withPath('/test/endpoint');
-      
+
       // Should not have double slashes (except for protocol)
       expect(url.replace('https://', '')).not.toContain('//');
     });
 
     it('should append query parameters', () => {
       const url = api.withPath('test', { key: 'value', num: 123 });
-      
+
       expect(url).toContain('key=value');
       expect(url).toContain('num=123');
     });
 
     it('should handle array query parameters', () => {
       const url = api.withPath('test', { tags: ['a', 'b', 'c'] });
-      
+
       expect(url).toContain('tags=a');
       expect(url).toContain('tags=b');
       expect(url).toContain('tags=c');
@@ -136,7 +136,7 @@ describe('DataAPI', () => {
 
     it('should ignore undefined/null query parameters', () => {
       const url = api.withPath('test', { key: 'value', empty: undefined, nil: null });
-      
+
       expect(url).toContain('key=value');
       expect(url).not.toContain('empty');
       expect(url).not.toContain('nil');
@@ -145,26 +145,26 @@ describe('DataAPI', () => {
     it('should return base URL when no query params', () => {
       const url = api.withPath('test');
       const urlEmpty = api.withPath('test', {});
-      
+
       expect(url).not.toContain('?');
       expect(urlEmpty).not.toContain('?');
     });
 
     it('should handle empty path', () => {
       const url = api.withPath('');
-      
+
       expect(url).toContain('data.example.com');
     });
 
     it('should properly encode special characters in query values', () => {
       const url = api.withPath('test', { message: 'hello world' });
-      
+
       expect(url).toContain('message=hello');
     });
 
     it('should handle numeric query values', () => {
       const url = api.withPath('test', { page: 1, limit: 50, ratio: 0.5 });
-      
+
       expect(url).toContain('page=1');
       expect(url).toContain('limit=50');
       expect(url).toContain('ratio=0.5');
@@ -172,7 +172,7 @@ describe('DataAPI', () => {
 
     it('should handle boolean query values', () => {
       const url = api.withPath('test', { active: true, deleted: false });
-      
+
       expect(url).toContain('active=true');
       expect(url).toContain('deleted=false');
     });
@@ -182,7 +182,7 @@ describe('DataAPI', () => {
     it('should use default data endpoint from config', () => {
       const api = new DataAPI('test-resource', ResourceType.Runtime);
       const url = api.withPath('test');
-      
+
       expect(url).toContain('agents');
       expect(url).toContain('test');
     });
@@ -195,10 +195,10 @@ describe('DataAPI', () => {
         accountId: '123',
         dataEndpoint: 'https://custom-data.example.com',
       });
-      
+
       const api = new DataAPI('test-resource', ResourceType.Runtime, config);
       const url = api.withPath('endpoint');
-      
+
       expect(url).toContain('custom-data.example.com');
     });
 
@@ -210,10 +210,10 @@ describe('DataAPI', () => {
         accountId: '123',
         dataEndpoint: 'https://data.example.com',
       });
-      
+
       const api = new DataAPI('test-resource', ResourceType.Runtime, config, 'sandboxes');
       const url = api.withPath('execute');
-      
+
       expect(url).toContain('sandboxes');
       expect(url).toContain('execute');
     });
@@ -235,14 +235,14 @@ describe('DataAPI', () => {
 
     it('should handle trailing slash in base URL', () => {
       const url = api.withPath('endpoint');
-      
+
       // Should not have double slashes
       expect(url.match(/\/\//g)?.length).toBeLessThanOrEqual(1); // Only https://
     });
 
     it('should handle multiple slashes in path', () => {
       const url = api.withPath('a/b/c/d');
-      
+
       expect(url).toContain('a/b/c/d');
     });
   });

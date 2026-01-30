@@ -2,4 +2,6 @@
  * Credential API exports
  */
 
-export { CredentialControlAPI } from "./control";
+import '@/utils/version-check';
+
+export { CredentialControlAPI } from './control';

@@ -32,7 +32,7 @@ jobs:
         run: npm run lint
 
       - name: Test (unit tests only)
-        run: npm run test -- --testPathPattern="unittests"
+        run: make coverage
 
       - name: Build
         run: npm run build
@@ -44,7 +44,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # 获取完整历史用于增量覆盖率检查
+          fetch-depth: 0 # 获取完整历史用于增量覆盖率检查
 
       - name: Use Node.js 18.x
         uses: actions/setup-node@v4

@@ -89,13 +89,15 @@ export function createMockDevsClient(): MockDevsClient {
       };
     }),
 
-    invokeToolWithOptions: jest.fn().mockImplementation(async (toolsetName: string, toolName: string, request: any) => {
-      return {
-        body: {
-          result: { success: true, output: 'Mock tool output' },
-        },
-      };
-    }),
+    invokeToolWithOptions: jest
+      .fn()
+      .mockImplementation(async (toolsetName: string, toolName: string, request: any) => {
+        return {
+          body: {
+            result: { success: true, output: 'Mock tool output' },
+          },
+        };
+      }),
 
     listToolsWithOptions: jest.fn().mockImplementation(async (toolsetName: string) => {
       return {
@@ -145,5 +147,3 @@ export function createDevsSdkMock(mockClient: MockDevsClient) {
     ListToolsRequest: jest.fn().mockImplementation((data: any) => data),
   };
 }
-
-

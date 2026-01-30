@@ -13,8 +13,6 @@
  * - 测试用例设计参考 Python SDK 的 tests/e2e/test_sandbox_code_interpreter.py
  */
 
-
-
 import {
   Sandbox,
   Template,
@@ -60,7 +58,7 @@ describe('Sandbox Code Interpreter E2E Tests', () => {
     await Template.create({ input: templateInput });
 
     // 等待模板就绪
-    await new Promise((resolve) => setTimeout(resolve, 5000));
+    await new Promise(resolve => setTimeout(resolve, 5000));
   });
 
   afterAll(async () => {
@@ -87,10 +85,9 @@ describe('Sandbox Code Interpreter E2E Tests', () => {
     if (!sandbox) {
       // 创建 Sandbox
       // 注意: CodeInterpreterSandbox.createFromTemplate 方法需要先创建模板
-      sandbox = await CodeInterpreterSandbox.createFromTemplate(
-        templateName,
-        { sandboxIdleTimeoutSeconds: 600 }
-      );
+      sandbox = await CodeInterpreterSandbox.createFromTemplate(templateName, {
+        sandboxIdleTimeoutSeconds: 600,
+      });
 
       // 等待 Sandbox 就绪
       await sandbox.waitUntilRunning({
@@ -232,7 +229,10 @@ print(json.dumps(data))
       await sandbox.fileSystem.upload({ localFilePath: testContent, targetFilePath: testFile });
 
       // 读取文件
-      const content = await sandbox.fileSystem.download({ path: testFile, savePath: '/tmp/download.txt' });
+      const content = await sandbox.fileSystem.download({
+        path: testFile,
+        savePath: '/tmp/download.txt',
+      });
 
       expect(content.toString()).toBe(testContent);
     });
@@ -251,4 +251,3 @@ print(json.dumps(data))
     });
   });
 });
-

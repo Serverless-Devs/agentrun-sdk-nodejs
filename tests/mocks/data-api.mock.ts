@@ -80,9 +80,21 @@ export const mockDataAPIResponses = {
 
   // Streaming response chunks
   streamingChunks: [
-    { id: 'chatcmpl-mock-1', object: 'chat.completion.chunk', choices: [{ delta: { content: 'Hello' } }] },
-    { id: 'chatcmpl-mock-2', object: 'chat.completion.chunk', choices: [{ delta: { content: ' World' } }] },
-    { id: 'chatcmpl-mock-3', object: 'chat.completion.chunk', choices: [{ delta: {}, finish_reason: 'stop' }] },
+    {
+      id: 'chatcmpl-mock-1',
+      object: 'chat.completion.chunk',
+      choices: [{ delta: { content: 'Hello' } }],
+    },
+    {
+      id: 'chatcmpl-mock-2',
+      object: 'chat.completion.chunk',
+      choices: [{ delta: { content: ' World' } }],
+    },
+    {
+      id: 'chatcmpl-mock-3',
+      object: 'chat.completion.chunk',
+      choices: [{ delta: {}, finish_reason: 'stop' }],
+    },
   ],
 
   // File upload response
@@ -164,5 +176,3 @@ export function createMockHTTPHandler() {
 export function setupDataAPIMock(): MockDataAPIClient {
   return createMockDataAPI();
 }
-
-

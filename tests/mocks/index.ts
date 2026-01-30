@@ -9,5 +9,3 @@ export * from './control-api.mock';
 export * from './data-api.mock';
 export * from './devs-client.mock';
 export * from './store';
-
-

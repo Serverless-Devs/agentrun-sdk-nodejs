@@ -2,4 +2,6 @@
  * Agent Runtime API exports
  */
 
-export { AgentRuntimeControlAPI } from "./control";
+import '@/utils/version-check';
+
+export { AgentRuntimeControlAPI } from './control';

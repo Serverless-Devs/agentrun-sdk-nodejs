@@ -12,7 +12,7 @@ describe('Helper Utils', () => {
       const start = Date.now();
       await sleep(100);
       const elapsed = Date.now() - start;
-      
+
       // Allow some tolerance (should be at least 90ms)
       expect(elapsed).toBeGreaterThanOrEqual(90);
     });
@@ -21,7 +21,7 @@ describe('Helper Utils', () => {
       const start = Date.now();
       await sleep(0);
       const elapsed = Date.now() - start;
-      
+
       // Should complete very quickly (less than 50ms)
       expect(elapsed).toBeLessThan(50);
     });
@@ -37,5 +37,3 @@ describe('Helper Utils', () => {
     });
   });
 });
-
-

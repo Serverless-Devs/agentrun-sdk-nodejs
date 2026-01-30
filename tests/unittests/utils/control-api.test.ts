@@ -99,9 +99,7 @@ describe('ControlAPI', () => {
 
       const client = api.getClient();
 
-      expect(client.config.endpoint).toBe(
-        'agentrun.cn-hangzhou.aliyuncs.com'
-      );
+      expect(client.config.endpoint).toBe('agentrun.cn-hangzhou.aliyuncs.com');
     });
 
     it('should remove https:// prefix from endpoint', () => {
@@ -115,9 +113,7 @@ describe('ControlAPI', () => {
 
       const client = api.getClient();
 
-      expect(client.config.endpoint).toBe(
-        'agentrun.cn-hangzhou.aliyuncs.com'
-      );
+      expect(client.config.endpoint).toBe('agentrun.cn-hangzhou.aliyuncs.com');
     });
 
     it('should keep endpoint without protocol prefix as is', () => {
@@ -131,9 +127,7 @@ describe('ControlAPI', () => {
 
       const client = api.getClient();
 
-      expect(client.config.endpoint).toBe(
-        'agentrun.cn-hangzhou.aliyuncs.com'
-      );
+      expect(client.config.endpoint).toBe('agentrun.cn-hangzhou.aliyuncs.com');
     });
 
     it('should pass securityToken when provided', () => {

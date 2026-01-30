@@ -5,7 +5,7 @@
  * This module provides global configuration management for AgentRun SDK.
  */
 
-import * as dotenv from "dotenv";
+import * as dotenv from 'dotenv';
 
 // Load environment variables
 dotenv.config();
@@ -16,7 +16,7 @@ dotenv.config();
 function getEnvWithDefault(defaultValue: string, ...keys: string[]): string {
   for (const key of keys) {
     const value = process.env[key];
-    if (value !== undefined && value !== "") {
+    if (value !== undefined && value !== '') {
       return value;
     }
   }
@@ -132,50 +132,33 @@ export class Config {
   constructor(options: ConfigOptions = {}) {
     this._accessKeyId =
       options.accessKeyId ??
-      getEnvWithDefault(
-        "",
-        "AGENTRUN_ACCESS_KEY_ID",
-        "ALIBABA_CLOUD_ACCESS_KEY_ID",
-      );
+      getEnvWithDefault('', 'AGENTRUN_ACCESS_KEY_ID', 'ALIBABA_CLOUD_ACCESS_KEY_ID');
 
     this._accessKeySecret =
       options.accessKeySecret ??
-      getEnvWithDefault(
-        "",
-        "AGENTRUN_ACCESS_KEY_SECRET",
-        "ALIBABA_CLOUD_ACCESS_KEY_SECRET",
-      );
+      getEnvWithDefault('', 'AGENTRUN_ACCESS_KEY_SECRET', 'ALIBABA_CLOUD_ACCESS_KEY_SECRET');
 
     this._securityToken =
       options.securityToken ??
-      getEnvWithDefault(
-        "",
-        "AGENTRUN_SECURITY_TOKEN",
-        "ALIBABA_CLOUD_SECURITY_TOKEN",
-      );
+      getEnvWithDefault('', 'AGENTRUN_SECURITY_TOKEN', 'ALIBABA_CLOUD_SECURITY_TOKEN');
 
     this._accountId =
-      options.accountId ??
-      getEnvWithDefault("", "AGENTRUN_ACCOUNT_ID", "FC_ACCOUNT_ID");
+      options.accountId ?? getEnvWithDefault('', 'AGENTRUN_ACCOUNT_ID', 'FC_ACCOUNT_ID');
 
     this._token = options.token;
 
     this._regionId =
-      options.regionId ??
-      getEnvWithDefault("cn-hangzhou", "AGENTRUN_REGION", "FC_REGION");
+      options.regionId ?? getEnvWithDefault('cn-hangzhou', 'AGENTRUN_REGION', 'FC_REGION');
 
     this._timeout = options.timeout ?? 600000;
     this._readTimeout = options.readTimeout ?? 100000000;
 
     this._controlEndpoint =
-      options.controlEndpoint ??
-      getEnvWithDefault("", "AGENTRUN_CONTROL_ENDPOINT");
+      options.controlEndpoint ?? getEnvWithDefault('', 'AGENTRUN_CONTROL_ENDPOINT');
 
-    this._dataEndpoint =
-      options.dataEndpoint ?? getEnvWithDefault("", "AGENTRUN_DATA_ENDPOINT");
+    this._dataEndpoint = options.dataEndpoint ?? getEnvWithDefault('', 'AGENTRUN_DATA_ENDPOINT');
 
-    this._devsEndpoint =
-      options.devsEndpoint ?? getEnvWithDefault("", "DEVS_ENDPOINT");
+    this._devsEndpoint = options.devsEndpoint ?? getEnvWithDefault('', 'DEVS_ENDPOINT');
 
     this._headers = options.headers ?? {};
   }
@@ -197,16 +180,14 @@ export class Config {
       if (!config) continue;
 
       if (config._accessKeyId) this._accessKeyId = config._accessKeyId;
-      if (config._accessKeySecret)
-        this._accessKeySecret = config._accessKeySecret;
+      if (config._accessKeySecret) this._accessKeySecret = config._accessKeySecret;
       if (config._securityToken) this._securityToken = config._securityToken;
       if (config._accountId) this._accountId = config._accountId;
       if (config._token) this._token = config._token;
       if (config._regionId) this._regionId = config._regionId;
       if (config._timeout) this._timeout = config._timeout;
       if (config._readTimeout) this._readTimeout = config._readTimeout;
-      if (config._controlEndpoint)
-        this._controlEndpoint = config._controlEndpoint;
+      if (config._controlEndpoint) this._controlEndpoint = config._controlEndpoint;
       if (config._dataEndpoint) this._dataEndpoint = config._dataEndpoint;
       if (config._devsEndpoint) this._devsEndpoint = config._devsEndpoint;
       if (config._headers && Object.keys(config._headers).length > 0) {
@@ -231,7 +212,7 @@ export class Config {
   get accountId(): string {
     if (!this._accountId) {
       throw new Error(
-        "Account ID is not set. Please add AGENTRUN_ACCOUNT_ID environment variable or set it in code.",
+        'Account ID is not set. Please add AGENTRUN_ACCOUNT_ID environment variable or set it in code.'
       );
     }
     return this._accountId;
@@ -242,7 +223,7 @@ export class Config {
   }
 
   get regionId(): string {
-    return this._regionId || "cn-hangzhou";
+    return this._regionId || 'cn-hangzhou';
   }
 
   get timeout(): number {

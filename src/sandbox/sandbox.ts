@@ -118,7 +118,7 @@ export class Sandbox extends ResourceBase implements SandboxData {
         sandboxArn: obj.sandboxArn,
         sandboxIdleTTLInSeconds: obj.sandboxIdleTTLInSeconds,
       },
-      config,
+      config
     );
   }
 
@@ -160,10 +160,7 @@ export class Sandbox extends ResourceBase implements SandboxData {
     config?: Config;
   }): Promise<Sandbox>;
   /** @deprecated Use create({ input, config }) instead. */
-  static async create(
-    input: SandboxCreateInput,
-    config?: Config,
-  ): Promise<Sandbox>;
+  static async create(input: SandboxCreateInput, config?: Config): Promise<Sandbox>;
 
   static async create(
     arg1:
@@ -173,7 +170,7 @@ export class Sandbox extends ResourceBase implements SandboxData {
           config?: Config;
         }
       | SandboxCreateInput,
-    arg2?: Config,
+    arg2?: Config
   ): Promise<Sandbox> {
     if (typeof arg1 === 'object' && arg1 !== null && 'input' in arg1) {
       // New API: create({ input, templateType?, config? })
@@ -181,7 +178,7 @@ export class Sandbox extends ResourceBase implements SandboxData {
     }
     // Legacy API: create(input, config?)
     logger.warn(
-      'Deprecated: Sandbox.create(input, config) is deprecated. Use Sandbox.create({ input, config }) instead.',
+      'Deprecated: Sandbox.create(input, config) is deprecated. Use Sandbox.create({ input, config }) instead.'
     );
     return await Sandbox.getClient().createSandbox(arg1 as SandboxCreateInput, arg2);
   }
@@ -189,20 +186,17 @@ export class Sandbox extends ResourceBase implements SandboxData {
   /**
    * Delete a Sandbox by ID
    */
-  static async delete(params: {
-    id: string;
-    config?: Config;
-  }): Promise<Sandbox>;
+  static async delete(params: { id: string; config?: Config }): Promise<Sandbox>;
   /** @deprecated Use delete({ id, config }) instead. */
   static async delete(id: string, config?: Config): Promise<Sandbox>;
   static async delete(
     arg1: { id: string; config?: Config } | string,
-    arg2?: Config,
+    arg2?: Config
   ): Promise<Sandbox> {
     if (typeof arg1 === 'string') {
       // Legacy API: delete(id, config?)
       logger.warn(
-        'Sandbox.delete(id, config) is deprecated. Use Sandbox.delete({ id, config }) instead.',
+        'Sandbox.delete(id, config) is deprecated. Use Sandbox.delete({ id, config }) instead.'
       );
       return await Sandbox.getClient().deleteSandbox(arg1, arg2);
     }
@@ -218,12 +212,12 @@ export class Sandbox extends ResourceBase implements SandboxData {
   static async stop(id: string, config?: Config): Promise<Sandbox>;
   static async stop(
     arg1: { id: string; config?: Config } | string,
-    arg2?: Config,
+    arg2?: Config
   ): Promise<Sandbox> {
     if (typeof arg1 === 'string') {
       // Legacy API: stop(id, config?)
       logger.warn(
-        'Sandbox.stop(id, config) is deprecated. Use Sandbox.stop({ id, config }) instead.',
+        'Sandbox.stop(id, config) is deprecated. Use Sandbox.stop({ id, config }) instead.'
       );
       return await Sandbox.getClient().stopSandbox(arg1, arg2);
     }
@@ -240,15 +234,11 @@ export class Sandbox extends ResourceBase implements SandboxData {
     config?: Config;
   }): Promise<Sandbox>;
   /** @deprecated Use get({ id, templateType, config }) instead. */
-  static async get(
-    id: string,
-    templateType?: TemplateType,
-    config?: Config,
-  ): Promise<Sandbox>;
+  static async get(id: string, templateType?: TemplateType, config?: Config): Promise<Sandbox>;
   static async get(
     arg1: { id: string; templateType?: TemplateType; config?: Config } | string,
     arg2?: TemplateType | Config,
-    arg3?: Config,
+    arg3?: Config
   ): Promise<Sandbox> {
     let id: string;
     let templateType: TemplateType | undefined;
@@ -256,7 +246,7 @@ export class Sandbox extends ResourceBase implements SandboxData {
 
     if (typeof arg1 === 'string') {
       logger.warn(
-        'Deprecated: Sandbox.get(id, templateType?, config?) is deprecated. Use Sandbox.get({ id, templateType, config }) instead.',
+        'Deprecated: Sandbox.get(id, templateType?, config?) is deprecated. Use Sandbox.get({ id, templateType, config }) instead.'
       );
       id = arg1;
       if (arg2 && typeof arg2 === 'string') {
@@ -287,10 +277,7 @@ export class Sandbox extends ResourceBase implements SandboxData {
 
       // Check if get was successful
       if (result.code !== 'SUCCESS') {
-        throw new ClientError(
-          0,
-          `Failed to get sandbox: ${result.message || 'Unknown error'}`,
-        );
+        throw new ClientError(0, `Failed to get sandbox: ${result.message || 'Unknown error'}`);
       }
 
       // Extract data and create Sandbox instance
@@ -302,8 +289,7 @@ export class Sandbox extends ResourceBase implements SandboxData {
         // Dynamically import to avoid circular dependencies
         switch (templateType) {
           case TemplateType.CODE_INTERPRETER: {
-            const { CodeInterpreterSandbox } =
-              await import('./code-interpreter-sandbox');
+            const { CodeInterpreterSandbox } = await import('./code-interpreter-sandbox');
             // Pass baseSandbox instead of raw data
             const sandbox = new CodeInterpreterSandbox(baseSandbox, config);
             return sandbox;
@@ -341,18 +327,12 @@ export class Sandbox extends ResourceBase implements SandboxData {
   /**
    * List Sandboxes
    */
-  static async list(params?: {
-    input?: SandboxListInput;
-    config?: Config;
-  }): Promise<Sandbox[]>;
+  static async list(params?: { input?: SandboxListInput; config?: Config }): Promise<Sandbox[]>;
   /** @deprecated Use list({ input, config }) instead. */
-  static async list(
-    input: SandboxListInput,
-    config?: Config,
-  ): Promise<Sandbox[]>;
+  static async list(input: SandboxListInput, config?: Config): Promise<Sandbox[]>;
   static async list(
     arg1?: SandboxListInput | { input?: SandboxListInput; config?: Config },
-    arg2?: Config,
+    arg2?: Config
   ): Promise<Sandbox[]> {
     // Check if using legacy API (arg1 is input object with list params)
     if (
@@ -366,16 +346,13 @@ export class Sandbox extends ResourceBase implements SandboxData {
     ) {
       // Legacy API: list(input, config?)
       logger.warn(
-        'Deprecated: Sandbox.list(input, config) is deprecated. Use Sandbox.list({ input, config }) instead.',
+        'Deprecated: Sandbox.list(input, config) is deprecated. Use Sandbox.list({ input, config }) instead.'
       );
-      return await Sandbox.getClient().listSandboxes(
-        arg1 as SandboxListInput,
-        arg2,
-      );
+      return await Sandbox.getClient().listSandboxes(arg1 as SandboxListInput, arg2);
     }
     // New API: list({ input, config }) or list()
     return await Sandbox.getClient().listSandboxes(
-      arg1 as { input?: SandboxListInput; config?: Config },
+      arg1 as { input?: SandboxListInput; config?: Config }
     );
   }
 
@@ -449,7 +426,7 @@ export class Sandbox extends ResourceBase implements SandboxData {
       intervalSeconds?: number;
       beforeCheck?: (sandbox: Sandbox) => void;
     },
-    config?: Config,
+    config?: Config
   ): Promise<Sandbox> => {
     const timeout = (options?.timeoutSeconds ?? 300) * 1000;
     const interval = (options?.intervalSeconds ?? 5) * 1000;
@@ -464,10 +441,7 @@ export class Sandbox extends ResourceBase implements SandboxData {
 
       // API返回READY状态表示沙箱就绪可以运行
       // API returns READY status to indicate the sandbox is ready to run
-      if (
-        this.state === SandboxState.RUNNING ||
-        this.state === SandboxState.READY
-      ) {
+      if (this.state === SandboxState.RUNNING || this.state === SandboxState.READY) {
         return this;
       }
 
@@ -475,13 +449,11 @@ export class Sandbox extends ResourceBase implements SandboxData {
         throw new Error(`Sandbox failed: ${this.stateReason}`);
       }
 
-      await new Promise((resolve) => setTimeout(resolve, interval));
+      await new Promise(resolve => setTimeout(resolve, interval));
     }
 
     throw new Error(
-      `Timeout waiting for Sandbox to be running after ${
-        options?.timeoutSeconds ?? 300
-      } seconds`,
+      `Timeout waiting for Sandbox to be running after ${options?.timeoutSeconds ?? 300} seconds`
     );
   };
 }

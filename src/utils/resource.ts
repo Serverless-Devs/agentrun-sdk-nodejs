@@ -54,17 +54,11 @@ export abstract class ResourceBase {
   // }
 
   waitUntil = async (params: {
-    checkFinishedCallback: (
-      resource: ResourceBase
-    ) => boolean | Promise<boolean>;
+    checkFinishedCallback: (resource: ResourceBase) => boolean | Promise<boolean>;
     intervalSeconds?: number;
     timeoutSeconds?: number;
   }): Promise<ResourceBase> => {
-    const {
-      checkFinishedCallback,
-      intervalSeconds = 5,
-      timeoutSeconds = 300,
-    } = params;
+    const { checkFinishedCallback, intervalSeconds = 5, timeoutSeconds = 300 } = params;
 
     const startTime = Date.now();
     while (true) {
@@ -74,9 +68,7 @@ export abstract class ResourceBase {
         throw new Error('Timeout waiting for resource to reach desired state');
       }
 
-      await new Promise((resolve) =>
-        setTimeout(resolve, intervalSeconds * 1000)
-      );
+      await new Promise(resolve => setTimeout(resolve, intervalSeconds * 1000));
     }
   };
 
@@ -85,11 +77,7 @@ export abstract class ResourceBase {
     intervalSeconds?: number;
     timeoutSeconds?: number;
   }) => {
-    const {
-      callback,
-      intervalSeconds = 5,
-      timeoutSeconds = 300,
-    } = params ?? {};
+    const { callback, intervalSeconds = 5, timeoutSeconds = 300 } = params ?? {};
 
     async function checkFinishedCallback(resource: ResourceBase) {
       await resource.refresh();
@@ -111,11 +99,7 @@ export abstract class ResourceBase {
     intervalSeconds?: number;
     timeoutSeconds?: number;
   }) => {
-    const {
-      callback,
-      intervalSeconds = 5,
-      timeoutSeconds = 300,
-    } = params ?? {};
+    const { callback, intervalSeconds = 5, timeoutSeconds = 300 } = params ?? {};
 
     try {
       await this.delete();
@@ -164,13 +148,10 @@ export abstract class ResourceBase {
 
 export function listAllResourcesFunction<
   ListParams extends { input?: PageableInput; config?: Config },
-  ListResult extends WithUniqIdCallback
+  ListResult extends WithUniqIdCallback,
 >(list: (params?: ListParams) => Promise<ListResult[]>) {
   return async (
-    params?: Omit<
-      NonNullable<ListParams['input']>,
-      'pageNumber' | 'pageSize'
-    > & {
+    params?: Omit<NonNullable<ListParams['input']>, 'pageNumber' | 'pageSize'> & {
       config?: Config;
     }
   ) => {
