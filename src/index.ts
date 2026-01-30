@@ -10,28 +10,9 @@
 
 // Version is injected at build time from package.json
 declare const __VERSION__: string;
-export const VERSION = (() => {
-  // Use injected version if available (build time)
-  if (typeof __VERSION__ !== 'undefined') {
-    return __VERSION__;
-  }
 
-  // Fallback to package.json version for direct execution
-  try {
-    // In ESM, we need to use import.meta.url to get the current file path
-    const { readFileSync } = require('fs');
-    const { fileURLToPath } = require('url');
-    const { dirname, join } = require('path');
-
-    const currentFile = fileURLToPath(import.meta.url);
-    const packageJsonPath = join(dirname(currentFile), '../../package.json');
-    const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
-    return packageJson.version;
-  } catch {
-    // Final fallback
-    return '0.0.0-dev';
-  }
-})();
+export const VERSION =
+  typeof __VERSION__ !== 'undefined' ? __VERSION__ : '0.0.0-dev';
 
 // Config
 export { Config, type ConfigOptions } from './utils/config';
