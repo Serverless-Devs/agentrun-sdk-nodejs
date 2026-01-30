@@ -30,16 +30,6 @@ import { EventType, type AgentEvent } from '@/server/core/model';
 import { type ChunkType } from '@mastra/core/stream';
 import { logger } from '@/utils/log';
 
-// Mastra ChunkType definition
-// We define a minimal interface here to avoid direct dependency on @mastra/core
-// Users should have @mastra/core installed separately
-interface MastraChunkBase {
-  type: string;
-  runId: string;
-  from: string;
-  payload?: Record<string, unknown>;
-}
-
 /**
  * Agent event item - can be a string (text) or AgentEvent (structured event)
  * Agent 事件项 - 可以是字符串（文本）或 AgentEvent（结构化事件）

@@ -16,15 +16,15 @@ import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import type { LanguageModelV3 } from '@ai-sdk/provider';
 import { fromJSONSchema } from 'zod';
 
-import type { ToolAction, ToolExecutionContext } from '@mastra/core/tools';
 import type { ToolsInput } from '@mastra/core/agent';
+import type { ToolAction, ToolExecutionContext } from '@mastra/core/tools';
 
 import {
-  toolset as builtinToolset,
   model as builtinModel,
+  toolset as builtinToolset,
   sandboxToolset,
-  type CommonToolSet,
   type CanonicalTool,
+  type CommonToolSet,
 } from '../builtin';
 
 /**
@@ -143,7 +143,6 @@ export async function createMastraTool<
   ToolAction<TSchemaIn, TSchemaOut, TSuspend, TResume, TContext, TId>
 > {
   const { createTool } = await import('@mastra/core/tools');
-  // @ts-expect-error - Type mismatch with Mastra's createTool
   return await createTool(params);
 }
 

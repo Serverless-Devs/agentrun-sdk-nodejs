@@ -153,8 +153,9 @@ export class OpenAIProtocolHandler extends ProtocolHandler {
         content: msg.content as string | undefined,
         name: msg.name as string | undefined,
         toolCallId: msg.tool_call_id as string | undefined,
-        toolCalls: msg.tool_calls
-          ? (msg.tool_calls as unknown[]).map((tc) => {
+        toolCalls:
+          msg.tool_calls ?
+            (msg.tool_calls as unknown[]).map((tc) => {
               const call = tc as Record<string, unknown>;
               return {
                 id: call.id as string,
@@ -194,7 +195,10 @@ export class OpenAIProtocolHandler extends ProtocolHandler {
     let sentRole = false;
     let hasText = false;
     let toolCallIndex = -1;
-    const toolCallStates = new Map<string, { index: number; started: boolean }>();
+    const toolCallStates = new Map<
+      string,
+      { index: number; started: boolean }
+    >();
     let hasToolCalls = false;
 
     for await (const event of events) {
@@ -230,7 +234,9 @@ export class OpenAIProtocolHandler extends ProtocolHandler {
       if (event.event === EventType.TOOL_CALL_CHUNK) {
         const toolId = event.data?.id as string;
         const toolName = event.data?.name as string;
-        const argsDelta = event.data?.args_delta as string;
+        const argsDelta =
+          (event.data?.args_delta as string) ||
+          (event.data?.argsDelta as string);
 
         // First time seeing this tool call
         if (toolId && !toolCallStates.has(toolId)) {
@@ -283,7 +289,10 @@ export class OpenAIProtocolHandler extends ProtocolHandler {
     }
 
     // Send finish_reason
-    const finishReason = hasToolCalls ? 'tool_calls' : hasText ? 'stop' : 'stop';
+    const finishReason =
+      hasToolCalls ? 'tool_calls'
+      : hasText ? 'stop'
+      : 'stop';
     yield this.buildChunk(context, { delta: {}, finish_reason: finishReason });
 
     // Send [DONE]
@@ -332,7 +341,9 @@ export class OpenAIProtocolHandler extends ProtocolHandler {
       } else if (event.event === EventType.TOOL_CALL_CHUNK) {
         const toolId = event.data?.id as string;
         const toolName = event.data?.name as string;
-        const argsDelta = event.data?.args_delta as string;
+        const argsDelta =
+          (event.data?.args_delta as string) ||
+          (event.data?.argsDelta as string);
 
         // Find or create tool call
         let toolCall = toolCalls.find((tc) => tc.id === toolId);

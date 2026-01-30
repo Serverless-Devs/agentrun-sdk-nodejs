@@ -58,7 +58,8 @@
     "README.md"
   ],
   "scripts": {
-    "build": "npm run generate-exports && tsup",
+    "prebuild": "npm run generate-exports",
+    "build": "tsup",
     "build:types": "tsc -p tsconfig.types.json",
     "codegen": "npx tsx scripts/codegen.ts",
     "generate-exports": "node scripts/generate-exports.mjs",
@@ -113,6 +114,14 @@
     "openai": "^6.15.0",
     "uuid": "^9.0.0",
     "zod": "^4.2.1"
+  },
+  "peerDependencies": {
+    "@mastra/core": "*"
+  },
+  "peerDependenciesMeta": {
+    "@mastra/core": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@happy-dom/global-registrator": "^15.0.0",
