@@ -261,7 +261,6 @@ describe('Mastra Integration', () => {
 
       await sandbox({
         templateName: 'my-template',
-        templateType: TemplateType.CODE_INTERPRETER,
       });
 
       expect(builtin.sandboxToolset).toHaveBeenCalledWith('my-template', {
@@ -280,7 +279,6 @@ describe('Mastra Integration', () => {
 
       await sandbox({
         templateName: 'browser-template',
-        templateType: TemplateType.BROWSER,
       });
 
       expect(builtin.sandboxToolset).toHaveBeenCalledWith('browser-template', {
@@ -363,7 +361,6 @@ describe('Mastra Integration', () => {
 
       await sandbox({
         templateName: 'test-template',
-        templateType: TemplateType.CODE_INTERPRETER,
         sandboxIdleTimeoutSeconds: 300,
         config: mockConfig,
       });
@@ -417,7 +414,6 @@ describe('Mastra Integration', () => {
 
       await sandbox({
         templateName: 'test-browser',
-        templateType: TemplateType.BROWSER,
         sandboxIdleTimeoutSeconds: 300,
         config: mockConfig,
       });

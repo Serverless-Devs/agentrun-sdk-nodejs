@@ -74,6 +74,7 @@ export default defineConfig({
     'zod',
     '@mastra/core',
     'chromium-bidi',
+    'playwright',
   ],
   treeshake: true,
   minify: false,
