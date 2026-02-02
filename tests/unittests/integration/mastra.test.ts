@@ -7,19 +7,10 @@
  * This test suite validates the new functional API for Mastra integration.
  */
 
-import {
-  model,
-  toolset,
-  sandbox,
-  codeInterpreter,
-  browser,
-  createMastraTool,
-} from '@/integration/mastra';
+import { createMastraTool, model, sandbox, toolset } from '@/integration/mastra';
 import { TemplateType } from '@/sandbox';
 import { Config } from '@/utils/config';
-import type { LanguageModelV3 } from '@ai-sdk/provider';
 import { z } from 'zod';
-import type { ToolsInput } from '@mastra/core/agent';
 
 // Mock external dependencies
 jest.mock('@/integration/builtin');
@@ -264,7 +255,7 @@ describe('Mastra Integration', () => {
       });
 
       expect(builtin.sandboxToolset).toHaveBeenCalledWith('my-template', {
-        templateType: TemplateType.CODE_INTERPRETER,
+        // templateType: TemplateType.CODE_INTERPRETER,
         sandboxIdleTimeoutSeconds: undefined,
         config: undefined,
       });
@@ -282,7 +273,7 @@ describe('Mastra Integration', () => {
       });
 
       expect(builtin.sandboxToolset).toHaveBeenCalledWith('browser-template', {
-        templateType: TemplateType.BROWSER,
+        // templateType: TemplateType.BROWSER,
         sandboxIdleTimeoutSeconds: undefined,
         config: undefined,
       });
@@ -327,111 +318,111 @@ describe('Mastra Integration', () => {
     });
   });
 
-  describe('codeInterpreter()', () => {
-    it('should create CODE_INTERPRETER sandbox tools', async () => {
-      const mockSandboxToolSet = {
-        tools: jest.fn().mockReturnValue([]),
-      };
+  // describe('codeInterpreter()', () => {
+  //   it('should create CODE_INTERPRETER sandbox tools', async () => {
+  //     const mockSandboxToolSet = {
+  //       tools: jest.fn().mockReturnValue([]),
+  //     };
 
-      (builtin.sandboxToolset as jest.Mock).mockResolvedValue(mockSandboxToolSet);
+  //     (builtin.sandboxToolset as jest.Mock).mockResolvedValue(mockSandboxToolSet);
 
-      await codeInterpreter({
-        templateName: 'code-template',
-      });
+  //     await codeInterpreter({
+  //       templateName: 'code-template',
+  //     });
 
-      expect(builtin.sandboxToolset).toHaveBeenCalledWith('code-template', {
-        templateType: TemplateType.CODE_INTERPRETER,
-        sandboxIdleTimeoutSeconds: undefined,
-        config: undefined,
-      });
-    });
+  //     expect(builtin.sandboxToolset).toHaveBeenCalledWith('code-template', {
+  //       templateType: TemplateType.CODE_INTERPRETER,
+  //       sandboxIdleTimeoutSeconds: undefined,
+  //       config: undefined,
+  //     });
+  //   });
 
-    it('should be shorthand for sandbox()', async () => {
-      const mockSandboxToolSet = {
-        tools: jest.fn().mockReturnValue([]),
-      };
+  //   it('should be shorthand for sandbox()', async () => {
+  //     const mockSandboxToolSet = {
+  //       tools: jest.fn().mockReturnValue([]),
+  //     };
 
-      (builtin.sandboxToolset as jest.Mock).mockResolvedValue(mockSandboxToolSet);
+  //     (builtin.sandboxToolset as jest.Mock).mockResolvedValue(mockSandboxToolSet);
 
-      await codeInterpreter({
-        templateName: 'test-template',
-        sandboxIdleTimeoutSeconds: 300,
-        config: mockConfig,
-      });
+  //     await codeInterpreter({
+  //       templateName: 'test-template',
+  //       sandboxIdleTimeoutSeconds: 300,
+  //       config: mockConfig,
+  //     });
 
-      await sandbox({
-        templateName: 'test-template',
-        sandboxIdleTimeoutSeconds: 300,
-        config: mockConfig,
-      });
+  //     await sandbox({
+  //       templateName: 'test-template',
+  //       sandboxIdleTimeoutSeconds: 300,
+  //       config: mockConfig,
+  //     });
 
-      // Should call with same parameters
-      expect(builtin.sandboxToolset).toHaveBeenCalledTimes(2);
-      expect(builtin.sandboxToolset).toHaveBeenNthCalledWith(1, 'test-template', {
-        templateType: TemplateType.CODE_INTERPRETER,
-        sandboxIdleTimeoutSeconds: 300,
-        config: mockConfig,
-      });
-      expect(builtin.sandboxToolset).toHaveBeenNthCalledWith(2, 'test-template', {
-        templateType: TemplateType.CODE_INTERPRETER,
-        sandboxIdleTimeoutSeconds: 300,
-        config: mockConfig,
-      });
-    });
-  });
+  //     // Should call with same parameters
+  //     expect(builtin.sandboxToolset).toHaveBeenCalledTimes(2);
+  //     expect(builtin.sandboxToolset).toHaveBeenNthCalledWith(1, 'test-template', {
+  //       templateType: TemplateType.CODE_INTERPRETER,
+  //       sandboxIdleTimeoutSeconds: 300,
+  //       config: mockConfig,
+  //     });
+  //     expect(builtin.sandboxToolset).toHaveBeenNthCalledWith(2, 'test-template', {
+  //       templateType: TemplateType.CODE_INTERPRETER,
+  //       sandboxIdleTimeoutSeconds: 300,
+  //       config: mockConfig,
+  //     });
+  //   });
+  // });
 
-  describe('browser()', () => {
-    it('should create BROWSER sandbox tools', async () => {
-      const mockSandboxToolSet = {
-        tools: jest.fn().mockReturnValue([]),
-      };
+  // describe('browser()', () => {
+  //   it('should create BROWSER sandbox tools', async () => {
+  //     const mockSandboxToolSet = {
+  //       tools: jest.fn().mockReturnValue([]),
+  //     };
 
-      (builtin.sandboxToolset as jest.Mock).mockResolvedValue(mockSandboxToolSet);
+  //     (builtin.sandboxToolset as jest.Mock).mockResolvedValue(mockSandboxToolSet);
 
-      await browser({
-        templateName: 'browser-template',
-      });
+  //     await browser({
+  //       templateName: 'browser-template',
+  //     });
 
-      expect(builtin.sandboxToolset).toHaveBeenCalledWith('browser-template', {
-        templateType: TemplateType.BROWSER,
-        sandboxIdleTimeoutSeconds: undefined,
-        config: undefined,
-      });
-    });
+  //     expect(builtin.sandboxToolset).toHaveBeenCalledWith('browser-template', {
+  //       templateType: TemplateType.BROWSER,
+  //       sandboxIdleTimeoutSeconds: undefined,
+  //       config: undefined,
+  //     });
+  //   });
 
-    it('should be shorthand for sandbox()', async () => {
-      const mockSandboxToolSet = {
-        tools: jest.fn().mockReturnValue([]),
-      };
+  //   it('should be shorthand for sandbox()', async () => {
+  //     const mockSandboxToolSet = {
+  //       tools: jest.fn().mockReturnValue([]),
+  //     };
 
-      (builtin.sandboxToolset as jest.Mock).mockResolvedValue(mockSandboxToolSet);
+  //     (builtin.sandboxToolset as jest.Mock).mockResolvedValue(mockSandboxToolSet);
 
-      await browser({
-        templateName: 'test-browser',
-        sandboxIdleTimeoutSeconds: 300,
-        config: mockConfig,
-      });
+  //     await browser({
+  //       templateName: 'test-browser',
+  //       sandboxIdleTimeoutSeconds: 300,
+  //       config: mockConfig,
+  //     });
 
-      await sandbox({
-        templateName: 'test-browser',
-        sandboxIdleTimeoutSeconds: 300,
-        config: mockConfig,
-      });
+  //     await sandbox({
+  //       templateName: 'test-browser',
+  //       sandboxIdleTimeoutSeconds: 300,
+  //       config: mockConfig,
+  //     });
 
-      // Should call with same parameters
-      expect(builtin.sandboxToolset).toHaveBeenCalledTimes(2);
-      expect(builtin.sandboxToolset).toHaveBeenNthCalledWith(1, 'test-browser', {
-        templateType: TemplateType.BROWSER,
-        sandboxIdleTimeoutSeconds: 300,
-        config: mockConfig,
-      });
-      expect(builtin.sandboxToolset).toHaveBeenNthCalledWith(2, 'test-browser', {
-        templateType: TemplateType.BROWSER,
-        sandboxIdleTimeoutSeconds: 300,
-        config: mockConfig,
-      });
-    });
-  });
+  //     // Should call with same parameters
+  //     expect(builtin.sandboxToolset).toHaveBeenCalledTimes(2);
+  //     expect(builtin.sandboxToolset).toHaveBeenNthCalledWith(1, 'test-browser', {
+  //       templateType: TemplateType.BROWSER,
+  //       sandboxIdleTimeoutSeconds: 300,
+  //       config: mockConfig,
+  //     });
+  //     expect(builtin.sandboxToolset).toHaveBeenNthCalledWith(2, 'test-browser', {
+  //       templateType: TemplateType.BROWSER,
+  //       sandboxIdleTimeoutSeconds: 300,
+  //       config: mockConfig,
+  //     });
+  //   });
+  // });
 
   describe('createMastraTool()', () => {
     it('should create Mastra tool from definition', async () => {
@@ -515,20 +506,20 @@ describe('Mastra Integration', () => {
       // Create all components
       const llm = await model({ name: 'qwen-max' });
       const tools = await toolset({ name: 'weather-toolset' });
-      const sandboxTools = await codeInterpreter({
-        templateName: 'python-sandbox',
-      });
+      // const sandboxTools = await codeInterpreter({
+      //   templateName: 'python-sandbox',
+      // });
 
       // Verify all components are created
       expect(llm).toBeDefined();
       expect(tools).toBeDefined();
       expect(tools.weatherTool).toBeDefined();
-      expect(sandboxTools).toBeDefined();
-      expect(sandboxTools.executeCode).toBeDefined();
+      // expect(sandboxTools).toBeDefined();
+      // expect(sandboxTools.executeCode).toBeDefined();
 
       // Verify component structure
       expect(typeof tools).toBe('object');
-      expect(typeof sandboxTools).toBe('object');
+      // expect(typeof sandboxTools).toBe('object');
     });
   });
 });

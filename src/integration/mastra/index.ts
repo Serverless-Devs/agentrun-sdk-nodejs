@@ -11,7 +11,7 @@
 
 import '@/utils/version-check';
 
-import { TemplateType } from '@/sandbox';
+export { TemplateType } from '@/sandbox';
 import type { Config } from '@/utils/config';
 import { logger } from '@/utils/log';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
