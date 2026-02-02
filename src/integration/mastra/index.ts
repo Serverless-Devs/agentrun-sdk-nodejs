@@ -11,7 +11,7 @@
 
 import '@/utils/version-check';
 
-import { TemplateType } from '@/sandbox';
+export { TemplateType } from '@/sandbox';
 import type { Config } from '@/utils/config';
 import { logger } from '@/utils/log';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
@@ -201,15 +201,13 @@ export async function toolset(params: { name: string; config?: Config }): Promis
  */
 export async function sandbox(params: {
   templateName: string;
-  templateType?: TemplateType;
   sandboxIdleTimeoutSeconds?: number;
   config?: Config;
 }): Promise<ToolsInput> {
-  const { templateName, templateType, sandboxIdleTimeoutSeconds, config } = params;
+  const { templateName, sandboxIdleTimeoutSeconds, config } = params;
 
   // Use builtin sandboxToolset
   const toolsetInstance = await sandboxToolset(templateName, {
-    templateType,
     sandboxIdleTimeoutSeconds,
     config,
   });
@@ -218,63 +216,63 @@ export async function sandbox(params: {
   return convertToolSetToMastra(toolsetInstance);
 }
 
-/**
- * Create Mastra-compatible code interpreter tools
- * 创建 Mastra 兼容的代码解释器工具
- *
- * Shorthand for sandbox() with CODE_INTERPRETER type.
- *
- * @example
- * ```typescript
- * const tools = await codeInterpreter({
- *   templateName: 'my-template',
- * });
- *
- * const agent = new Agent({
- *   tools,
- *   model: await model({ name: 'qwen-max' }),
- * });
- * ```
- */
-export async function codeInterpreter(params: {
-  templateName: string;
-  sandboxIdleTimeoutSeconds?: number;
-  config?: Config;
-}): Promise<ToolsInput> {
-  return sandbox({
-    ...params,
-    templateType: TemplateType.CODE_INTERPRETER,
-  });
-}
+// /**
+//  * Create Mastra-compatible code interpreter tools
+//  * 创建 Mastra 兼容的代码解释器工具
+//  *
+//  * Shorthand for sandbox() with CODE_INTERPRETER type.
+//  *
+//  * @example
+//  * ```typescript
+//  * const tools = await codeInterpreter({
+//  *   templateName: 'my-template',
+//  * });
+//  *
+//  * const agent = new Agent({
+//  *   tools,
+//  *   model: await model({ name: 'qwen-max' }),
+//  * });
+//  * ```
+//  */
+// export async function codeInterpreter(params: {
+//   templateName: string;
+//   sandboxIdleTimeoutSeconds?: number;
+//   config?: Config;
+// }): Promise<ToolsInput> {
+//   return sandbox({
+//     ...params,
+//     templateType: TemplateType.CODE_INTERPRETER,
+//   });
+// }
 
-/**
- * Create Mastra-compatible browser automation tools
- * 创建 Mastra 兼容的浏览器自动化工具
- *
- * Shorthand for sandbox() with BROWSER type.
- *
- * @example
- * ```typescript
- * const tools = await browser({
- *   templateName: 'my-browser-template',
- * });
- *
- * const agent = new Agent({
- *   tools,
- *   model: await model({ name: 'qwen-max' }),
- * });
- * ```
- */
-export async function browser(params: {
-  templateName: string;
-  sandboxIdleTimeoutSeconds?: number;
-  config?: Config;
-}): Promise<ToolsInput> {
-  return sandbox({
-    ...params,
-    templateType: TemplateType.BROWSER,
-  });
-}
+// /**
+//  * Create Mastra-compatible browser automation tools
+//  * 创建 Mastra 兼容的浏览器自动化工具
+//  *
+//  * Shorthand for sandbox() with BROWSER type.
+//  *
+//  * @example
+//  * ```typescript
+//  * const tools = await browser({
+//  *   templateName: 'my-browser-template',
+//  * });
+//  *
+//  * const agent = new Agent({
+//  *   tools,
+//  *   model: await model({ name: 'qwen-max' }),
+//  * });
+//  * ```
+//  */
+// export async function browser(params: {
+//   templateName: string;
+//   sandboxIdleTimeoutSeconds?: number;
+//   config?: Config;
+// }): Promise<ToolsInput> {
+//   return sandbox({
+//     ...params,
+//     templateType: TemplateType.BROWSER,
+//   });
+// }
 
 // Export converter for event conversion
 export { MastraConverter, type AgentEventItem } from './converter';
