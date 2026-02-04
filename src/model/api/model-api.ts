@@ -25,7 +25,7 @@ export class ModelAPI {
     const provider = createOpenAICompatible({
       name: model || info.model || '',
       apiKey: info.apiKey,
-      baseURL: 'http://127.0.0.1:8080', // info.baseUrl,
+      baseURL: info.baseUrl || '',
       headers: info.headers,
     });
 
