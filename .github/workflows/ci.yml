@@ -35,7 +35,7 @@ jobs:
         run: make coverage
 
       - name: Build
-        run: npm run build
+        run: NODE_OPTIONS=--max-old-space-size=4096 npm run build
 
   coverage:
     runs-on: ubuntu-latest
