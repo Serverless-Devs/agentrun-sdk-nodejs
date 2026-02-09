@@ -141,7 +141,7 @@ jobs:
           npm install
 
       - name: Build
-        run: npm run build
+        run: NODE_OPTIONS=--max-old-space-size=4096 npm run build
 
       - name: Publish test package (Trusted Publishers - no token needed)
         run: |
@@ -290,7 +290,7 @@ jobs:
           npm install
 
       - name: Build
-        run: npm run build
+        run: NODE_OPTIONS=--max-old-space-size=4096 npm run build
 
       - name: Publish to npm (Trusted Publishers - no token needed)
         run: |
@@ -394,7 +394,7 @@ jobs:
           npm install
 
       - name: Build
-        run: npm run build
+        run: NODE_OPTIONS=--max-old-space-size=4096 npm run build
 
       - name: Publish test package (Trusted Publishers - no token needed)
         run: |
@@ -408,7 +408,7 @@ jobs:
           rm -f /home/runner/work/_temp/.npmrc
 
           # Publish using Trusted Publishers (OIDC)
-          npm publish --tag test --access public --provenance
+          NODE_OPTIONS=--max-old-space-size=4096 npm publish --tag test --access public --provenance
         env:
           # Clear the environment variables that might interfere with OIDC
           NPM_CONFIG_USERCONFIG: ''
