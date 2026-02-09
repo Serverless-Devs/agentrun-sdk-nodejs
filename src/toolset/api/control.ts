@@ -134,7 +134,9 @@ export class ToolControlAPI {
 
       const response = await client.listToolsetsWithOptions(input, headers || {}, runtime);
 
-      logger.debug(`API listToolsets called, Request ID: ${response.body?.requestId}`);
+      logger.debug(
+        `API listToolsets called, Request ID: ${response?.headers?.['x-acs-request-id']}`
+      );
 
       if (!response.body) {
         throw new Error('Empty response body');
