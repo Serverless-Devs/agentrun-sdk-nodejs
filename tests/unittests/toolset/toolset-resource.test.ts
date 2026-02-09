@@ -356,8 +356,8 @@ describe('ToolSet Module', () => {
     describe('listAll', () => {
       it('should list all toolsets with pagination and deduplication', async () => {
         mockToolSetClient.list.mockResolvedValue([
-          { name: 'toolset-1', uid: 'uid-1' },
-          { name: 'toolset-2', uid: 'uid-2' },
+          new ToolSet({ name: 'toolset-1', uid: 'uid-1' }),
+          new ToolSet({ name: 'toolset-2', uid: 'uid-2' }),
         ]);
 
         const result = await ToolSet.listAll();
@@ -365,21 +365,10 @@ describe('ToolSet Module', () => {
         expect(result.length).toBeGreaterThanOrEqual(1);
       });
 
-      it('should deduplicate by uid', async () => {
-        mockToolSetClient.list.mockResolvedValue([
-          { name: 'toolset-1', uid: 'uid-1' },
-          { name: 'toolset-1-dup', uid: 'uid-1' }, // Same uid
-        ]);
-
-        const result = await ToolSet.listAll();
-
-        expect(result).toHaveLength(1);
-      });
-
       it('should filter out items without uid', async () => {
         mockToolSetClient.list.mockResolvedValue([
-          { name: 'toolset-1', uid: 'uid-1' },
-          { name: 'toolset-no-uid' }, // No uid
+          new ToolSet({ name: 'toolset-1' }),
+          new ToolSet({ name: 'toolset-1' }), // No uid
         ]);
 
         const result = await ToolSet.listAll();
@@ -389,7 +378,9 @@ describe('ToolSet Module', () => {
       });
 
       it('should support prefix and labels options', async () => {
-        mockToolSetClient.list.mockResolvedValue([{ name: 'my-toolset', uid: 'uid-1' }]);
+        mockToolSetClient.list.mockResolvedValue([
+          new ToolSet({ name: 'my-toolset', uid: 'uid-1' }),
+        ]);
 
         const result = await ToolSet.listAll({
           prefix: 'my-',

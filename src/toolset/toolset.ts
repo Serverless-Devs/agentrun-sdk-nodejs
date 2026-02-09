@@ -7,7 +7,7 @@
 
 import { Config } from '../utils/config';
 import { logger } from '../utils/log';
-import { updateObjectProperties } from '../utils/resource';
+import { listAllResourcesFunction, updateObjectProperties } from '../utils/resource';
 
 import {
   ToolSetCreateInput,
@@ -50,6 +50,8 @@ export class ToolSet implements ToolSetData {
     return new ToolSetClient();
   }
 
+  uniqIdCallback = () => this.name;
+
   /**
    * Create a new ToolSet
    */
@@ -77,48 +79,70 @@ export class ToolSet implements ToolSetData {
   /**
    * List ToolSets
    */
-  static async list(input?: ToolSetListInput, config?: Config): Promise<ToolSet[]> {
-    return await ToolSet.getClient().list({ input, config });
-  }
 
-  /**
-   * List all ToolSets with pagination
-   */
-  static async listAll(
-    options?: { prefix?: string; labels?: Record<string, string> },
-    config?: Config
-  ): Promise<ToolSet[]> {
-    const toolsets: ToolSet[] = [];
-    const pageSize = 50;
+  static list: /**
+     * @deprecated
+     */
+    | ((input?: ToolSetListInput, config?: Config) => Promise<ToolSet[]>)
+    /**
+     * 枚举 ToolSet 列表 / List ToolSet list
+     */
+    | ((params?: { input?: ToolSetListInput; config?: Config }) => Promise<ToolSet[]>) = async (
+    ...args: any
+  ): Promise<ToolSet[]> => {
+    let input: ToolSetListInput | undefined;
+    let config: Config | undefined;
 
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-      const result = await ToolSet.list(
-        {
-          prefix: options?.prefix,
-          labels: options?.labels,
-          pageSize,
-        },
-        config
-      );
-
-      toolsets.push(...result);
-
-      if (result.length < pageSize) {
-        break;
-      }
+    if (args.length >= 1 && 'input' in args[0]) {
+      input = args[0].input;
+    } else {
+      input = args[0];
     }
 
-    // Deduplicate
-    const seen = new Set<string>();
-    return toolsets.filter(t => {
-      if (!t.uid || seen.has(t.uid)) {
-        return false;
-      }
-      seen.add(t.uid);
-      return true;
+    if (args.length >= 1 && 'config' in args[0]) {
+      config = args[0].config;
+    } else if (args.length > 1 && args[1] instanceof Config) {
+      config = args[1];
+    }
+
+    return await this.getClient().list({
+      input: {
+        ...input,
+      } as ToolSetListInput,
+      config,
     });
-  }
+  };
+
+  static listAll: /**
+     * @deprecated
+     */
+    | ((
+        options?: { prefix?: string; labels?: Record<string, string> },
+        config?: Config
+      ) => Promise<ToolSet[]>)
+    /**
+     * 枚举 ToolSet 列表 / List ToolSet list
+     */
+    | ((params?: { input?: ToolSetListInput; config?: Config }) => Promise<ToolSet[]>) = async (
+    ...args: any
+  ) => {
+    let input: ToolSetListInput | undefined;
+    let config: Config | undefined;
+
+    if (args.length >= 1 && 'input' in args[0]) {
+      input = args[0].input;
+    } else {
+      input = args[0];
+    }
+
+    if (args.length >= 1 && 'config' in args[0]) {
+      config = args[0].config;
+    } else if (args.length > 1 && args[1] instanceof Config) {
+      config = args[1];
+    }
+
+    return await listAllResourcesFunction(this.list as any)({ ...input, config });
+  };
 
   /**
    * Update a ToolSet by Name
