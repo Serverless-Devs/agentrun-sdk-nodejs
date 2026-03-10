@@ -274,7 +274,9 @@ export class SandboxControlAPI extends ControlAPI {
 
     try {
       const client = this.getClient(config);
-      const runtime = new $Util.RuntimeOptions({});
+      const runtime = new $Util.RuntimeOptions({
+        readTimeout: 30000
+      });
 
       const response = await client.createSandboxWithOptions(
         new $AgentRun.CreateSandboxRequest({ body: input }),
