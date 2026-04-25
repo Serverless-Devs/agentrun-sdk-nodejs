@@ -117,6 +117,42 @@ describe('Config', () => {
     });
   });
 
+  describe('readTimeoutOr / hasReadTimeout', () => {
+    it('hasReadTimeout returns false when user has not set readTimeout', () => {
+      const config = new Config();
+      expect(config.hasReadTimeout).toBe(false);
+    });
+
+    it('hasReadTimeout returns true once readTimeout is provided', () => {
+      const config = new Config({ readTimeout: 12345 });
+      expect(config.hasReadTimeout).toBe(true);
+    });
+
+    it('readTimeoutOr returns the fallback when user has not set readTimeout', () => {
+      const config = new Config();
+      expect(config.readTimeoutOr(30000)).toBe(30000);
+    });
+
+    it('readTimeoutOr returns the user value when set, ignoring the fallback', () => {
+      const config = new Config({ readTimeout: 60000 });
+      expect(config.readTimeoutOr(30000)).toBe(60000);
+    });
+
+    it('readTimeoutOr respects readTimeout merged from withConfigs', () => {
+      const base = new Config();
+      const override = new Config({ readTimeout: 45000 });
+      const merged = Config.withConfigs(base, override);
+      expect(merged.hasReadTimeout).toBe(true);
+      expect(merged.readTimeoutOr(30000)).toBe(45000);
+    });
+
+    it('readTimeoutOr stays at fallback when neither config sets readTimeout', () => {
+      const merged = Config.withConfigs(new Config(), new Config());
+      expect(merged.hasReadTimeout).toBe(false);
+      expect(merged.readTimeoutOr(30000)).toBe(30000);
+    });
+  });
+
   describe('controlEndpoint', () => {
     it('should use custom control endpoint', () => {
       const config = new Config({

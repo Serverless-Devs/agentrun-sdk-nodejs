@@ -123,7 +123,12 @@ export class Config {
   private _token?: string;
   private _regionId: string;
   private _timeout: number;
-  private _readTimeout: number;
+  /**
+   * Read timeout in ms. `undefined` means user has not explicitly set it,
+   * so callers can apply their own fallback (see `readTimeoutOr`). Public
+   * `readTimeout` getter still returns the historical default 100000000.
+   */
+  private _readTimeout?: number;
   private _controlEndpoint: string;
   private _dataEndpoint: string;
   private _devsEndpoint: string;
@@ -151,7 +156,8 @@ export class Config {
       options.regionId ?? getEnvWithDefault('cn-hangzhou', 'AGENTRUN_REGION', 'FC_REGION');
 
     this._timeout = options.timeout ?? 600000;
-    this._readTimeout = options.readTimeout ?? 100000000;
+    // Keep undefined when caller did not set it, so per-API defaults can apply.
+    this._readTimeout = options.readTimeout;
 
     this._controlEndpoint =
       options.controlEndpoint ?? getEnvWithDefault('', 'AGENTRUN_CONTROL_ENDPOINT');
@@ -186,7 +192,7 @@ export class Config {
       if (config._token) this._token = config._token;
       if (config._regionId) this._regionId = config._regionId;
       if (config._timeout) this._timeout = config._timeout;
-      if (config._readTimeout) this._readTimeout = config._readTimeout;
+      if (config._readTimeout !== undefined) this._readTimeout = config._readTimeout;
       if (config._controlEndpoint) this._controlEndpoint = config._controlEndpoint;
       if (config._dataEndpoint) this._dataEndpoint = config._dataEndpoint;
       if (config._devsEndpoint) this._devsEndpoint = config._devsEndpoint;
@@ -231,7 +237,26 @@ export class Config {
   }
 
   get readTimeout(): number {
-    return this._readTimeout || 100000000;
+    return this._readTimeout ?? 100000000;
+  }
+
+  /**
+   * Whether the user explicitly set readTimeout (vs falling back to default).
+   * Useful for APIs that want a different default than the global one.
+   */
+  get hasReadTimeout(): boolean {
+    return this._readTimeout !== undefined;
+  }
+
+  /**
+   * Returns the user-configured readTimeout if set, otherwise the given
+   * fallback (in ms). Use this for per-API defaults that differ from the
+   * global 100000000 ms default.
+   *
+   * @param fallback Default value in milliseconds when user has not set readTimeout.
+   */
+  readTimeoutOr(fallback: number): number {
+    return this._readTimeout ?? fallback;
   }
 
   get controlEndpoint(): string {
