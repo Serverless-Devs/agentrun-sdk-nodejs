@@ -1568,6 +1568,55 @@ describe('Agent Runtime Module', () => {
         });
       });
 
+      describe('get (instance)', () => {
+        it('should fetch using params.config when provided', async () => {
+          mockControlApi.getAgentRuntimeEndpoint.mockResolvedValue({
+            agentRuntimeEndpointId: 'endpoint-123',
+            agentRuntimeEndpointName: 'test-endpoint',
+            status: 'READY',
+          });
+
+          const instanceConfig = new Config({ accountId: 'instance-acc' });
+          const callConfig = new Config({ accountId: 'call-acc' });
+
+          const endpoint = new AgentRuntimeEndpoint(
+            {
+              agentRuntimeId: 'runtime-123',
+              agentRuntimeEndpointId: 'endpoint-123',
+            },
+            instanceConfig
+          );
+
+          await endpoint.get({ config: callConfig });
+
+          expect(mockControlApi.getAgentRuntimeEndpoint).toHaveBeenCalledWith(
+            expect.objectContaining({ config: callConfig })
+          );
+        });
+
+        it('should fall back to instance _config when params.config is missing', async () => {
+          mockControlApi.getAgentRuntimeEndpoint.mockResolvedValue({
+            agentRuntimeEndpointId: 'endpoint-123',
+          });
+
+          const instanceConfig = new Config({ accountId: 'instance-acc' });
+
+          const endpoint = new AgentRuntimeEndpoint(
+            {
+              agentRuntimeId: 'runtime-123',
+              agentRuntimeEndpointId: 'endpoint-123',
+            },
+            instanceConfig
+          );
+
+          await endpoint.get();
+
+          expect(mockControlApi.getAgentRuntimeEndpoint).toHaveBeenCalledWith(
+            expect.objectContaining({ config: instanceConfig })
+          );
+        });
+      });
+
       describe('waitUntilReady', () => {
         it('should wait until status is READY', async () => {
           let callCount = 0;
