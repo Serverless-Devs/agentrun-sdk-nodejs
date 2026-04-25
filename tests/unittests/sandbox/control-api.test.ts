@@ -44,9 +44,7 @@ describe('SandboxControlAPI.createSandbox readTimeout', () => {
   });
 
   it('honors readTimeout from instance config', async () => {
-    const api = new SandboxControlAPI(
-      new Config({ accountId: 'acc', readTimeout: 60000 })
-    );
+    const api = new SandboxControlAPI(new Config({ accountId: 'acc', readTimeout: 60000 }));
     await api.createSandbox({ input: {} as any });
 
     expect(mockRuntimeOptions).toHaveBeenCalledWith(
@@ -67,9 +65,7 @@ describe('SandboxControlAPI.createSandbox readTimeout', () => {
   });
 
   it('method-level config wins over instance config', async () => {
-    const api = new SandboxControlAPI(
-      new Config({ accountId: 'acc', readTimeout: 60000 })
-    );
+    const api = new SandboxControlAPI(new Config({ accountId: 'acc', readTimeout: 60000 }));
     await api.createSandbox({
       input: {} as any,
       config: new Config({ accountId: 'acc', readTimeout: 90000 }),
