@@ -8,7 +8,7 @@
 import * as _ from 'lodash';
 
 import { Config } from '../utils/config';
-import { listAllResourcesFunction, ResourceBase } from '../utils/resource';
+import { listAllResourcesFunction, ResourceBase, updateObjectProperties } from '../utils/resource';
 
 import { ModelAPI, ModelInfo } from './api/model-api';
 import {
@@ -56,11 +56,17 @@ export class ModelProxy
 
   private modelApi: ModelAPI;
 
-  constructor() {
+  constructor(data?: any, config?: Config) {
     super();
     this.modelApi = new ModelAPI(this.modelInfo);
     this.completion = this.modelApi.completion;
     this.embedding = this.modelApi.embedding;
+    if (data) {
+      updateObjectProperties(this, data);
+    }
+    if (config) {
+      this._config = config;
+    }
   }
 
   completion: (typeof ModelAPI)['prototype']['completion'];
@@ -183,7 +189,7 @@ export class ModelProxy
     const result = await ModelProxy.update({
       name: this.modelProxyName,
       input,
-      config,
+      config: config ?? this._config,
     });
     this.updateSelf(result);
 
@@ -203,7 +209,7 @@ export class ModelProxy
 
     return await ModelProxy.delete({
       name: this.modelProxyName,
-      config: params?.config,
+      config: params?.config ?? this._config,
     });
   };
 
@@ -220,7 +226,7 @@ export class ModelProxy
 
     const result = await ModelProxy.get({
       name: this.modelProxyName,
-      config: params?.config,
+      config: params?.config ?? this._config,
     });
     this.updateSelf(result);
 

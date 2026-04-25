@@ -282,7 +282,7 @@ export class Sandbox extends ResourceBase implements SandboxData {
 
       // Extract data and create Sandbox instance
       const data = result.data || {};
-      const baseSandbox = Sandbox.fromInnerObject(data as any, config);
+      const baseSandbox = Sandbox.fromInnerObject(data as any, cfg);
 
       // If templateType is specified, return the appropriate subclass
       if (templateType) {
@@ -291,25 +291,25 @@ export class Sandbox extends ResourceBase implements SandboxData {
           case TemplateType.CODE_INTERPRETER: {
             const { CodeInterpreterSandbox } = await import('./code-interpreter-sandbox');
             // Pass baseSandbox instead of raw data
-            const sandbox = new CodeInterpreterSandbox(baseSandbox, config);
+            const sandbox = new CodeInterpreterSandbox(baseSandbox, cfg);
             return sandbox;
           }
           case TemplateType.BROWSER: {
             const { BrowserSandbox } = await import('./browser-sandbox');
             // Pass baseSandbox instead of raw data
-            const sandbox = new BrowserSandbox(baseSandbox, config);
+            const sandbox = new BrowserSandbox(baseSandbox, cfg);
             return sandbox;
           }
           case TemplateType.AIO: {
             const { AioSandbox } = await import('./aio-sandbox');
             // Pass baseSandbox instead of raw data
-            const sandbox = new AioSandbox(baseSandbox, config);
+            const sandbox = new AioSandbox(baseSandbox, cfg);
             return sandbox;
           }
           case TemplateType.CUSTOM: {
             const { CustomSandbox } = await import('./custom-sandbox');
             // Pass baseSandbox instead of raw data
-            const sandbox = new CustomSandbox(baseSandbox, config);
+            const sandbox = new CustomSandbox(baseSandbox, cfg);
             return sandbox;
           }
         }

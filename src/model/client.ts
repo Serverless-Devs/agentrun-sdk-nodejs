@@ -80,9 +80,7 @@ export class ModelClient {
           input: createInput,
           config: cfg,
         });
-        const proxy = new ModelProxy();
-        Object.assign(proxy, result);
-        return proxy;
+        return new ModelProxy(result, cfg);
       } else {
         // 处理 ModelServiceCreateInput
         const modelServiceInput = input as ModelServiceCreateInput;
@@ -95,9 +93,7 @@ export class ModelClient {
           input: createInput,
           config: cfg,
         });
-        const service = new ModelService();
-        Object.assign(service, result);
-        return service;
+        return new ModelService(result, cfg);
       }
     } catch (e) {
       if (e instanceof HTTPError) {
@@ -136,9 +132,7 @@ export class ModelClient {
           modelProxyName: name,
           config: cfg,
         });
-        const proxy = new ModelProxy();
-        Object.assign(proxy, result);
-        return proxy;
+        return new ModelProxy(result, cfg);
       } catch (e) {
         if (e instanceof HTTPError) {
           error = e;
@@ -159,9 +153,7 @@ export class ModelClient {
         modelServiceName: name,
         config: cfg,
       });
-      const service = new ModelService();
-      Object.assign(service, result);
-      return service;
+      return new ModelService(result, cfg);
     } catch (e) {
       if (e instanceof HTTPError) {
         throw e.toResourceError('Model', name);
@@ -208,9 +200,7 @@ export class ModelClient {
           input: updateInput,
           config: cfg,
         });
-        const proxy = new ModelProxy();
-        Object.assign(proxy, result);
-        return proxy;
+        return new ModelProxy(result, cfg);
       } catch (e) {
         if (e instanceof HTTPError) {
           throw e.toResourceError('Model', name);
@@ -231,9 +221,7 @@ export class ModelClient {
           input: updateInput,
           config: cfg,
         });
-        const service = new ModelService();
-        Object.assign(service, result);
-        return service;
+        return new ModelService(result, cfg);
       } catch (e) {
         if (e instanceof HTTPError) {
           throw e.toResourceError('Model', name);
@@ -268,9 +256,7 @@ export class ModelClient {
           modelProxyName: name,
           config: cfg,
         });
-        const proxy = new ModelProxy();
-        Object.assign(proxy, result);
-        return proxy;
+        return new ModelProxy(result, cfg);
       } catch (e) {
         if (e instanceof HTTPError) {
           error = e;
@@ -291,9 +277,7 @@ export class ModelClient {
         modelServiceName: name,
         config: cfg,
       });
-      const service = new ModelService();
-      Object.assign(service, result);
-      return service;
+      return new ModelService(result, cfg);
     } catch (e) {
       if (e instanceof HTTPError) {
         throw e.toResourceError('Model', name);
@@ -328,11 +312,7 @@ export class ModelClient {
         input: request,
         config: cfg,
       });
-      return (result.items || []).map(item => {
-        const proxy = new ModelProxy();
-        Object.assign(proxy, item);
-        return proxy;
-      });
+      return (result.items || []).map(item => new ModelProxy(item, cfg));
     } else {
       // 处理 ModelServiceListInput 或无参数（默认列出 ModelService）
       const modelServiceInput = (input ?? {}) as ModelServiceListInput;
@@ -345,11 +325,7 @@ export class ModelClient {
         input: request,
         config: cfg,
       });
-      return (result.items || []).map(item => {
-        const service = new ModelService();
-        Object.assign(service, item);
-        return service;
-      });
+      return (result.items || []).map(item => new ModelService(item, cfg));
     }
   };
 }

@@ -6,7 +6,7 @@
  */
 
 import { Config } from '../utils/config';
-import { listAllResourcesFunction, ResourceBase } from '../utils/resource';
+import { listAllResourcesFunction, ResourceBase, updateObjectProperties } from '../utils/resource';
 import { ModelAPI } from './api/model-api';
 
 import {
@@ -48,11 +48,17 @@ export class ModelService
   modelType?: ModelServiceImmutableProps['modelType'];
 
   private modelApi: ModelAPI;
-  constructor() {
+  constructor(data?: any, config?: Config) {
     super();
     this.modelApi = new ModelAPI(this.modelInfo);
     this.completion = this.modelApi.completion;
     this.embedding = this.modelApi.embedding;
+    if (data) {
+      updateObjectProperties(this, data);
+    }
+    if (config) {
+      this._config = config;
+    }
   }
 
   completion: (typeof ModelAPI)['prototype']['completion'];
@@ -173,7 +179,7 @@ export class ModelService
     const result = await ModelService.update({
       name: this.modelServiceName,
       input,
-      config,
+      config: config ?? this._config,
     });
     this.updateSelf(result);
 
@@ -193,7 +199,7 @@ export class ModelService
 
     return await ModelService.delete({
       name: this.modelServiceName,
-      config: params?.config,
+      config: params?.config ?? this._config,
     });
   };
 
@@ -210,7 +216,7 @@ export class ModelService
 
     const result = await ModelService.get({
       name: this.modelServiceName,
-      config: params?.config,
+      config: params?.config ?? this._config,
     });
     this.updateSelf(result);
 

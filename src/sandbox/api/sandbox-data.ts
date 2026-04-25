@@ -63,7 +63,7 @@ export class SandboxDataAPI {
     config?: Config;
   }): Promise<void> {
     const { sandboxId, templateName, config } = params;
-    const cfg = Config.withConfigs(config, this.config);
+    const cfg = Config.withConfigs(this.config, config);
 
     const cacheKey = (sandboxId || templateName)!;
     const cachedToken = this.accessTokenMap.get(cacheKey);
@@ -424,6 +424,7 @@ export class SandboxDataAPI {
     return this.post({
       path: '/',
       data,
+      config: params.config,
     });
   };
 
@@ -436,7 +437,7 @@ export class SandboxDataAPI {
       config: params.config,
     });
 
-    return this.delete({ path: '/' });
+    return this.delete({ path: '/', config: params.config });
   };
 
   /**
@@ -448,7 +449,7 @@ export class SandboxDataAPI {
       config: params.config,
     });
 
-    return this.post({ path: '/stop' });
+    return this.post({ path: '/stop', config: params.config });
   };
 
   /**
@@ -460,6 +461,6 @@ export class SandboxDataAPI {
       config: params.config,
     });
 
-    return this.get({ path: '/' });
+    return this.get({ path: '/', config: params.config });
   };
 }

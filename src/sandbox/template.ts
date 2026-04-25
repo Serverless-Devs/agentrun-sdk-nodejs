@@ -163,7 +163,7 @@ export class Template extends ResourceBase implements TemplateData {
   get = async (params: { config?: Config } = {}): Promise<Template> => {
     return await Template.get({
       name: this.templateName!,
-      config: params.config,
+      config: params.config ?? this._config,
     });
   };
 
