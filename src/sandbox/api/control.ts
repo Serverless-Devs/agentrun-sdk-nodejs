@@ -273,9 +273,12 @@ export class SandboxControlAPI extends ControlAPI {
     const { input, headers, config } = params;
 
     try {
-      const client = this.getClient(config);
+      const cfg = Config.withConfigs(this.config, config);
+      const client = this.getClient(cfg);
+      // createSandbox should fail fast (default 30s) but honor an explicit
+      // readTimeout from the caller's Config when provided.
       const runtime = new $Util.RuntimeOptions({
-        readTimeout: 30000,
+        readTimeout: cfg.readTimeoutOr(30000),
       });
 
       const response = await client.createSandboxWithOptions(

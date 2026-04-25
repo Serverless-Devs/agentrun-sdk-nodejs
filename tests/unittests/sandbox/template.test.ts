@@ -725,6 +725,44 @@ describe('Template', () => {
       });
     });
 
+    describe('get (instance)', () => {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { Config } = require('../../../src/utils/config');
+
+      it('should fetch using params.config when provided', async () => {
+        mockClientGetTemplate.mockResolvedValue({
+          templateId: 'template-123',
+          templateName: 'test-template',
+        });
+
+        const instanceConfig = new Config({ accountId: 'instance-acc' });
+        const callConfig = new Config({ accountId: 'call-acc' });
+
+        const template = new Template({ templateName: 'test-template' }, instanceConfig);
+        await template.get({ config: callConfig });
+
+        expect(mockClientGetTemplate).toHaveBeenCalledWith(
+          expect.objectContaining({ config: callConfig })
+        );
+      });
+
+      it('should fall back to instance _config when params.config is missing', async () => {
+        mockClientGetTemplate.mockResolvedValue({
+          templateId: 'template-123',
+          templateName: 'test-template',
+        });
+
+        const instanceConfig = new Config({ accountId: 'instance-acc' });
+        const template = new Template({ templateName: 'test-template' }, instanceConfig);
+
+        await template.get();
+
+        expect(mockClientGetTemplate).toHaveBeenCalledWith(
+          expect.objectContaining({ config: instanceConfig })
+        );
+      });
+    });
+
     describe('waitUntilReady', () => {
       it('should return immediately if already ready', async () => {
         mockClientGetTemplate.mockResolvedValue({

@@ -157,7 +157,7 @@ export class AgentRuntimeEndpoint extends ResourceBase implements AgentRuntimeEn
     return await AgentRuntimeEndpoint.get({
       agentRuntimeId: this.agentRuntimeId!,
       endpointId: this.agentRuntimeEndpointId!,
-      config: params?.config,
+      config: params?.config ?? this._config,
     });
   };
 

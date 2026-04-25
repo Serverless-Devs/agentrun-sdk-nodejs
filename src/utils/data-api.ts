@@ -151,7 +151,7 @@ export class DataAPI {
         const { ControlAPI } = await import('./control-api');
         const $AgentRun = await import('@alicloud/agentrun20250910');
 
-        const cli = new ControlAPI(this.config).getClient();
+        const cli = new ControlAPI(cfg).getClient();
 
         const input =
           this.resourceType === ResourceType.Sandbox
@@ -260,13 +260,14 @@ export class DataAPI {
     headers?: Record<string, string>,
     config?: Config
   ): Promise<DataAPIResponse> {
+    const cfg = Config.withConfigs(this.config, config);
     const fullUrl = this.withPath(path, query);
     const {
       method: reqMethod,
       url: reqUrl,
       headers: reqHeaders,
       body: reqBody,
-    } = await this.prepareRequest(method, fullUrl, data, headers, undefined, config);
+    } = await this.prepareRequest(method, fullUrl, data, headers, undefined, cfg);
 
     const client = reqUrl.startsWith('https') ? https : http;
     const urlObj = new URL(reqUrl);
@@ -277,7 +278,7 @@ export class DataAPI {
       path: urlObj.pathname + urlObj.search,
       method: reqMethod,
       headers: reqHeaders,
-      timeout: this.config.timeout,
+      timeout: cfg.timeout,
     };
 
     return new Promise((resolve, reject) => {
@@ -429,6 +430,7 @@ export class DataAPI {
     headers?: Record<string, string>,
     config?: Config
   ): Promise<DataAPIResponse> {
+    const cfg = Config.withConfigs(this.config, config);
     const fullUrl = this.withPath(path, query);
     const { url: reqUrl, headers: reqHeaders } = await this.prepareRequest(
       'POST',
@@ -436,7 +438,7 @@ export class DataAPI {
       undefined,
       headers,
       undefined,
-      config
+      cfg
     );
 
     const client = reqUrl.startsWith('https') ? https : http;
@@ -455,7 +457,7 @@ export class DataAPI {
         path: urlObj.pathname + urlObj.search,
         method: 'POST',
         headers: contentHeaders,
-        timeout: this.config.timeout,
+        timeout: cfg.timeout,
       };
 
       const req = client.request(options, res => {
@@ -536,6 +538,7 @@ export class DataAPI {
     headers?: Record<string, string>,
     config?: Config
   ): Promise<FileDownloadResult> {
+    const cfg = Config.withConfigs(this.config, config);
     const fullUrl = this.withPath(path, query);
     const { url: reqUrl, headers: reqHeaders } = await this.prepareRequest(
       'GET',
@@ -543,7 +546,7 @@ export class DataAPI {
       undefined,
       headers,
       undefined,
-      config
+      cfg
     );
 
     const client = reqUrl.startsWith('https') ? https : http;
@@ -556,7 +559,7 @@ export class DataAPI {
         path: urlObj.pathname + urlObj.search,
         method: 'GET',
         headers: reqHeaders,
-        timeout: this.config.timeout,
+        timeout: cfg.timeout,
       };
 
       const req = client.request(options, res => {

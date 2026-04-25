@@ -232,7 +232,7 @@ export class ToolSet implements ToolSetData {
       return mcpTools.map((tool: any) => ToolInfo.fromMCPTool(tool));
     } else if (this.type() === ToolSetSchemaType.OPENAPI) {
       // OpenAPI tools - use toApiSet
-      const apiset = await this.toApiSet(params);
+      const apiset = await this.toApiSet({ config: params?.config ?? this._config });
       return apiset.tools;
     }
     return [];
@@ -255,7 +255,8 @@ export class ToolSet implements ToolSetData {
     args?: Record<string, unknown>,
     config?: Config
   ): Promise<any> => {
-    const apiset = await this.toApiSet({ config });
+    const effectiveConfig = config ?? this._config;
+    const apiset = await this.toApiSet({ config: effectiveConfig });
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { ToolSetSchemaType } = require('./model');
 
@@ -278,7 +279,7 @@ export class ToolSet implements ToolSetData {
     }
 
     logger.debug(`Invoke tool ${name} with arguments`, args);
-    const result = await apiset.invoke(name, args, config);
+    const result = await apiset.invoke(name, args, effectiveConfig);
     logger.debug(`Invoke tool ${name} got result`, result);
     return result;
   };
@@ -301,6 +302,8 @@ export class ToolSet implements ToolSetData {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { ToolSetSchemaType } = require('./model');
 
+    const baseConfig = params?.config ?? this._config;
+
     if (this.type() === ToolSetSchemaType.MCP) {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       const { MCPToolSet } = require('./api/mcp');
@@ -310,10 +313,7 @@ export class ToolSet implements ToolSetData {
         throw new Error('MCP server URL is missing.');
       }
 
-      const cfg = Config.withConfigs(
-        params?.config,
-        new Config({ headers: mcpServerConfig.headers })
-      );
+      const cfg = Config.withConfigs(baseConfig, new Config({ headers: mcpServerConfig.headers }));
 
       const mcpClient = new MCPToolSet(mcpServerConfig.url, cfg);
 
@@ -339,7 +339,7 @@ export class ToolSet implements ToolSetData {
         baseUrl: this._getOpenAPIBaseUrl(),
         headers,
         queryParams: query,
-        config: params?.config,
+        config: baseConfig,
       });
 
       // Convert OpenAPI tools to ToolInfo format
@@ -354,7 +354,7 @@ export class ToolSet implements ToolSetData {
           })
       );
 
-      return new ApiSet(tools, openapi, undefined, headers, query, params?.config);
+      return new ApiSet(tools, openapi, undefined, headers, query, baseConfig);
     }
 
     throw new Error(`Unsupported ToolSet type: ${this.type()}`);

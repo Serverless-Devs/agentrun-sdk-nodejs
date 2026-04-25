@@ -84,7 +84,7 @@ export class CredentialClient {
         config: cfg,
       });
 
-      return new Credential(result);
+      return new Credential(result, cfg);
     } catch (error) {
       if (error instanceof HTTPError) {
         throw error.toResourceError('Credential', params?.input?.credentialName);
@@ -106,7 +106,7 @@ export class CredentialClient {
         config: cfg,
       });
 
-      return new Credential(result);
+      return new Credential(result, cfg);
     } catch (error) {
       if (error instanceof HTTPError) {
         throw error.toResourceError('Credential', params?.name);
@@ -165,7 +165,7 @@ export class CredentialClient {
         config: cfg,
       });
 
-      return new Credential(result as any);
+      return new Credential(result as any, cfg);
     } catch (error) {
       if (error instanceof HTTPError) {
         throw error.toResourceError('Credential', params?.name);
@@ -187,7 +187,7 @@ export class CredentialClient {
         credentialName: name,
         config: cfg,
       });
-      return new Credential(result as any);
+      return new Credential(result as any, cfg);
     } catch (error) {
       if (error instanceof HTTPError) {
         throw error.toResourceError('Credential', params?.name);
